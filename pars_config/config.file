@@ -1,0 +1,64 @@
+server {
+    listen 1337 ;
+    server_name localhost ;
+    host 127.0.0.1 ;
+    root ./ ;
+    index index.html ;
+
+    location / {
+        allow_methods  DELETE POST GET ;
+        autoindex off ;
+    }
+
+    location /test {
+        autoindex on ;
+        root ./ ;
+        index tours1.html ;
+        allow_methods GET POST ;
+        return /cgi-bin/index.php ;
+    }
+
+    location /cgi-bin {
+        root ./ ;
+        allow_methods GET POST DELETE ;
+        index index.php ;
+        cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+    }
+}
+server {
+    listen 8080 ;
+    server_name localhost ;
+    host 127.0.0.1 ;
+    root ./ ;
+    index index.html ;
+	autoindex on ;
+
+    location / {
+        allow_methods  DELETE POST GET ;
+        autoindex off ;
+    }
+
+    location /test1.cpp {
+        allow_methods DELETE GET POST ;
+        autoindex off ;
+        index test.mp4 ;
+    }
+
+    location /test {
+        autoindex on ;
+        allow_methods DELETE GET POST ;
+    }
+
+     location /test1 {
+        autoindex on ;
+        allow_methods DELETE GET POST ;
+        return /test ;
+    }
+
+    location /cgi-bin {
+        root ./ ;
+        allow_methods GET POST DELETE ;
+        index index.php ;
+        cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+    }
+}
