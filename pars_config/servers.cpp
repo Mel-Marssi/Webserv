@@ -142,5 +142,14 @@ string servers::get_index(int server_key)
 	}
 	return ("false");
 }
+
+int servers::size()
+{
+	return ((int)server.size());
+}
+server_config &servers::operator[](int i)
+{
+	return server[i];
+}
 servers::~servers()
 {}

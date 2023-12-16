@@ -81,18 +81,18 @@ server_config::server_config(ifstream &config_fd)
 		else if (!word.empty())
 			throw runtime_error("Invalid configue file!");
 	}
-	cout << "-----------------------------------------------------------" <<endl;
-	cout << "Port : " <<  port << "\n";
-	cout << "server name: " << server_name << "\n" <<host << "\n";
-	cout << "root: " << root << "\n";
-	cout << "auto index : " << server_auto_index << "\n"; 
-	cout << "index: " << index <<endl;
-	for(int i = 0; i < (int)serv_locations.size();i++)
-	{
-		cout << serv_locations[i] <<endl;
-	}
+	// cout << "-----------------------------------------------------------" <<endl;
+	// cout << "Port : " <<  port << "\n";
+	// cout << "server name: " << server_name << "\n" <<host << "\n";
+	// cout << "root: " << root << "\n";
+	// cout << "auto index : " << server_auto_index << "\n"; 
+	// cout << "index: " << index <<endl;
+	// for(int i = 0; i < (int)serv_locations.size();i++)
+	// {
+	// 	cout << serv_locations[i] <<endl;
+	// }
 	
-	cout << "-----------------------------------------------------------" <<endl;
+	// cout << "-----------------------------------------------------------" <<endl;
 }
 
 

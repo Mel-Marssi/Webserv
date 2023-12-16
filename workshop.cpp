@@ -1,5 +1,5 @@
 #include"pars_config/servers.hpp"
-
+#include "multiplexing/multiplexing.hpp"
 int main(int ac , char **av)
 {
 	string tmp;
@@ -10,6 +10,7 @@ int main(int ac , char **av)
 	try
 	{
 		servers configs(tmp);
+		multiplexing tmp(configs);
 	}
 	catch(const std::exception& e)
 	{
