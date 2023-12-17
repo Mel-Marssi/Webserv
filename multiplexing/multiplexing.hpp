@@ -4,12 +4,14 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
+typedef vector<int>::iterator iterator_client;
 class multiplexing
 {
 	private:
-		vector<int> fd_socket;
+
 	public:
 		multiplexing( servers &config);
 		~multiplexing();
 };
+
 
