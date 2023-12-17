@@ -4,7 +4,7 @@ multiplexing::multiplexing( servers &config)
 {
 	int socket_fd[(int)config.size()];
 	struct sockaddr_in bind_socket;
-	int socket_server;
+	int socket_client;
 	socklen_t  lenght;
 		lenght = sizeof(bind_socket);
 	for(int i = 0; i < (int)config.size(); i++)
@@ -21,7 +21,7 @@ multiplexing::multiplexing( servers &config)
 				throw (runtime_error("bind call failed!"));
 			if (listen(socket_fd[i], 3) < 0)
 				throw (runtime_error("listen call failed!"));
-			if((socket_server = accept(socket_fd[i], NULL, NULL)) < 0)
+			if((socket_client = accept(socket_fd[i], NULL, NULL)) < 0)
 				throw (runtime_error("accept call failed!"));
 		}
 		catch(const std::exception& e)
@@ -29,9 +29,9 @@ multiplexing::multiplexing( servers &config)
 			std::cerr << e.what() << '\n';
 		}
 		
-		int fd = epoll_create();
-		epoll_ctl(fd, EPOLL_CTL_ADD, socket_server, )
-		fd_socket.push_back(socket_server);
+		// int fd = epoll_create();
+		// epoll_ctl(fd, EPOLL_CTL_ADD, socket_client, )
+		// fd_socket.push_back(socket_client);
 	}
 }
 
