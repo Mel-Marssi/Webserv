@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../pars_config/servers.hpp"
-#include <sys/socket.h>
-#include <sys/epoll.h>
+#include "request.hpp"
 
 typedef vector<int>::iterator iterator_client;
 class multiplexing
@@ -10,8 +8,11 @@ class multiplexing
 	private:
 
 	public:
+	 	
+		std::map<int, Request>  request;
 		multiplexing( servers &config);
 		~multiplexing();
+		
 };
 
 
