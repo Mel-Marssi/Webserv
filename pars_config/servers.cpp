@@ -8,6 +8,17 @@ servers::servers(const string &av)
 	{
 		server.push_back(server_config(config_fd));
 	}
+	for (server_iterator it = server.begin(); it != server.end(); it++)
+	{
+		int port = it->get_port();
+		string server_name = it->get_server_name();
+		string host =  it->get_host();
+		for(server_iterator it2 = it + 1; it2 != server.end(); it2++)
+		{
+			if (it2->get_host() == host && it2->get_port() == port && it2->get_server_name() == server_name)
+				throw (runtime_error("Invalid configue file!"));
+		}
+	}
 }
 
 

@@ -8,10 +8,10 @@ multiplexing::multiplexing(servers &config)
 	int wait_fd, set_socket = 1;
 	int fd_client;
 	int epoll_fd = epoll_create(1);
+	struct epoll_event event, event_wait[1024];
 	// size_read_request = 0;
 	if ( epoll_fd < 0)
 		throw (runtime_error("epoll_create() call failed!"));
-	struct epoll_event event, event_wait[1024];
 
 	for (int i = 0; i < config.size(); i++)
 	{
@@ -20,7 +20,7 @@ multiplexing::multiplexing(servers &config)
 		adress.sin_addr.s_addr = INADDR_ANY;
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
-
+		
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
 			throw(runtime_error("setsockopt() call failed!"));
 		if (bind(server_socket[i], (const sockaddr *)&adress, sizeof(adress)) < 0)
@@ -102,7 +102,7 @@ multiplexing::multiplexing(servers &config)
 				if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request)
 				{
 					// std::cout << "lllllllllll\n";
-					const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+					const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head></head><body><h1> HOME</h1><?php echo phpversion(); ?></body></html>";
 					send(event_wait[i].data.fd, n, 170, 0);
 					close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);

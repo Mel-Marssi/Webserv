@@ -27,7 +27,7 @@ server {
 }
 server {
     listen 8080 ;
-    server_name localhost ;
+    server_name test0 ;
     host 127.0.0.1 ;
     root ./ ;
     index index.html ;
