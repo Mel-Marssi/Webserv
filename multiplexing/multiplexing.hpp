@@ -1,5 +1,4 @@
 #pragma once
-#include <arpa/inet.h>
 
 #include "request.hpp"
 
@@ -9,11 +8,13 @@ class multiplexing
 	private:
 
 	public:
-	 	
 		std::map<int, Request>  request;
 		multiplexing( servers &config);
 		~multiplexing();
-		
+
+		//Get Methode======================
+        void fill_content_type();
+        std::map<std::string, std::string> cont_type;
 };
 
 

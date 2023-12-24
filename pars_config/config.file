@@ -13,9 +13,29 @@ server {
     location /test {
         autoindex on ;
         root ./ ;
-        index tours1.html ;
+        index fich.pdf ;
         allow_methods GET POST ;
-        return /cgi-bin/index.php ;
+    }
+
+    location /test2 {
+        autoindex on ;
+        root ./ ;
+        index ved.mp4 ;
+        allow_methods GET POST ;
+    }
+
+    location /root_page {
+        autoindex on ;
+        root ./ ;
+        index root.html ;
+        allow_methods GET POST ;
+    }
+
+    location /test4 {
+        autoindex on ;
+        root ./ ;
+        index ved.mp4 ;
+        allow_methods GET POST ;
     }
 
     location /cgi-bin {
@@ -60,5 +80,12 @@ server {
         allow_methods GET POST DELETE ;
         index index.php ;
         cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+    }
+
+    location /test9 {
+        autoindex on ;
+        root ./ ;
+        index ved.mp4 ;
+        allow_methods GET POST ;
     }
 }
