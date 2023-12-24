@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <dirent.h>
 #include <deque>
+#include <sstream>
+#include <sys/stat.h>
 #define POST "POST"
 #define GET "GET"
 #define DELETE "DELETE"

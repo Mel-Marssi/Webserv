@@ -29,11 +29,11 @@ void Request::root_page(epoll_event &event, int epoll_fd, servers &config)
                     size_t s = name.find(".");
                     if (s == string::npos)
                     {
-                        head += "<p> <a href=https:localhost:1337/test2/ved.mp4>"+ name +"</a> </p>";
+                        head += "<p> <a href=https:www.youtube.com>"+ name +"</a> </p>";
                     }
                     else
                     {
-                        head += "<p> <a href=https:localhost:1337/test2/ved.mp4>"+ name +"</a> </p>";
+                        head += "<p> <a href=/test/fich.pdf>"+ name +"</a> </p>";
                     }
                 }
             }

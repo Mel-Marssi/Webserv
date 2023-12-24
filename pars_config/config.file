@@ -17,24 +17,10 @@ server {
         allow_methods GET POST ;
     }
 
-    location /test2 {
-        autoindex on ;
-        root ./ ;
-        index ved.mp4 ;
-        allow_methods GET POST ;
-    }
-
     location /root_page {
         autoindex on ;
         root ./ ;
         index root.html ;
-        allow_methods GET POST ;
-    }
-
-    location /test4 {
-        autoindex on ;
-        root ./ ;
-        index ved.mp4 ;
         allow_methods GET POST ;
     }
 

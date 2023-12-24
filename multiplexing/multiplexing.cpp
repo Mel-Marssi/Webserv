@@ -133,7 +133,7 @@ multiplexing::multiplexing(servers &config)
 				}
 				// else
 				// 	cout << "=======================||||||||||=================\n";
-				// request[event_wait[i].data.fd].read_request.erase();
+				request[event_wait[i].data.fd].read_request.erase();
 			}
 			}
 		}

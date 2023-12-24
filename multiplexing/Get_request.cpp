@@ -25,13 +25,14 @@ void    Request::parse_url_prot()
         this->file_get.insert(0, this->Path, i + 1, this->Path.length());
         this->Path.erase(i, this->Path.length());
     }
+    cout << this->Path << "\t" << endl;
 }
 
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     check_req = 1;
     this->parse_url_prot();
-    cout << config.get_loc_root(Path) << endl;
+    // cout << config.get_loc_root(Path) << endl;
     // if (config.get_loc_root(Path) != "")
     //     root_page(event, epoll_fd, config);
     this->full_Path.erase(0,1);
@@ -57,11 +58,15 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             entre_or_not = 1;
                             string head;
                             // //to get the size =======
-                            op.seekg(0, ios::end);
-                            streampos fileSize = op.tellg();
-                            op.seekg(0, ios::beg);
+                            // op.seekg(0, ios::end);
+                            // streampos fileSize = op.tellg();
+                            // op.seekg(0, ios::beg);
+                            struct stat fileStat;
+                            stat(this->full_Path.c_str(), &fileStat);
+                            std::stringstream fileSize;
+                            fileSize << fileStat.st_size;
                             // //=======================
-
+                            
                             char buffer[1024];
                             op.read(buffer, 1024);
                             line.append(buffer, 1024);
@@ -69,8 +74,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             con_type = get_content_type(m);
                             head += con_type;
                             head += "\r\nContent-Lenght:";
-                            size_t len = (size_t)fileSize;
-                            head += len;
+                            size_t len;// = (size_t)filStat.st_size;
+                            head += fileSize.str();
                             head += "\r\n\r\n";
                             head += line;
                             len = head.length();
@@ -97,8 +102,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 }
                 if (entre_or_not == 0 && config.get_loc_auto_index(this->Path) == 1)
                 {
-                    cout << "==============\n";
-                    // root_page(event, epoll_fd, config);
+                    // cout << "==============\n";
+                    root_page(event, epoll_fd, config);
         // error_page(event, epoll_fd);
                 
                 }
