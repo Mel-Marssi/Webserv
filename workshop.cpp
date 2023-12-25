@@ -18,3 +18,5 @@ int main(int ac , char **av)
 	}
 	
 }
+
+//printf "GET /test/fich.pdf  HTTP/1.1 \r\n\r\n" | nc localhost 1337

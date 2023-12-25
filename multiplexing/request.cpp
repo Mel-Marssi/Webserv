@@ -2,45 +2,47 @@
 
 Request::Request()
 {
-      size_read = 0;
-      size_read_request = 0;
-      size_request = 0;
-      check_left_header = 0;
-      check_create_file = 0;
-      check_first_line = 0;
-        kk = 0;
+    size_read = 0;
+    size_read_request = 0;
+    size_request = 0;
+    check_left_header = 0;
+    check_create_file = 0;
+    check_first_line = 0;
+    kk = 0;
     fin_or_still = Still;
     check_req = 0;
     len = 0;
     // check_first_time = 0;
     // counter = 0;
     entre_or_not = 0;
-      fir_body = "NULL";
-      dire = NULL;
-      exten = "";
-      read_request = "";
+    fir_body = "NULL";
+    dire = NULL;
+    exten = "";
+    read_request = "";
+    ck = 0;
 }
 
 Request::Request(const Request& obj)
 {
-      read_request = "";
-      exten = "";
-      size_read = 0;
-      size_read_request = 0;
-      size_request = 0;
-      check_left_header = 0;
-      check_create_file = 0;
-      check_first_line = 0;
-        kk = 0;
+    ck = 0;
+    read_request = "";
+    exten = "";
+    size_read = 0;
+    size_read_request = 0;
+    size_request = 0;
+    check_left_header = 0;
+    check_create_file = 0;
+    check_first_line = 0;
+    kk = 0;
     len = 0;
-      dire = NULL;
+    dire = NULL;
 
-        fin_or_still = Still;
-        // check_first_time = 0;
-        // counter = obj.counter;
-        check_req = 0;
-        entre_or_not = 0;
-      fir_body = "NULL";
+    fin_or_still = Still;
+    // check_first_time = 0;
+    // counter = obj.counter;
+    check_req = 0;
+    entre_or_not = 0;
+    fir_body = "NULL";
       (void) obj;
 }
  
@@ -132,7 +134,7 @@ int Request::parce_request(std::string read_request)
     if (check_body != std::string::npos)
     {
         this->fir_body = read_request.substr(check_body + 3, read_request.length());
-        cout <<">>>>>>>>" <<  fir_body << endl;
+        // cout <<">>>>>>>>" <<  fir_body << endl;
     }
     
     return 0;

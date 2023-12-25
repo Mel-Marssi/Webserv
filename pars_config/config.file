@@ -17,11 +17,19 @@ server {
         allow_methods GET POST ;
     }
 
+    location /multiplexing {
+        autoindex on ;
+        root ./ ;
+        index Content_type.cpp ;
+        allow_methods GET POST ;
+    }
+
     location /root_page {
         autoindex on ;
         root ./ ;
         index root.html ;
         allow_methods GET POST ;
+        return /test/fich.pdf ;
     }
 
     location /cgi-bin {
@@ -29,6 +37,13 @@ server {
         allow_methods GET POST DELETE ;
         index index.php ;
         cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+    }
+
+    location /page_er {
+        autoindex on ;
+        root ./root_page ;
+        index file.html ;
+        allow_methods GET POST ;
     }
 }
 server {

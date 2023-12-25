@@ -41,6 +41,7 @@ multiplexing::multiplexing(servers &config)
 		{
 			if(event_wait[i].data.fd <= server_socket[config.size() - 1])
 			{
+			// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << wait_fd << endl; 
 				if ((fd_client = accept(event_wait[i].data.fd, NULL, NULL)) < 0)
 					continue;
 				event.data.fd = fd_client;
@@ -52,6 +53,7 @@ multiplexing::multiplexing(servers &config)
 			}
 			else
 			{	
+				// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << fd_client << endl;
 				//======== GET =============
 				// request[event_wait[i].data.fd].fin_or_still = Still;
 				// request[event_wait[i].data.fd].check_first_time = 0;
@@ -69,8 +71,8 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
 					request[event_wait[i].data.fd].kk = 1;
-				// cout << request[event_wait[i].data.fd].methode << "======-------"<< endl;
-				cout << buff << endl;
+				cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				// cout << buff << endl;
 				// cout << endl;
 				}
 				// if (request[event_wait[i].data.fd].methode == "POST")

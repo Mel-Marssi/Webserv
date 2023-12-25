@@ -53,7 +53,7 @@ class Request
         // std::string get_content_type(string s, map<string, string>& m);
         std::string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config);
-        void root_page(epoll_event &event, int epoll_fd, servers &config);
+        void root_page(epoll_event &event, int epoll_fd, std::string Pat);
 
 
         std::string fin_or_still;
@@ -67,4 +67,5 @@ class Request
         int entre_or_not;
         size_t len;
         streampos fileSize;
+        int ck;
 };
