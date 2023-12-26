@@ -51,7 +51,6 @@ std::string Request::read_buff(map<string, string> &m)
     con_type = get_content_type(m);
     head += con_type;
     head += "\r\nContent-Lenght:";
-    // size_t len;
     head += fileSize.str();
     head += "\r\n\r\n";
     head += line;
@@ -113,11 +112,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config);
     }
-    else
+    else if (config.get_loc_get(this->Path))
     {
-        this->Path = config.get_root(config[1].get_port());
-        cout << "--------------> " << config.get_port() <<endl;
-        this->file_get = config.get_index(config[1].get_port());
+        this->Path = config.get_root(config[0].get_port());
+        this->file_get = config.get_index(config[0].get_port());
 
         dire = opendir(Path.c_str());
         if (dire)
@@ -152,6 +150,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             error_page(event, epoll_fd);
     }
+    else
+        error_page(event, epoll_fd);
     (void)m;
 }
 

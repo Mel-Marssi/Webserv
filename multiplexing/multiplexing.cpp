@@ -71,7 +71,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
 					request[event_wait[i].data.fd].kk = 1;
-				cout << buff << "\n\n---"<< endl;
+				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
 				// cout << buff << endl;
 				// cout << endl;
 				}
