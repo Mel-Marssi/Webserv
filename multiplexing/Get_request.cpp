@@ -30,7 +30,6 @@ void    Request::parse_url_prot()
 
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
-    cout << "======---------------\n";
     check_req = 1;
     this->parse_url_prot();
     string root = config.get_loc_root(this->Path);
@@ -38,7 +37,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         this->full_Path.erase(0,1);
 
     this->full_Path.insert(0, root);
-    if (config.get_loc_get(this->Path) && this->file_get != "")
+    if (config.get_loc_get(this->Path))
     {
         if (config.get_loc_redirection(this->Path) == "")
         {
@@ -48,8 +47,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             dire = opendir(this->full_Path.c_str());
             if (dire)
             {   
+                cout <<"======---------------\n";
                 op.open((this->full_Path + "/" +this->file_get).c_str());
-                if (op.is_open())
+                if (op.is_open() && this->file_get != "")
                 {
                     entre_or_not = 1;
                     string head;

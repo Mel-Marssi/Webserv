@@ -22,7 +22,6 @@ multiplexing::multiplexing(servers &config)
 
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
 			throw(runtime_error("setsockopt() call failed!"));
-		cout << (const sockaddr *)&adress <<endl;
 		if (bind(server_socket[i], (const sockaddr *)&adress, sizeof(adress)) < 0)
 			throw(runtime_error("bind() call failed!"));
 		if (listen(server_socket[i], 0) < 0)
