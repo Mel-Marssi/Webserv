@@ -17,9 +17,9 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         head += buffer;
         head += "<h1> Files Existent on the " + Pat + "</h1>";
         dire = opendir(Pat.c_str());
-        cout << Pat << "\thhhhhhhhhhhhhh\n";
         if (dire)
         {
+        // cout << Pat << "\thhhhhhhhhhhhhh\n";
             struct dirent* entre;
             
             while ((entre = readdir(dire)) != NULL)
@@ -31,17 +31,18 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     if (s == string::npos)
                     {
                         // head += "<p> <a href=https:www.youtube.com>"+ name +"</a> </p>";
-                        cout << Path << "\t-------------\t" << name << endl;
-                        head += "<p> <a href= https://localhost:1337/" +  name +">"+ name +"</a> </p>";
+                        // cout << Path << "\t-------------\t" << name << endl;
+                        head += "<p> <a href= http://localhost:1337/" +  name +">"+ name +"</a> </p>";
                     }
                     else
                     {
-                        head += "<p> <a href= https://localhost:1337/" + this->full_Path + "/" + name + ">" + name +"</a> </p>";
+                        head += "<p> <a href= http://localhost:1337/" + this->full_Path + "/" + name + ">" + name +"</a> </p>";
                     }
                 }
             }
             len = head.length();
             send(event.data.fd, head.c_str(), len, 0);
+                    check_req = 0;
         }
         
         // cout << "dkjoooooooooooooool\n";

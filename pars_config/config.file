@@ -20,7 +20,7 @@ server {
     location /multiplexing {
         autoindex on ;
         root ./ ;
-        index Content_type.cpp ;
+        index Content_tye.cpp ;
         allow_methods GET POST ;
     }
 

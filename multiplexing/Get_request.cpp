@@ -12,6 +12,7 @@ void    Request::parse_url_prot()
     it = header_request.find("GET");
     if(it->first == "GET")
     {
+        cout << it->second << endl;
         i = it->second.find(" ");
         this->Path.insert(0, it->second, 0, i);
         i++;
@@ -26,11 +27,12 @@ void    Request::parse_url_prot()
         this->Path.erase(i, this->Path.length());
         this->full_Path = this->Path;
     }
+    else
+        this->full_Path = this->Path;
 }
 
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
-    check_req = 1;
     this->parse_url_prot();
     string root = config.get_loc_root(this->Path);
     if (root[root.length() - 1] == '/')
@@ -46,13 +48,13 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             // cout << this->full_Path << "\t" << this->Path << "\t" << this->file_get << endl;
             dire = opendir(this->full_Path.c_str());
             if (dire)
-            {   
-                cout <<"======---------------\n";
+            {
                 op.open((this->full_Path + "/" +this->file_get).c_str());
                 if (op.is_open() && this->file_get != "")
                 {
                     entre_or_not = 1;
                     string head;
+                    check_req = 1;
                     // //to get the size =======
                     // op.seekg(0, ios::end);
                     // streampos fileSize = op.tellg();
@@ -90,7 +92,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 }
                 else if (config.get_loc_auto_index(this->Path) == 1)
                 {
-                    cout << (this->full_Path + "/" +this->file_get) <<"\t====================\n";
+                    // cout << (this->full_Path + "/" +this->file_get) <<"\t====================\n";
+                    // cout << "====================\n";
                     closedir(dire);
                     dire = NULL;
                     root_page(event, epoll_fd, this->full_Path); 
@@ -115,6 +118,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
 
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
+    // cout << "dkhoooooooooooooooooool\n";
     if (op.is_open())
     {
         char buffer[1024];
