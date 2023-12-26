@@ -137,7 +137,10 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_wait[i].data.fd].methode == "NONE")
 				{
 					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400");
-					
+					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+						if (it != request.end())
+							request.erase(it);
+						request[event_wait[i].data.fd].read_request = "";
 				}
 				// else
 				// 	cout << "=======================||||||||||=================\n";
