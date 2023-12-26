@@ -79,8 +79,8 @@ location::location(ifstream &config_fd, string &word_serv)
 					_post = true;
 				else if (word == "DELETE")
 					_delete =  true;
-				// else if (word != ";")
-				// 	throw(runtime_error("Invalide configue file!"));
+				else if (word != ";")
+					throw(runtime_error("Invalide configue file!"));
 			}
 		}
 		else if (word == "autoindex")
