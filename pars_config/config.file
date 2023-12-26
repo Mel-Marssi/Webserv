@@ -1,6 +1,6 @@
 server {
     listen 1337 ;
-    server_name test ;
+    server_name localhost ;
     host 127.0.0.1 ;
     root ./ ;
     index fich.pdf ;
