@@ -78,10 +78,6 @@ int Request::parse_line(std::string line, int check_first)
         {
             this->methode = NONE;
         }
-        if (this->methode == NONE)
-        {
-            std::cout << "Bad request------------------\n";   
-        }
     }
     else
     {

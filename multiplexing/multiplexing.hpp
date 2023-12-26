@@ -15,6 +15,7 @@ class multiplexing
 		//Get Methode======================
         void fill_content_type();
         std::map<std::string, std::string> cont_type;
+        // std::map<std::string, std::string> status_code;
 };
 
 

@@ -49,12 +49,15 @@ class Request
         void parse_url_prot();
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
-        void error_page(epoll_event &event, int epoll_fd);
+        void error_page(epoll_event &event, int epoll_fd, string key);
         // std::string get_content_type(string s, map<string, string>& m);
         std::string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config);
         void root_page(epoll_event &event, int epoll_fd, std::string Pat);
         std::string read_buff(map<string, string> &m);
+        std::map<std::string, std::string> status_code;
+        void fill_status_code();
+        string get_status_code(string key);
 
         std::string fin_or_still;
         size_t check_first_time;

@@ -17,6 +17,27 @@ void multiplexing::fill_content_type()
     cont_type["zip"] = "application/zip";
 }
 
+void Request::fill_status_code()
+{
+    //===================== status ====================
+    status_code["404"] = "Not Found";
+    status_code["200"] = "OK";
+    status_code["301"] = "Moved Permanently";
+    status_code["403"] = "Forbidden";
+    status_code["400"] = "Bad Request";
+    status_code["404"] = "Not Found";
+}
+
+string Request::get_status_code(string key)
+{
+    map<string, string>::iterator it;
+
+    it = status_code.find(key);
+    if (it != status_code.end())
+        return (it->second);
+    return ("NULL");
+}
+
 string Request::get_content_type(map<string, string>& m)
 {
     map<string, string>::iterator it;

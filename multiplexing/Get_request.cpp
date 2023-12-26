@@ -12,13 +12,11 @@ void    Request::parse_url_prot()
     it = header_request.find("GET");
     if(it->first == "GET")
     {
-        // cout << it->second << endl;
         i = it->second.find(" ");
         this->Path.insert(0, it->second, 0, i);
         i++;
         this->Protocole.insert(0, it->second, i, it->second.length());
     }
-    // cout << this->full_Path << "\t" << endl;
     i = 1;
     i = this->Path.find("/", i);
     if (i != string::npos)
@@ -67,6 +65,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     this->full_Path.insert(0, root);
     if (config.get_loc_get(this->Path) && (config.get_loc_root(this->Path) != ""))
     {
+        cout << config.get_loc_root(this->Path) << "\t" << this->Path <<"\t===============\n";
         if (config.get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
@@ -103,11 +102,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 {
                     closedir(dire);
                     dire = NULL;
-                    error_page(event, epoll_fd);
+                    error_page(event, epoll_fd, "404");
                 }
             }    
             else
-                error_page(event, epoll_fd);
+                error_page(event, epoll_fd, "404");
         }
         else
             redirection_content(event, epoll_fd, config);
@@ -148,10 +147,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 root_page(event, epoll_fd, this->Path);
         }
         else
-            error_page(event, epoll_fd);
+            error_page(event, epoll_fd, "404");
     }
     else
-        error_page(event, epoll_fd);
+        error_page(event, epoll_fd, "404");
     (void)m;
 }
 
@@ -183,7 +182,7 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
     }
 }
 
-void Request::error_page(epoll_event &event, int epoll_fd)
+void Request::error_page(epoll_event &event, int epoll_fd, string key)
 {
     std::ifstream op("./prblm/file_not_found.html");
     if (op.is_open() && fin_or_still != finish)
@@ -191,7 +190,12 @@ void Request::error_page(epoll_event &event, int epoll_fd)
         string head;
         getline(op, line, '\0');
         size_t len = line.length();
-        head += "HTTP/1.1 404 Not Found\r\nContent-Type:  text/html\r\nContent-Lenght:";
+        // head += "HTTP/1.1 404 Not Found\r\nContent-Type:  text/html\r\nContent-Lenght:";
+        head += "HTTP/1.1 ";
+        head += key;
+        head += get_status_code(key);
+        head += "\r\n";
+        head += "Content-Type:  text/html\r\nContent-Lenght:";
         head += len;
         head += "\r\n\r\n";
         head += line;

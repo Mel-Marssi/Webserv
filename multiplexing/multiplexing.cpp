@@ -120,7 +120,7 @@ multiplexing::multiplexing(servers &config)
 				// }
 				if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
 				{
-					
+					request[event_wait[i].data.fd].fill_status_code();
 					if (request[event_wait[i].data.fd].check_req == 0)
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
 					else if (request[event_wait[i].data.fd].check_req == 1)
@@ -133,6 +133,11 @@ multiplexing::multiplexing(servers &config)
 						request[event_wait[i].data.fd].read_request = "";
 					}
 					// cout << request[event_wait[i].data.fd].header_request << endl;
+				}
+				if (request[event_wait[i].data.fd].methode == "NONE")
+				{
+					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400");
+					
 				}
 				// else
 				// 	cout << "=======================||||||||||=================\n";
