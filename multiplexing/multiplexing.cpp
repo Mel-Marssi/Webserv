@@ -22,6 +22,7 @@ multiplexing::multiplexing(servers &config)
 
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
 			throw(runtime_error("setsockopt() call failed!"));
+		cout << (const sockaddr *)&adress <<endl;
 		if (bind(server_socket[i], (const sockaddr *)&adress, sizeof(adress)) < 0)
 			throw(runtime_error("bind() call failed!"));
 		if (listen(server_socket[i], 0) < 0)
@@ -71,7 +72,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
 					request[event_wait[i].data.fd].kk = 1;
-				cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
 				// cout << buff << endl;
 				// cout << endl;
 				}
