@@ -19,7 +19,7 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         dire = opendir(Pat.c_str());
         if (dire)
         {
-        // cout << Pat << "\thhhhhhhhhhhhhh\n";
+        cout << Pat << "\thhhhhhhhhhhhhh\n";
             struct dirent* entre;
             
             while ((entre = readdir(dire)) != NULL)

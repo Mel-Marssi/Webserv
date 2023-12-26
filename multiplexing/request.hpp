@@ -54,7 +54,7 @@ class Request
         std::string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config);
         void root_page(epoll_event &event, int epoll_fd, std::string Pat);
-
+        std::string read_buff(map<string, string> &m);
 
         std::string fin_or_still;
         size_t check_first_time;

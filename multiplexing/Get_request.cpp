@@ -12,7 +12,7 @@ void    Request::parse_url_prot()
     it = header_request.find("GET");
     if(it->first == "GET")
     {
-        cout << it->second << endl;
+        // cout << it->second << endl;
         i = it->second.find(" ");
         this->Path.insert(0, it->second, 0, i);
         i++;
@@ -31,6 +31,33 @@ void    Request::parse_url_prot()
         this->full_Path = this->Path;
 }
 
+std::string Request::read_buff(map<string, string> &m)
+{
+    string head;
+    // //to get the size =======
+    // op.seekg(0, ios::end);
+    // streampos fileSize = op.tellg();
+    // op.seekg(0, ios::beg);
+    struct stat fileStat;
+    stat(this->full_Path.c_str(), &fileStat);
+    std::stringstream fileSize;
+    fileSize << fileStat.st_size;
+    // //=======================
+
+    char buffer[1024];
+    op.read(buffer, 1024);
+    line.append(buffer, 1024);
+    head += "HTTP/1.1 200 ok\r\nContent-Type: ";
+    con_type = get_content_type(m);
+    head += con_type;
+    head += "\r\nContent-Lenght:";
+    // size_t len;
+    head += fileSize.str();
+    head += "\r\n\r\n";
+    head += line;
+    return (head);
+}
+
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     this->parse_url_prot();
@@ -39,13 +66,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         this->full_Path.erase(0,1);
 
     this->full_Path.insert(0, root);
-    if (config.get_loc_get(this->Path))
+    if (config.get_loc_get(this->Path) && (config.get_loc_root(this->Path) != ""))
     {
         if (config.get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
-            // dire = opendir((str.erase(0,1)).c_str());
-            // cout << this->full_Path << "\t" << this->Path << "\t" << this->file_get << endl;
             dire = opendir(this->full_Path.c_str());
             if (dire)
             {
@@ -53,29 +78,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 if (op.is_open() && this->file_get != "")
                 {
                     entre_or_not = 1;
-                    string head;
                     check_req = 1;
-                    // //to get the size =======
-                    // op.seekg(0, ios::end);
-                    // streampos fileSize = op.tellg();
-                    // op.seekg(0, ios::beg);
-                    struct stat fileStat;
-                    stat(this->full_Path.c_str(), &fileStat);
-                    std::stringstream fileSize;
-                    fileSize << fileStat.st_size;
-                    // //=======================
-                    
-                    char buffer[1024];
-                    op.read(buffer, 1024);
-                    line.append(buffer, 1024);
-                    head += "HTTP/1.1 200 ok\r\nContent-Type: ";
-                    con_type = get_content_type(m);
-                    head += con_type;
-                    head += "\r\nContent-Lenght:";
-                    size_t len;// = (size_t)filStat.st_size;
-                    head += fileSize.str();
-                    head += "\r\n\r\n";
-                    head += line;
+                    string head = read_buff(m);
                     len = head.length();
 
                     send(event.data.fd, head.c_str(), len, 0);
@@ -92,8 +96,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 }
                 else if (config.get_loc_auto_index(this->Path) == 1)
                 {
-                    // cout << (this->full_Path + "/" +this->file_get) <<"\t====================\n";
-                    // cout << "====================\n";
                     closedir(dire);
                     dire = NULL;
                     root_page(event, epoll_fd, this->full_Path); 
@@ -112,13 +114,49 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             redirection_content(event, epoll_fd, config);
     }
     else
-        error_page(event, epoll_fd);
+    {
+        this->Path = config.get_root(config[1].get_port());
+        cout << "--------------> " << config.get_port() <<endl;
+        this->file_get = config.get_index(config[1].get_port());
+
+        dire = opendir(Path.c_str());
+        if (dire)
+        {
+            string str;
+            if (Path[Path.length() - 1] == '/')
+                str = Path + file_get;
+            else
+                str = Path + "/" + file_get;
+            op.open(str.c_str());
+            if (op.is_open())
+            {
+                check_req = 1;
+                string head = read_buff(m);
+                len = head.length();
+
+                send(event.data.fd, head.c_str(), len, 0);
+                line = "";
+                if (op.eof())
+                {
+                    fin_or_still = finish;
+                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
+                    close(event.data.fd);
+                    op.close();
+                    closedir(dire);
+                    dire = NULL;
+                }
+            }
+            else
+                root_page(event, epoll_fd, this->Path);
+        }
+        else
+            error_page(event, epoll_fd);
+    }
     (void)m;
 }
 
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
-    // cout << "dkhoooooooooooooooooool\n";
     if (op.is_open())
     {
         char buffer[1024];

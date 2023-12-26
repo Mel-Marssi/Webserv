@@ -1,26 +1,19 @@
 server {
     listen 1337 ;
-    server_name localhost ;
+    server_name test ;
     host 127.0.0.1 ;
     root ./ ;
-    index index.html ;
+    index fich.pdf ;
 
     location / {
         allow_methods  DELETE POST GET ;
-        autoindex off ;
-    }
-
-    location /test {
         autoindex on ;
-        root ./ ;
-        index fich.pdf ;
-        allow_methods GET POST ;
     }
 
     location /multiplexing {
         autoindex on ;
         root ./ ;
-        index Content_tye.cpp ;
+        index Content_type.cpp ;
         allow_methods GET POST ;
     }
 

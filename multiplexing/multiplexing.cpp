@@ -14,7 +14,7 @@ multiplexing::multiplexing(servers &config)
 
 	for (int i = 0; i < config.size(); i++)
 	{
-		if ((server_socket[i] = socket(AF_INET,SOCK_STREAM, 0)) < 0)
+		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw (runtime_error("socket() call failed!"));
 		adress.sin_addr.s_addr = INADDR_ANY;
 		adress.sin_family = AF_INET;
@@ -71,7 +71,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
 					request[event_wait[i].data.fd].kk = 1;
-				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				cout << buff << "\n\n---"<< endl;
 				// cout << buff << endl;
 				// cout << endl;
 				}
@@ -120,6 +120,7 @@ multiplexing::multiplexing(servers &config)
 				// }
 				if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
 				{
+					
 					if (request[event_wait[i].data.fd].check_req == 0)
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
 					else if (request[event_wait[i].data.fd].check_req == 1)
