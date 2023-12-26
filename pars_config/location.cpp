@@ -79,6 +79,8 @@ location::location(ifstream &config_fd, string &word_serv)
 					_post = true;
 				else if (word == "DELETE")
 					_delete =  true;
+				// else if (word != ";")
+				// 	throw(runtime_error("Invalide configue file!"));
 			}
 		}
 		else if (word == "autoindex")
@@ -88,21 +90,33 @@ location::location(ifstream &config_fd, string &word_serv)
 				_auto_index = true;
 			else if (word != "off")
 				throw(runtime_error("Invalid autoindex!"));
+			cscan >> word;
+				if (word != ";")
+					throw(runtime_error("Invalid configue file!"));
 		}
 		else if(word == "root")
 		{
 			cscan >> word;
 			root = word;
+			cscan >> word;
+			if (word != ";")
+				throw(runtime_error("Invalid configue file!"));
 		}
 		else if (word == "index")
 		{
 			cscan >> word;
 			index = word;
+			cscan >> word;
+			if (word != ";")
+				throw(runtime_error("Invalid configue file!"));
 		}
 		else if(word == "return")
 		{
 			cscan >> word;
 			redirection = word;
+			cscan >> word;
+			if (word != ";")
+				throw(runtime_error("Invalid configue file!"));
 		}
 		else if (word == "cgi_path")
 		{
