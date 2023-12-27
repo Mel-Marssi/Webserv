@@ -33,6 +33,7 @@ multiplexing::multiplexing(servers &config)
 	}
 	//Methode GET fill Content Type : =======================
 	this->fill_content_type();
+	// ofstream ou("file.txt");
 	//================================================
 	for (;;)
 	{
@@ -41,9 +42,9 @@ multiplexing::multiplexing(servers &config)
 		{
 			if(event_wait[i].data.fd <= server_socket[config.size() - 1])
 			{
-			// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << wait_fd << endl; 
 				if ((fd_client = accept(event_wait[i].data.fd, NULL, NULL)) < 0)
 					continue;
+				cout << fd_client << "-------------" << endl;
 				event.data.fd = fd_client;
 				event.events =  EPOLLIN | EPOLLOUT;
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
@@ -66,13 +67,16 @@ multiplexing::multiplexing(servers &config)
 				// cout << event_wait[i].data.fd << "\t----------------------\t" << request[event_wait[i].data.fd].kk << endl;
 				if (request[event_wait[i].data.fd].kk == 0)
 				{
-					size = read(event_wait[i].data.fd, buff, 1024);
+					request[event_wait[i].data.fd].kk = 1;
+					// cout << "READ HANGING |||||\t" << event_wait[i].data.fd << "\t" << request[event_wait[i].data.fd].kk <<endl;
+					if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
+						break ;
+					// cout << "READ SIZE --------------===---------\t" << size <<endl;
+					// cout << buff << endl;
 					request[event_wait[i].data.fd].size_read_request += size;
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-					request[event_wait[i].data.fd].kk = 1;
-				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
-				// cout << buff << endl;
+				cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
 				// cout << endl;
 				}
 				// if (request[event_wait[i].data.fd].methode == "POST")
@@ -130,7 +134,8 @@ multiplexing::multiplexing(servers &config)
 						std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
 						if (it != request.end())
 							request.erase(it);
-						request[event_wait[i].data.fd].read_request = "";
+						// request[event_wait[i].data.fd].read_request = "";
+						request[event_wait[i].data.fd].read_request.erase();
 					}
 					// cout << request[event_wait[i].data.fd].header_request << endl;
 				}
@@ -140,11 +145,11 @@ multiplexing::multiplexing(servers &config)
 					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
 						if (it != request.end())
 							request.erase(it);
-						request[event_wait[i].data.fd].read_request = "";
+					request[event_wait[i].data.fd].read_request = "";
 				}
 				// else
-				// 	cout << "=======================||||||||||=================\n";
 				request[event_wait[i].data.fd].read_request.erase();
+
 			}
 			}
 		}

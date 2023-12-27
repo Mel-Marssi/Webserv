@@ -82,9 +82,9 @@ int Request::parse_line(std::string line, int check_first)
     else
     {
         size_t found_POINT = line.find(":");
-        header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length()).c_str())));
+        cout << found_POINT << " " << line.length() << " ---\n";
+        header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length() - 1).c_str())));
     }
- 
     return 0;
 }
 

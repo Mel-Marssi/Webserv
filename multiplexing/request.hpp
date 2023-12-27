@@ -45,6 +45,9 @@ class Request
         std::string Protocole;
         std::string file_get;
         std::string full_Path;
+        //Config_file :
+        std::string Host, server_name;
+        std::string Port;
         
         void parse_url_prot();
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);

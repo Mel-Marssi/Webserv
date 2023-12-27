@@ -19,7 +19,6 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         dire = opendir(Pat.c_str());
         if (dire)
         {
-        cout << Pat << "\thhhhhhhhhhhhhh\n";
             struct dirent* entre;
             
             while ((entre = readdir(dire)) != NULL)
@@ -30,8 +29,6 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     size_t s = name.find(".");
                     if (s == string::npos)
                     {
-                        // head += "<p> <a href=https:www.youtube.com>"+ name +"</a> </p>";
-                        // cout << Path << "\t-------------\t" << name << endl;
                         head += "<p> <a href= http://localhost:1337/" +  name +">"+ name +"</a> </p>";
                     }
                     else
@@ -40,25 +37,20 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     }
                 }
             }
+            head += "</body></html>";
             len = head.length();
             send(event.data.fd, head.c_str(), len, 0);
-                    check_req = 0;
+            // check_req = 0;
         }
-        
-        // cout << "dkjoooooooooooooool\n";
         fin_or_still = finish;
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
         close(event.data.fd);
         opp.close();
-        closedir(dire);
-        dire = NULL;
+        if (dire)
+            {closedir(dire), dire = NULL;}
         (void)Pat;
         (void)epoll_fd;
     }
     else
         cout << "File Madkhelx\n";
-    
-    // (void)event;
-    // (void)config;
-        // cout << "none" << endl;
 }
