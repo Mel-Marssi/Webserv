@@ -1,9 +1,10 @@
 server {
-    listen 1337 ;
+    listen 8090 ;
     server_name localhost ;
     host 127.0.0.1 ;
     root ./ ;
     index fich.pdf ;
+
 
     location / {
         allow_methods  DELETE POST GET ;
@@ -48,16 +49,11 @@ server {
 }
 server {
     listen 8081 ;
-    server_name test0 ;
+    server_name test ;
     host 127.0.0.1 ;
     root ./ ;
     index index.html ;
 	autoindex on ;
-
-    location / {
-        allow_methods  DELETE POST GET ;
-        autoindex off ;
-    }
 
     location /test1.cpp {
         allow_methods DELETE GET POST ;
@@ -65,10 +61,6 @@ server {
         index test.mp4 ;
     }
 
-    location /test {
-        autoindex on ;
-        allow_methods DELETE GET POST ;
-    }
 
      location /test1 {
         autoindex on ;

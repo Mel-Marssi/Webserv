@@ -1,0 +1,17 @@
+#pragma once
+
+#include "pars_config/servers.hpp"
+
+	// CGI_BOOK["DOCUMENT_URI"] =
+	// CGI_BOOK["SCRIPT_NAME"] = 
+	// CGI_BOOK["SCRIPT_FILENAME"] = 
+	// CGI_BOOK["REQUEST_METHOD"] = 
+	// CGI_BOOK["DOCUMENT_ROOT"] = 
+	// CGI_BOOK["GETAWAY_INTERFACE"] = "CGI/1.1";
+	// CGI_BOOK["SERVER_PROTOCOL"] = "HTTP/1.1";
+	// CGI_BOOK["REDIRECT_STATUS"] = "200";
+	// CGI_BOOK["FCGI_ROLE"] = "RESPONDER";
+	// CGI_BOOK["REQUEST_SCHEME"] = "http";
+	// CGI_BOOK["SERVER_SOFTWARE"] = "webserv/1.1";
+	// CGI_BOOK["QUERY_STRING"] = 
+	// CGI_BOOK["CONTENT_LENGTH"] = 

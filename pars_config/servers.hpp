@@ -12,6 +12,7 @@ class servers
 		string get_root(int server_key);
 		string get_server_name(int server_key);
 		string get_index(int server_key);
+		// port and hostname and servername
 		bool get_loc_delete(const string &name);
 		bool get_loc_post(const string &name);
 		bool get_loc_get(const string &name);
@@ -24,3 +25,6 @@ class servers
 		int size();
 		~servers();
 };
+
+int get_right_index(vector<server_config> server, int port, string host, string server_name);
+
