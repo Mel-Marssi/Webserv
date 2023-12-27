@@ -15,18 +15,21 @@ servers::servers(const string &av)
 		string host =  it->get_host();
 		for(server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
-			if ((it2->get_host() == host && it2->get_port() == port) || it2->get_server_name() == server_name)
+			if ((it2->get_host() == host && it2->get_port() == port) && it2->get_server_name() == server_name)
 				throw (runtime_error("Invalid configue file!"));
 		}
 	}
 }
 
-int get_right_index(vector<server_config> server, int port, string host, string server_name)
+int get_right_index(vector<server_config> server, int port,string host, string server_name)
 {
 	int i = 0;
-	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
+
+	for (server_iterator it = server.begin(); it != server.end(); it++,i++)
 	{
-		if (it->get_host() == host && it->get_port() == port && it->get_server_name() == server_name)
+		if (it->get_port() == port && it->get_host() == host)
+			return (i);
+		if (server_name == it->get_server_name() && it->get_port() == port )
 			return (i);
 	}
 	return (-1);
@@ -170,6 +173,8 @@ int servers::size()
 }
 server_config &servers::operator[](int i)
 {
+	if (i > (int)server.size())
+		return server[0];
 	return server[i];
 }
 servers::~servers()

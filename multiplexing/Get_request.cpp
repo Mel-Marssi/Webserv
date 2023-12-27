@@ -33,12 +33,20 @@ void    Request::parse_url_prot()
         size_t b = it->second.find(":");
         this->Host.insert(0, it->second, 0, b);
         if (Host == "127.0.0.1" || Host == "0.0.0.0")
+        {
+            Host = "127.0.0.1";
             server_name = "localhost";
+        }
+        else if (Host == "localhost")
+        {
+            server_name = Host;
+            Host = "127.0.0.1";
+        }
         else
         {
             server_name = Host;
         }
-        this->Port.insert(0, it->second, b, it->second.length());
+        this->Port.insert(0, it->second, b + 1, it->second.length());
  
     }
 }
@@ -72,7 +80,8 @@ std::string Request::read_buff(map<string, string> &m)
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     this->parse_url_prot();
-   cout << get_right_index(config, (int)atoi(Port.c_str()), Host, server_name) <<endl;
+    cout << Port.c_str() << endl;
+   cout << get_right_index(config.server, (int)atoi(Port.c_str()),Host, server_name) <<endl;
     string root = config.get_loc_root(this->Path);
     if (root[root.length() - 1] == '/')
         this->full_Path.erase(0,1);

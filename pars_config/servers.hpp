@@ -4,9 +4,9 @@
 typedef vector<server_config>::iterator server_iterator;
 class servers
 {
-	private:
-		vector<server_config> server;
+	
 	public:
+		vector<server_config> server;
 		servers(const string &av);
 		int get_port(int server_key);
 		string get_root(int server_key);
