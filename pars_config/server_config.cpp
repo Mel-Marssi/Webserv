@@ -4,7 +4,7 @@ server_config::server_config(ifstream &config_fd)
 {
 	string file, word;
 	int flag = 0;
-	port = -1;
+	this->port = -1;
 	while (getline(config_fd, file))
 	{
 		istringstream cscan(file);
