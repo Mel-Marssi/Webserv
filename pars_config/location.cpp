@@ -124,6 +124,10 @@ location::location(ifstream &config_fd, string &word_serv)
 			cgi_path = word;
 			//tanwseel double cgi
 		}
+		// else if (word == "uploads")
+		// {
+
+		// }
 		else if (word.empty())
 		 	throw runtime_error("Invalid location!");
 	}

@@ -1,10 +1,48 @@
 #include "server_config.hpp"
 
+void server_config::error_book()
+{
+	_error_book[100] = "error100.html";
+	_error_book[101] = "error101.html";
+	_error_book[200] = "error200.html";
+	_error_book[201] = "error201.html";
+	_error_book[204] = "error204.html";
+	_error_book[300] = "error300.html";
+	_error_book[301] = "error301.html";
+	_error_book[302] = "error302.html";
+	_error_book[304] = "error304.html";
+	_error_book[400] = "error400.html";
+	_error_book[401] = "error401.html";
+	_error_book[403] = "error403.html";
+	_error_book[404] = "error404.html";
+	_error_book[500] = "error500.html";
+	_error_book[503] = "error503.html";
+}
+
+int check_error_code(const char *av, const char *message)
+{
+	long long tmp;
+	for(int i = 0; i < (int)strlen(av);i++)
+	{
+		if(av[i] < '0' || av[i] > '9')
+			throw(runtime_error(message)); 
+	}
+	tmp =  atol(av);
+
+	if(tmp != 503 && tmp != 500 && tmp != 100 && tmp != 101
+		&& tmp != 501 && tmp != 404 &&tmp != 403 && tmp != 401
+		&& tmp != 400 &&tmp != 304 && tmp != 302 && tmp !=  301 && tmp != 300
+		&& tmp !=  200 && tmp != 201 && tmp !=  204)
+		throw(runtime_error(message));
+	return (static_cast<int>(tmp));
+}
+
 server_config::server_config(ifstream &config_fd)
 {
 	string file, word;
 	int flag = 0;
 	this->port = -1;
+	error_book();
 	while (getline(config_fd, file))
 	{
 		istringstream cscan(file);
@@ -26,6 +64,9 @@ server_config::server_config(ifstream &config_fd)
 			if (get_port() != -1)
 				throw(runtime_error("Invalid configue file!"));
 			port = check_atoi(word.c_str(), "Invalid Port!");
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 		}
 		else if (word == "server_name")
 		{
@@ -33,6 +74,9 @@ server_config::server_config(ifstream &config_fd)
 			if (!get_server_name().empty())
 				throw(runtime_error("Invalid configue file!"));
 			server_name = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 		}
 		else if (word == "host")
 		{
@@ -40,6 +84,9 @@ server_config::server_config(ifstream &config_fd)
 			if (!get_host().empty())
 				throw(runtime_error("Invalid configue file!"));
 			host = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 		}
 		else if(word == "root")
 		{
@@ -47,6 +94,9 @@ server_config::server_config(ifstream &config_fd)
 			if (!get_root().empty())
 				throw(runtime_error("Invalid configue file!"));
 			root = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 		}
 		else if (word == "index")
 		{
@@ -54,6 +104,9 @@ server_config::server_config(ifstream &config_fd)
 			if (!get_index().empty())
 				throw(runtime_error("Invalid configue file!"));
 			index = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 			word.erase();
 			file.erase();
 		}
@@ -75,12 +128,30 @@ server_config::server_config(ifstream &config_fd)
 				server_auto_index = false;
 			else
 				throw runtime_error("Invalid configue file!");
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 			word.erase();
 			file.erase();
+		}
+		else if (word == "error_pages")
+		{
+			cscan >> word;
+			int key = check_error_code(word.c_str(), "Invalid Error pages!");
+			cscan >> word;
+			if (word == ";")
+				throw runtime_error("Invalid configue file!");
+			_error_book[key] = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid configue file!");
 		}
 		else if (!word.empty())
 			throw runtime_error("Invalid configue file!");
 	}
+	// error_book_iterator it =  _error_book.begin();
+	// for(; it != _error_book.end(); it++)
+	// 	cout << it->first <<" "<<it->second<<endl;
 	// cout << "-----------------------------------------------------------" <<endl;
 	// cout << "Port : " <<  port << "\n";
 	// cout << "server name: " << server_name << "\n" <<host << "\n";

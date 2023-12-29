@@ -4,11 +4,13 @@ server {
     host 127.0.0.1 ;
     root ./ ;
     index fich.pdf ;
-
+    error_pages 400 index.html ;
+    error_pages 401 index0.html ;
 
     location / {
         allow_methods  DELETE POST GET ;
         autoindex on ;
+        up_allows on ;
     }
 
     location /test {

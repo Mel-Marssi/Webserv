@@ -24,6 +24,7 @@ servers::servers(const string &av)
 				throw (runtime_error("Invalid configue file!"));
 		}
 	}
+	
 }
 
 int get_right_index(vector<server_config> server, int port,string host, string server_name)
@@ -37,7 +38,7 @@ int get_right_index(vector<server_config> server, int port,string host, string s
 		if (server_name == it->get_server_name() && it->get_port() == port )
 			return (i);
 	}
-	return (-1);
+	return (0);
 }
 
 bool servers::get_loc_auto_index(const string &name)

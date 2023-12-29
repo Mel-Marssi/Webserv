@@ -21,6 +21,7 @@ using namespace std;
 
 class location;
 typedef vector<location>::iterator location_iterator;
+typedef map<int, string>::iterator error_book_iterator;
 class server_config
 {
 	private:
@@ -30,9 +31,11 @@ class server_config
 		string server_name;
 		string index;
 		bool server_auto_index;
+		map<int, string> _error_book;
 		vector<location> serv_locations;
 	public:
 		server_config(ifstream &config_fd);
+		void error_book();
 		int get_port();
 		bool get_server_auto_index();
 		string get_root();
