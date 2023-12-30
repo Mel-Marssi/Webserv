@@ -21,6 +21,7 @@ class servers
 		string get_loc_index(const string &name);
 		string get_loc_redirection(const string &name);
 		string get_loc_cgi_path(const string &name);
+		bool get_loc_path_location(const string &name);
 		server_config &operator[](int i);
 		int size();
 		~servers();

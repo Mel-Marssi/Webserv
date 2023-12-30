@@ -95,6 +95,18 @@ string servers::get_loc_index(const string &name)
 	}
 	return "false";
 }
+
+bool servers::get_loc_path_location(const string &name)
+{
+	server_iterator it = server.begin();
+	for (; it != server.end(); it++)
+	{
+		if (it->get_loc_path_location(name) == name)
+			return(true);
+	}
+	return false;
+}
+
 string servers::get_loc_root(const string &name)
 {
 	server_iterator it = server.begin();
