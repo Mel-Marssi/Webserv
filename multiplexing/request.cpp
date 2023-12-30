@@ -1,7 +1,12 @@
 #include "request.hpp"
-
-Request::Request()
+Request::Request(){
+    cout<< "*****" <<this->_port << endl;
+}
+Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
+(void)server_book;
+(void)fd_client;
+    // cout << _port << "____" << _host<<endl;
     size_read = 0;
     size_read_request = 0;
     size_request = 0;

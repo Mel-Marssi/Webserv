@@ -23,9 +23,10 @@
 class Request
 {
     public:
-        std::string methode;
-        std::string fir_body;
-        std::string read_request;
+        string methode;
+        string fir_body;
+        string read_request;
+        string _host, _port;
         int check_first_line;
         int kk;
         int size_read;
@@ -33,41 +34,43 @@ class Request
         long size_request;
         int check_left_header;
         int check_create_file;
-        std::ofstream outputFile;
-        void create_file(std::ofstream& outputFile,   std::map<std::string, std::string>& map);
-        int parse_line(std::string line, int check_first);
-        int parce_request(std::string header);
-        std::map<std::string, std::string>  header_request;
+        ofstream outputFile;
+        void create_file(ofstream& outputFile,   map<string, string>& map);
+        int parse_line(string line, int check_first);
+        int parce_request(string header);
+        map<string, string>  header_request;
+        // map<int, pair<string, string> > server_book;
+        Request(map<int, pair<string, string> > server_book, int fd_client);
         Request();
         Request(const Request& obj);
         //==========GET==========================
-        std::string Path;
-        std::string Protocole;
-        std::string file_get;
-        std::string full_Path;
+        string Path;
+        string Protocole;
+        string file_get;
+        string full_Path;
         //Config_file :
-        std::string Host, server_name;
-        std::string Port;
+        string Host, server_name;
+        string Port;
         
         void parse_url_prot();
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
         void error_page(epoll_event &event, int epoll_fd, string key);
-        // std::string get_content_type(string s, map<string, string>& m);
-        std::string get_content_type(map<string, string>& m);
+        // string get_content_type(string s, map<string, string>& m);
+        string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config);
-        void root_page(epoll_event &event, int epoll_fd, std::string Pat);
-        std::string read_buff(map<string, string> &m);
-        std::map<std::string, std::string> status_code;
+        void root_page(epoll_event &event, int epoll_fd, string Pat);
+        string read_buff(map<string, string> &m);
+        map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);
 
-        std::string fin_or_still;
+        string fin_or_still;
         size_t check_first_time;
         int check_req;
-        std::ifstream op;
-        std::string exten;
-        std::string con_type;
+        ifstream op;
+        string exten;
+        string con_type;
         string line;
         DIR* dire;
         int entre_or_not;

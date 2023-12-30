@@ -16,6 +16,7 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         opp.read(buffer, 1024);
         head += buffer;
         head += "<h1> Files Existent on the " + Pat + "</h1>";
+        // head += "<h2> server_port " + event.data. + "</h2>";
         dire = opendir(Pat.c_str());
         if (dire)
         {

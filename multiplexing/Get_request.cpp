@@ -81,7 +81,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
 {
     this->parse_url_prot();
     cout << Port.c_str() << endl;
-   cout << get_right_index(config.server, (int)atoi(Port.c_str()),Host, server_name) <<endl;
+   cout << "->>>>> " << get_right_index(config.server, (int)atoi(Port.c_str()),Host, server_name) <<endl;
     string root = config.get_loc_root(this->Path);
     if (root[root.length() - 1] == '/')
         this->full_Path.erase(0,1);

@@ -14,11 +14,15 @@ multiplexing::multiplexing(servers &config)
 
 	for (int i = 0; i < config.size(); i++)
 	{
+	stringstream int_to_string[2];
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw (runtime_error("socket() call failed!"));
-		adress.sin_addr.s_addr = INADDR_ANY;
+		adress.sin_addr.s_addr = inet_addr(config[i].get_host().c_str());
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
+		int_to_string[0] << config[i].get_port();
+		int_to_string[1] << config[i].get_host();
+		server_book[server_socket[i]] = make_pair(int_to_string[0].str(), int_to_string[1].str());
 
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
 			throw(runtime_error("setsockopt() call failed!"));
@@ -28,6 +32,7 @@ multiplexing::multiplexing(servers &config)
 			throw(runtime_error("listen() call failed!"));
 		event.data.fd = server_socket[i];
 		event.events =  EPOLLIN | EPOLLOUT;
+		// cout << "-=----> " << event.data.fd <<endl;
 		if (epoll_ctl(epoll_fd,EPOLL_CTL_ADD, server_socket[i], &event) < 0)
 			throw(runtime_error("epoll_ctl() call failed!"));
 	}
@@ -42,13 +47,15 @@ multiplexing::multiplexing(servers &config)
 		{
 			if(event_wait[i].data.fd <= server_socket[config.size() - 1])
 			{
+				server_book[event_wait[i].data.fd];
 				if ((fd_client = accept(event_wait[i].data.fd, NULL, NULL)) < 0)
 					continue;
 				cout << fd_client << "-------------" << endl;
 				event.data.fd = fd_client;
 				event.events =  EPOLLIN | EPOLLOUT;
+				server_book[fd_client] = make_pair(server_book[event_wait[i].data.fd].first, server_book[event_wait[i].data.fd].second) ;
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
-				request.insert(std::make_pair(fd_client, Request()));
+				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 				// std::string read_request = "NONE";
 				//request[fd_client].parce_request(read_request);
 			}
@@ -124,6 +131,9 @@ multiplexing::multiplexing(servers &config)
 				// }
 				if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
 				{
+					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
+  				    request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
+					// cout << "----->" << request[event_wait[i].data.fd]._port << " " << request[event_wait[i].data.fd]._host <<endl;
 					request[event_wait[i].data.fd].fill_status_code();
 					if (request[event_wait[i].data.fd].check_req == 0)
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);

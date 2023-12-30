@@ -1,23 +1,23 @@
 #include "server_config.hpp"
 
-void server_config::error_book()
-{
-	_error_book[100] = "error100.html";
-	_error_book[101] = "error101.html";
-	_error_book[200] = "error200.html";
-	_error_book[201] = "error201.html";
-	_error_book[204] = "error204.html";
-	_error_book[300] = "error300.html";
-	_error_book[301] = "error301.html";
-	_error_book[302] = "error302.html";
-	_error_book[304] = "error304.html";
-	_error_book[400] = "error400.html";
-	_error_book[401] = "error401.html";
-	_error_book[403] = "error403.html";
-	_error_book[404] = "error404.html";
-	_error_book[500] = "error500.html";
-	_error_book[503] = "error503.html";
-}
+// void server_config::error_book()
+// {
+// 	_error_book[100] = "error100.html";
+// 	_error_book[101] = "error101.html";
+// 	_error_book[200] = "error200.html";
+// 	_error_book[201] = "error201.html";
+// 	_error_book[204] = "error204.html";
+// 	_error_book[300] = "error300.html";
+// 	_error_book[301] = "error301.html";
+// 	_error_book[302] = "error302.html";
+// 	_error_book[304] = "error304.html";
+// 	_error_book[400] = "error400.html";
+// 	_error_book[401] = "error401.html";
+// 	_error_book[403] = "error403.html";
+// 	_error_book[404] = "error404.html";
+// 	_error_book[500] = "error500.html";
+// 	_error_book[503] = "error503.html";
+// }
 
 int check_error_code(const char *av, const char *message)
 {
@@ -40,9 +40,10 @@ int check_error_code(const char *av, const char *message)
 server_config::server_config(ifstream &config_fd)
 {
 	string file, word;
+	// int fd_tmp;
 	int flag = 0;
 	this->port = -1;
-	error_book();
+	// error_book();
 	while (getline(config_fd, file))
 	{
 		istringstream cscan(file);

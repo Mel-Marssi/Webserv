@@ -35,7 +35,7 @@ class server_config
 		vector<location> serv_locations;
 	public:
 		server_config(ifstream &config_fd);
-		void error_book();
+		// void error_book();
 		int get_port();
 		bool get_server_auto_index();
 		string get_root();

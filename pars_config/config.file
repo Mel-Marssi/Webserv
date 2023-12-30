@@ -3,8 +3,8 @@ server {
     server_name localhost ;
     host 127.0.0.1 ;
     root ./ ;
-    index fich.pdf ;
-    error_pages 400 index.html ;
+    index fich.jhfjh ;
+    error_pages 400 index.ml ;
     error_pages 401 index0.html ;
 
     location / {

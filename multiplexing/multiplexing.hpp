@@ -1,6 +1,7 @@
 #pragma once
 
 #include "request.hpp"
+#include <arpa/inet.h>
 
 typedef vector<int>::iterator iterator_client;
 class multiplexing
@@ -8,7 +9,8 @@ class multiplexing
 	private:
 
 	public:
-		std::map<int, Request>  request;
+		map<int, Request>  request;
+		map<int, pair<string, string> > server_book;
 		multiplexing( servers &config);
 		~multiplexing();
 
