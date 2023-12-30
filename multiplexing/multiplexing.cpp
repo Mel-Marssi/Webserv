@@ -52,7 +52,7 @@ multiplexing::multiplexing(servers &config)
 					continue;
 				event.data.fd = fd_client;
 				event.events =  EPOLLIN | EPOLLOUT;
-				server_book[fd_client] = make_pair(server_book[event_wait[i].data.fd].first, server_book[event_wait[i].data.fd].second) ;
+				server_book[fd_client] = server_book[event_wait[i].data.fd];
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 				// std::string read_request = "NONE";

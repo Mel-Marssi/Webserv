@@ -95,7 +95,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     string root = config.get_loc_root(this->Path);
     if (root[root.length() - 1] == '/')
         this->full_Path.erase(0,1);
-
+    
     this->full_Path.insert(0, root);
     if ((config.get_loc_get(this->Path) == 0) && (config.get_loc_get("GET") == 0) && (Path.find(".") == string::npos))
         error_page(event, epoll_fd, "405");

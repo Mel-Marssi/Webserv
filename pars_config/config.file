@@ -10,8 +10,7 @@ server {
     location / {
         allow_methods  DELETE POST GET ;
         autoindex on ;
-        up_allows on ;
-    }
+    }    
 
     location /test {
         autoindex on ;

@@ -61,6 +61,8 @@ location::location(ifstream &config_fd, string &word_serv)
 {
 	string file, word;
 	_get = _post = _auto_index = _delete = false;
+	if (word_serv == "location" || word_serv == "{")
+		throw(runtime_error("Invalide configue file!"));
 	path_location = word_serv;
 	while (getline(config_fd, file))
 	{
@@ -92,7 +94,7 @@ location::location(ifstream &config_fd, string &word_serv)
 				throw(runtime_error("Invalid autoindex!"));
 			cscan >> word;
 				if (word != ";")
-					throw(runtime_error("Invalid configue file!"));
+					throw runtime_error("Invalid location!");
 		}
 		else if(word == "root")
 		{
@@ -100,7 +102,7 @@ location::location(ifstream &config_fd, string &word_serv)
 			root = word;
 			cscan >> word;
 			if (word != ";")
-				throw(runtime_error("Invalid configue file!"));
+				throw runtime_error("Invalid location!");
 		}
 		else if (word == "index")
 		{
@@ -108,7 +110,7 @@ location::location(ifstream &config_fd, string &word_serv)
 			index = word;
 			cscan >> word;
 			if (word != ";")
-				throw(runtime_error("Invalid configue file!"));
+				throw runtime_error("Invalid location!");
 		}
 		else if(word == "return")
 		{
@@ -116,7 +118,7 @@ location::location(ifstream &config_fd, string &word_serv)
 			redirection = word;
 			cscan >> word;
 			if (word != ";")
-				throw(runtime_error("Invalid configue file!"));
+				throw runtime_error("Invalid location!");
 		}
 		else if (word == "cgi_path")
 		{
@@ -130,7 +132,14 @@ location::location(ifstream &config_fd, string &word_serv)
 		// }
 		else if (word.empty())
 		 	throw runtime_error("Invalid location!");
+		else if (word == ";")
+			continue;
+		else
+			throw runtime_error("Invalid location!");
+			
 	}
+	if (word != "}")
+		throw runtime_error("Invalid location!");
 }
 
 int check_atoi(const char *av, const char *message)
