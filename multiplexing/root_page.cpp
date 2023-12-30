@@ -16,7 +16,6 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         opp.read(buffer, 1024);
         head += buffer;
         head += "<h1> Files Existent on the " + Pat + "</h1>";
-        // head += "<h2> server_port " + event.data. + "</h2>";
         dire = opendir(Pat.c_str());
         if (dire)
         {
@@ -30,18 +29,28 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     size_t s = name.find(".");
                     if (s == string::npos)
                     {
-                        head += "<p> <a href= http://localhost:1337/" +  name +">"+ name +"</a> </p>";
+                        head += "<p> <a href= http://localhost:";
+                        head.append(this->Port);
+                        // cerr << "|" << Port << " |" <<endl;
+                        head.append("/" + name + ">" + name +"</a> </p>");
                     }
                     else
                     {
-                        head += "<p> <a href= http://localhost:1337/" + this->full_Path + "/" + name + ">" + name +"</a> </p>";
+                        head += "<p> <a href= http://localhost:" + this->Port;
+                        if (this->full_Path[0] != '/')
+                            head += "/" + this->full_Path;// + "/" + name + ">" + name +"</a> </p>";
+                        else
+                            head += this->full_Path;// + "/" + name + ">" + name +"</a> </p>";
+                        if (this->full_Path[full_Path.length() - 1] != '/')
+                            head += "/" + name + ">" + name +"</a> </p>";
+                        else
+                            head += name + ">" + name +"</a> </p>";
                     }
                 }
             }
             head += "</body></html>";
             len = head.length();
             send(event.data.fd, head.c_str(), len, 0);
-            // check_req = 0;
         }
         fin_or_still = finish;
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);

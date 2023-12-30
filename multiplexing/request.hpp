@@ -12,6 +12,7 @@
 #include <dirent.h>
 #include <deque>
 #include <sstream>
+#include <stdlib.h>
 #include <sys/stat.h>
 #define POST "POST"
 #define GET "GET"
@@ -51,8 +52,10 @@ class Request
         //Config_file :
         string Host, server_name;
         string Port;
+        string Path_bef;
         
         void parse_url_prot();
+        void redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config);
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
         void error_page(epoll_event &event, int epoll_fd, string key);

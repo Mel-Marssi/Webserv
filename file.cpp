@@ -59,6 +59,8 @@ string Request::get_content_type(map<string, string>& m)
     }
     // s++;
     // exten.insert(0, this->file_get, s, this->file_get.length());
+
+        cout << "dkholll\n";
     it = m.find(exten);
     if (it != m.end())
         return (it->second);

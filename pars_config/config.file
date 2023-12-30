@@ -22,9 +22,9 @@ server {
 
     location /multiplexing {
         autoindex on ;
+        root ./ ;
         index Content_type.cpp ;
         allow_methods GET POST ;
-        return /test/fich.pdf ;
     }
 
     location /root_page {

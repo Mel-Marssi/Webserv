@@ -14,7 +14,7 @@ multiplexing::multiplexing(servers &config)
 
 	for (int i = 0; i < config.size(); i++)
 	{
-	stringstream int_to_string[2];
+		stringstream int_to_string[2];
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw (runtime_error("socket() call failed!"));
 		adress.sin_addr.s_addr = inet_addr(config[i].get_host().c_str());
@@ -50,7 +50,6 @@ multiplexing::multiplexing(servers &config)
 				server_book[event_wait[i].data.fd];
 				if ((fd_client = accept(event_wait[i].data.fd, NULL, NULL)) < 0)
 					continue;
-				cout << fd_client << "-------------" << endl;
 				event.data.fd = fd_client;
 				event.events =  EPOLLIN | EPOLLOUT;
 				server_book[fd_client] = make_pair(server_book[event_wait[i].data.fd].first, server_book[event_wait[i].data.fd].second) ;
@@ -61,6 +60,7 @@ multiplexing::multiplexing(servers &config)
 			}
 			else
 			{	
+				// cout << fd_client << "-------------\t"<< (event_wait[i].data.fd == EPOLLIN) << endl;
 				// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << fd_client << endl;
 				//======== GET =============
 				// request[event_wait[i].data.fd].fin_or_still = Still;
@@ -83,7 +83,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].size_read_request += size;
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-				cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
 				// cout << endl;
 				}
 				// if (request[event_wait[i].data.fd].methode == "POST")
@@ -134,9 +134,11 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
   				    request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
 					// cout << "----->" << request[event_wait[i].data.fd]._port << " " << request[event_wait[i].data.fd]._host <<endl;
-					request[event_wait[i].data.fd].fill_status_code();
 					if (request[event_wait[i].data.fd].check_req == 0)
+					{
+						request[event_wait[i].data.fd].fill_status_code();
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
+					}
 					else if (request[event_wait[i].data.fd].check_req == 1)
 						request[event_wait[i].data.fd].Generate_req_second(event_wait[i], epoll_fd);
 					if (request[event_wait[i].data.fd].fin_or_still == finish)
