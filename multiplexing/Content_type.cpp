@@ -65,11 +65,11 @@ string Request::get_content_type(map<string, string>& m)
     return ("NULL");
 }
 
-void Request::redirection_content(epoll_event &event, int epoll_fd, servers &config)
+void Request::redirection_content(epoll_event &event, int epoll_fd, servers &config , int index)
 {
     string head;
     head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
-    head += config.get_loc_redirection(this->Path);
+    head += config[index].get_loc_redirection(this->Path);
     head += "\r\n\r\n";
     
     size_t len = head.length();
@@ -84,6 +84,7 @@ void Request::redirection_content(epoll_event &event, int epoll_fd, servers &con
 
 void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config)
 {
+    cout <<  "->>>>>>>>> " << this->Path <<endl;
     string head;
     head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
     head += this->Path + "/";

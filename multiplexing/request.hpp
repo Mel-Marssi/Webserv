@@ -61,7 +61,7 @@ class Request
         void error_page(epoll_event &event, int epoll_fd, string key);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);
-        void redirection_content(epoll_event &event, int epoll_fd, servers &config);
+        void redirection_content(epoll_event &event, int epoll_fd, servers &config, int index);
         void root_page(epoll_event &event, int epoll_fd, string Pat);
         string read_buff(map<string, string> &m);
         map<string, string> status_code;

@@ -42,126 +42,126 @@ int get_right_index(vector<server_config> server, int port,string host, string s
 	return (0);
 }
 
-bool servers::get_loc_auto_index(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_auto_index(name));
-	}
-	return false;
-}
+// bool servers::get_loc_auto_index(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_auto_index(name));
+// 	}
+// 	return false;
+// }
 
-bool servers::get_loc_delete(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_delete(name));
-	}
-	return false;
-}
+// bool servers::get_loc_delete(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_delete(name));
+// 	}
+// 	return false;
+// }
 
-bool servers::get_loc_post(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_post(name));
-	}
-	return false;
-}
+// bool servers::get_loc_post(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_post(name));
+// 	}
+// 	return false;
+// }
 
-bool servers::get_loc_get(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_get(name));
-	}
-	return false;
-}
+// bool servers::get_loc_get(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_get(name));
+// 	}
+// 	return false;
+// }
 
-string servers::get_loc_index(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_index(name));
-	}
-	return "false";
-}
+// string servers::get_loc_index(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_index(name));
+// 	}
+// 	return "";
+// }
 
-bool servers::get_loc_path_location(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(true);
-	}
-	return false;
-}
+// bool servers::get_loc_path_location(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(true);
+// 	}
+// 	return false;
+// }
 
-string servers::get_loc_root(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_root(name));
-	}
-	return "false";
-}
+// string servers::get_loc_root(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_root(name));
+// 	}
+// 	return "";
+// }
 
-string servers::get_loc_redirection(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_redirection(name));
-	}
-	return "false";
-}
+// string servers::get_loc_redirection(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_redirection(name));
+// 	}
+// 	return "";
+// }
 
-string servers::get_loc_cgi_path(const string &name)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_loc_path_location(name) == name)
-			return(it->get_loc_cgi_path(name));
-	}
-	return "false";
-}
+// string servers::get_loc_cgi_path(const string &name)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_loc_path_location(name) == name)
+// 			return(it->get_loc_cgi_path(name));
+// 	}
+// 	return "";
+// }
 
-int servers::get_port(int server_key)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_port() == server_key)
-			return(it->get_port());
-	}
-	return (-1);
-}
+// int servers::get_port(int server_key)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_port() == server_key)
+// 			return(it->get_port());
+// 	}
+// 	return (-1);
+// }
 
-string servers::get_root(int server_key)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_port() == server_key)
-			return(it->get_root());
-	}
-	return ("false");
-}
+// string servers::get_root(int server_key)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_port() == server_key)
+// 			return(it->get_root());
+// 	}
+// 	return ("");
+// }
 
 string servers::get_server_name(int server_key)
 {
@@ -171,20 +171,20 @@ string servers::get_server_name(int server_key)
 		if (it->get_port() == server_key)
 			return(it->get_server_name());
 	}
-	return ("false");
+	return ("");
 }
 
 
-string servers::get_index(int server_key)
-{
-	server_iterator it = server.begin();
-	for (; it != server.end(); it++)
-	{
-		if (it->get_port() == server_key)
-			return(it->get_index());
-	}
-	return ("false");
-}
+// string servers::get_index(int server_key)
+// {
+// 	server_iterator it = server.begin();
+// 	for (; it != server.end(); it++)
+// 	{
+// 		if (it->get_port() == server_key)
+// 			return(it->get_index());
+// 	}
+// 	return ("");
+// }
 
 int servers::size()
 {

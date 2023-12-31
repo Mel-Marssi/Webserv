@@ -43,10 +43,10 @@ server_config::server_config(ifstream &config_fd)
 	// int fd_tmp;
 	int flag = 0;
 	this->port = -1;
-	host = "false";
-	root = "false";
-	server_name= "false";
-	index = "false";
+	host = "";
+	root = "";
+	server_name= "";
+	index = "";
 	server_auto_index = false;
 	// error_book();
 	while (getline(config_fd, file))
@@ -77,7 +77,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "server_name")
 		{
 			cscan >> word;
-			if (get_server_name() != "false")
+			if (get_server_name().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
 			server_name = word;
 			cscan >> word;
@@ -87,7 +87,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "host")
 		{
 			cscan >>word;
-			if (get_host() != "false")
+			if (get_host().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
 			host = word;
 			cscan >> word;
@@ -97,7 +97,7 @@ server_config::server_config(ifstream &config_fd)
 		else if(word == "root")
 		{
 			cscan >> word;
-			if (get_root() != "false")
+			if (get_root().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
 			root = word;
 			cscan >> word;
@@ -107,7 +107,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "index")
 		{
 			cscan >> word;
-			if (get_index() != "false")
+			if (get_index().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
 			index = word;
 			cscan >> word;
@@ -119,7 +119,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "location")
 		{
 			cscan >> word;
-			if (get_loc_path_location(word) != "false")
+			if (get_loc_path_location(word) == word)
 				throw(runtime_error("Invalid configue file!"));
 			this->serv_locations.push_back(location(config_fd, word));
 			word.erase();

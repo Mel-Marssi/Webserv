@@ -64,9 +64,9 @@ location::location(ifstream &config_fd, string &word_serv)
 	if (word_serv == "location" || word_serv == "{")
 		throw(runtime_error("Invalide configue file!"));
 	path_location = word_serv;
-	index = "false";
-	root = "false";
-	redirection = "false";
+	index = "";
+	root = "";
+	redirection = "";
 	
 	while (getline(config_fd, file))
 	{
@@ -106,7 +106,7 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if(word == "root")
 		{
-			if (root != "false")
+			if (!root.empty())
 				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			root = word;
@@ -116,7 +116,7 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if (word == "index")
 		{
-			if (index != "false")
+			if (!index.empty())
 				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			index = word;
@@ -126,7 +126,7 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if(word == "return")
 		{
-			if (redirection != "false")
+			if (!redirection.empty())
 				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			redirection = word;

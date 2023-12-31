@@ -17,6 +17,7 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         head += buffer;
         head += "<h1> Files Existent on the " + Pat + "</h1>";
         dire = opendir(Pat.c_str());
+            // cout << Pat<< "\t000000\n";
         if (dire)
         {
             struct dirent* entre;
@@ -31,6 +32,7 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     {
                         head += "<p> <a href= http://localhost:";
                         head.append(this->_port);
+                        cout << name <<endl;
                         // cerr << "|" << Port << " |" <<endl;
                         head.append("/" + name + ">" + name +"</a> </p>");
                     }

@@ -71,7 +71,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     this->parse_url_prot();
     //Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-    if (config[index].get_loc_path_location(this->Path) == "false")
+    if (config[index].get_loc_path_location(this->Path).empty() == true)
     {
         cout << config[index].get_loc_path_location(this->Path) <<" --\n";
         error_page(event, epoll_fd, "404");
@@ -83,7 +83,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     //if Path Empty__serve__the __server:
     else if (this->Path == "/")
     {
-        if (config[index].get_index() != "false")
+        if (!config[index].get_index().empty())
         {
             dire = opendir(config[index].get_root().c_str());
             if (dire)
@@ -116,24 +116,25 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 error_page(event, epoll_fd, "404");
         }
     }
-    else if ((config[index].get_loc_path_location(this->Path) != "false") && (config[index].get_loc_root(this->Path) != "false"))
+    else if ((!config[index].get_loc_path_location(this->Path).empty()) && (!config[index].get_loc_root(this->Path).empty()))
     {
         string root = config[index].get_loc_root(this->Path);
         if (root[root.length() - 1] == '/')
             this->full_Path.erase(0,1);
         this->full_Path.insert(0, root);
         //check__redirection :
-        if (config.get_loc_redirection(this->Path) == "")
+        if (config[index].get_loc_redirection(this->Path) == "")
         {
 
             string str = this->Path;
             dire = opendir((root + str.erase(0,1)).c_str());
-            if (dire)
+            if (dire && (!config[index].get_loc_index(this->Path).empty()))
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
                     redirection_content_backSlash(event, epoll_fd, config);
                 else if ((file_get != ""))
                 {
+
                     op.open((this->full_Path).c_str());
                     if (op.is_open())
                     {
@@ -147,10 +148,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         error_page(event, epoll_fd, "404");
                     }
                 }//if index not existe  
-                else if (file_get == "" && ((config[index].get_loc_index(this->Path) != "false"))) // ===============
+                else if (file_get == "" && ((!config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
                 // cout << "|" << config[index].get_loc_index(this->Path) << "|" << this->Path << endl;
-                    op.open((this->full_Path + config.get_loc_index(this->Path)).c_str());
+                
+                    op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                     if (op.is_open())
                     {
                         read_for_send(m);
@@ -159,22 +161,30 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     }
                     else //not_found_or_forbiden :
                     {
+                // cout << "SDFSDFSDFSDF" <<endl;
                         close_dir();
                         error_page(event, epoll_fd, "404");
                     }
                 }//check auto index
-                else if (config.get_loc_auto_index(this->Path))
+                else if (config[index].get_loc_auto_index(this->Path))
                 {
+                //   cout << "AAAAAAA" <<endl;
                     close_dir();
                     cout << "-->>> "<< Path << endl;
                     root_page(event, epoll_fd, this->full_Path); 
                 }
             }
+            else if (config[index].get_loc_auto_index(this->Path))
+            {
+                cout << this->Path <<"-------\n"; 
+
+                root_page(event, epoll_fd, (config[index].get_loc_root(this->Path) + "/"+this->Path));
+            }
             else
                 error_page(event, epoll_fd, "404");
         }
         else
-            redirection_content(event, epoll_fd, config);
+            redirection_content(event, epoll_fd, config, index);
     }
 
     // else if ((config.get_loc_get(this->Path) && (config.get_loc_auto_index(this->Path) == 1)))
@@ -234,61 +244,61 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     //             {closedir(dire), dire = NULL;}
     //     }
     // }
-    else if (this->Path.find(".") != string::npos)
-    {
-        int serv = get_right_index(config.server, (int)atoi(Port.c_str()), Host, server_name);
-        if (serv >= 0)
-        {
-            this->full_Path = config.get_root(config[serv].get_port());
-            dire = opendir(full_Path.c_str());
-            if (dire)
-            {
-                op.open((this->full_Path + (Path)).c_str());
-                if (op.is_open())
-                {
-                // cout << "----------\t"<< (this->full_Path + (Path.erase(0, 1))) << endl; 
-                    check_req = 1;
-                    string head = read_buff(m);
-                    // cout << head << endl;
-                    // cout << "===============\n";
-                    if (con_type.find("text") != string::npos)
-                    {
-                        len = strlen(head.c_str());
-                        send(event.data.fd, head.c_str(), len, 0);            
-                    }
-                    else
-                    {
-                        len = head.length();
-                        send(event.data.fd, head.c_str(), len, 0);
-                    }
+    // else if (this->Path.find(".") != string::npos)
+    // {
+    //     int serv = get_right_index(config.server, (int)atoi(Port.c_str()), Host, server_name);
+    //     if (serv >= 0)
+    //     {
+    //         this->full_Path = config.get_root(config[serv].get_port());
+    //         dire = opendir(full_Path.c_str());
+    //         if (dire)
+    //         {
+    //             op.open((this->full_Path + (Path)).c_str());
+    //             if (op.is_open())
+    //             {
+    //             // cout << "----------\t"<< (this->full_Path + (Path.erase(0, 1))) << endl; 
+    //                 check_req = 1;
+    //                 string head = read_buff(m);
+    //                 // cout << head << endl;
+    //                 // cout << "===============\n";
+    //                 if (con_type.find("text") != string::npos)
+    //                 {
+    //                     len = strlen(head.c_str());
+    //                     send(event.data.fd, head.c_str(), len, 0);            
+    //                 }
+    //                 else
+    //                 {
+    //                     len = head.length();
+    //                     send(event.data.fd, head.c_str(), len, 0);
+    //                 }
 
-                    // len = head.length();
-                    // check_req = 1;
-                    // send(event.data.fd, head.c_str(), len, 0);
-                    line = "";
-                    if (op.eof())
-                    {
-                        fin_or_still = finish;
-                        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-                        close(event.data.fd);
-                        op.close();
-                        if (dire)
-                            {closedir(dire), dire = NULL;}
-                    }
-                    //hna 
-                }
-                else
-                {
-                    closedir(dire);
-                    dire = NULL;
-                    root_page(event, epoll_fd, this->Path);
-                }
-            }
-        }
-        // cout << this->full_Path <<"\t--\t"<< this->Path <<"\t--\t" << root << endl;
-        // dire = opendir()
-        error_page(event, epoll_fd, "404");
-    }
+    //                 // len = head.length();
+    //                 // check_req = 1;
+    //                 // send(event.data.fd, head.c_str(), len, 0);
+    //                 line = "";
+    //                 if (op.eof())
+    //                 {
+    //                     fin_or_still = finish;
+    //                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
+    //                     close(event.data.fd);
+    //                     op.close();
+    //                     if (dire)
+    //                         {closedir(dire), dire = NULL;}
+    //                 }
+    //                 //hna 
+    //             }
+    //             else
+    //             {
+    //                 closedir(dire);
+    //                 dire = NULL;
+    //                 root_page(event, epoll_fd, this->Path);
+    //             }
+    //         }
+    //     }
+    //     // cout << this->full_Path <<"\t--\t"<< this->Path <<"\t--\t" << root << endl;
+    //     // dire = opendir()
+    //     error_page(event, epoll_fd, "404");
+    // }
     else
     {
         cout << "==============\n";
