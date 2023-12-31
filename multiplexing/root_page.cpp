@@ -30,13 +30,13 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
                     if (s == string::npos)
                     {
                         head += "<p> <a href= http://localhost:";
-                        head.append(this->Port);
+                        head.append(this->_port);
                         // cerr << "|" << Port << " |" <<endl;
                         head.append("/" + name + ">" + name +"</a> </p>");
                     }
                     else
                     {
-                        head += "<p> <a href= http://localhost:" + this->Port;
+                        head += "<p> <a href= http://localhost:" + this->_port;
                         if (this->full_Path[0] != '/')
                             head += "/" + this->full_Path;// + "/" + name + ">" + name +"</a> </p>";
                         else

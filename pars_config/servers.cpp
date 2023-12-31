@@ -33,6 +33,7 @@ int get_right_index(vector<server_config> server, int port,string host, string s
 
 	for (server_iterator it = server.begin(); it != server.end(); it++,i++)
 	{
+		// cout  << it->get_port() <<" "<< port << endl;
 		if (it->get_port() == port && it->get_host() == host)
 			return (i);
 		if (server_name == it->get_server_name() && it->get_port() == port )

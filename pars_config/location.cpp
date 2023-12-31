@@ -64,6 +64,10 @@ location::location(ifstream &config_fd, string &word_serv)
 	if (word_serv == "location" || word_serv == "{")
 		throw(runtime_error("Invalide configue file!"));
 	path_location = word_serv;
+	index = "false";
+	root = "false";
+	redirection = "false";
+	
 	while (getline(config_fd, file))
 	{
 		istringstream cscan(file);
@@ -72,6 +76,8 @@ location::location(ifstream &config_fd, string &word_serv)
 			break;
 		if (word == "allow_methods")
 		{
+			if (_get|| _post|| _delete)
+			{	throw(runtime_error("Invalide configue file!"));}
 			while (word != ";")
 			{
 				cscan >> word;
@@ -87,6 +93,8 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if (word == "autoindex")
 		{
+			if (_auto_index)
+				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			if (word == "on")
 				_auto_index = true;
@@ -98,6 +106,8 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if(word == "root")
 		{
+			if (root != "false")
+				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			root = word;
 			cscan >> word;
@@ -106,6 +116,8 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if (word == "index")
 		{
+			if (index != "false")
+				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			index = word;
 			cscan >> word;
@@ -114,6 +126,8 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if(word == "return")
 		{
+			if (redirection != "false")
+				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			redirection = word;
 			cscan >> word;

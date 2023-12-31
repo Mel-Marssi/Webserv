@@ -3,7 +3,6 @@ server {
     server_name localhost ;
     host 127.0.0.1 ;
     root ./ ;
-    index fich.jhfjh ;
     error_pages 400 index.ml ;
     error_pages 401 index0.html ;
 
@@ -22,7 +21,6 @@ server {
     location /multiplexing {
         autoindex on ;
         root ./ ;
-        index Content_type.cpp ;
         allow_methods GET POST ;
     }
 

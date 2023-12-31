@@ -43,6 +43,11 @@ server_config::server_config(ifstream &config_fd)
 	// int fd_tmp;
 	int flag = 0;
 	this->port = -1;
+	host = "false";
+	root = "false";
+	server_name= "false";
+	index = "false";
+	server_auto_index = false;
 	// error_book();
 	while (getline(config_fd, file))
 	{
@@ -72,7 +77,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "server_name")
 		{
 			cscan >> word;
-			if (!get_server_name().empty())
+			if (get_server_name() != "false")
 				throw(runtime_error("Invalid configue file!"));
 			server_name = word;
 			cscan >> word;
@@ -82,7 +87,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "host")
 		{
 			cscan >>word;
-			if (!get_host().empty())
+			if (get_host() != "false")
 				throw(runtime_error("Invalid configue file!"));
 			host = word;
 			cscan >> word;
@@ -92,7 +97,7 @@ server_config::server_config(ifstream &config_fd)
 		else if(word == "root")
 		{
 			cscan >> word;
-			if (!get_root().empty())
+			if (get_root() != "false")
 				throw(runtime_error("Invalid configue file!"));
 			root = word;
 			cscan >> word;
@@ -102,7 +107,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "index")
 		{
 			cscan >> word;
-			if (!get_index().empty())
+			if (get_index() != "false")
 				throw(runtime_error("Invalid configue file!"));
 			index = word;
 			cscan >> word;

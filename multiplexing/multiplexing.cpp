@@ -83,7 +83,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].size_read_request += size;
 					request[event_wait[i].data.fd].read_request.append(buff,size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
 				// cout << endl;
 				}
 				// if (request[event_wait[i].data.fd].methode == "POST")
@@ -133,6 +133,7 @@ multiplexing::multiplexing(servers &config)
 				{
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
   				    request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
+					request[event_wait[i].data.fd].event_fd = event_wait[i].data.fd;
 					// cout << "----->" << request[event_wait[i].data.fd]._port << " " << request[event_wait[i].data.fd]._host <<endl;
 					if (request[event_wait[i].data.fd].check_req == 0)
 					{

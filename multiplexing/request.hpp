@@ -67,6 +67,9 @@ class Request
         map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);
+        void read_for_send(map<string, string> &m);
+        void end_of_file(epoll_event &event, int epoll_fd);
+        void close_dir();
 
         string fin_or_still;
         size_t check_first_time;
@@ -76,8 +79,8 @@ class Request
         string con_type;
         string line;
         DIR* dire;
-        int entre_or_not;
         size_t len;
         streampos fileSize;
         int ck;
+        int event_fd;
 };

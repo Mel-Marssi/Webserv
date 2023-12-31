@@ -19,16 +19,17 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     len = 0;
     // check_first_time = 0;
     // counter = 0;
-    entre_or_not = 0;
     fir_body = "NULL";
     dire = NULL;
     exten = "";
     read_request = "";
     ck = 0;
+    event_fd = 0;
 }
 
 Request::Request(const Request& obj)
 {
+    event_fd = 0;
     ck = 0;
     read_request = "";
     exten = "";
@@ -46,7 +47,6 @@ Request::Request(const Request& obj)
     // check_first_time = 0;
     // counter = obj.counter;
     check_req = 0;
-    entre_or_not = 0;
     fir_body = "NULL";
       (void) obj;
 }
