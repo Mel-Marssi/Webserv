@@ -38,7 +38,6 @@ multiplexing::multiplexing(servers &config)
 	}
 	//Methode GET fill Content Type : =======================
 	this->fill_content_type();
-	// ofstream ou("file.txt");
 	//================================================
 	for (;;)
 	{
@@ -55,81 +54,41 @@ multiplexing::multiplexing(servers &config)
 				server_book[fd_client] = server_book[event_wait[i].data.fd];
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
-				// std::string read_request = "NONE";
-				//request[fd_client].parce_request(read_request);
 			}
 			else
-			{	
-				// cout << fd_client << "-------------\t"<< (event_wait[i].data.fd == EPOLLIN) << endl;
-				// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << fd_client << endl;
-				//======== GET =============
-				// request[event_wait[i].data.fd].fin_or_still = Still;
-				// request[event_wait[i].data.fd].check_first_time = 0;
-				// request[event_wait[i].data.fd].counter = 0;
-				//===============================
-				char buff[1024];
-				for(int i=0; i < 1024;i++)
-					buff[i] = 0;
-				int size = 0;
-				// cout << event_wait[i].data.fd << "\t----------------------\t" << request[event_wait[i].data.fd].kk << endl;
-				if (request[event_wait[i].data.fd].kk == 0)
-				{
-					request[event_wait[i].data.fd].kk = 1;
-					// cout << "READ HANGING |||||\t" << event_wait[i].data.fd << "\t" << request[event_wait[i].data.fd].kk <<endl;
-					if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
-						break ;
-					// cout << "READ SIZE --------------===---------\t" << size <<endl;
-					// cout << buff << endl;
-					request[event_wait[i].data.fd].size_read_request += size;
-					request[event_wait[i].data.fd].read_request.append(buff,size);
-					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
-				// cout << endl;
-				}
-				// if (request[event_wait[i].data.fd].methode == "POST")
-				// {	
-				// 	// cout << "--------------------------------\n";
-				// 	if (request[event_wait[i].data.fd].check_create_file == 0)
-				// 	{
-				// 		request[event_wait[i].data.fd].create_file(request[event_wait[i].data.fd].outputFile, request[event_wait[i].data.fd].header_request);
-				// 		request[event_wait[i].data.fd].check_create_file = 1;
-				// 		if (request[event_wait[i].data.fd].fir_body != "NULL")
-				// 		{
-				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].fir_body;
-				// 			request[event_wait[i].data.fd].fir_body = "NULL";
-				// 		}
-				// 		else
-				// 		{
-				// 			cout <<"****************************************\n";
-
-				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].read_request;
-				// 		}
-				// 	}
-				// 	else
-				// 	{
-				// 		if (request[event_wait[i].data.fd].fir_body != "NULL")
-				// 		{
-				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].fir_body;
-				// 			request[event_wait[i].data.fd].fir_body = "NULL";
-				// 		}
-				// 		else
-				// 		{
-				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].read_request;
-				// 		}
-							
-				// 	}
-				// 	if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request)
-				// 	{
-				// 		const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
-				// 		send(event_wait[i].data.fd, n, 170, 0);
-				// 		close(event_wait[i].data.fd);
-				// 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
-				// 		std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
-				// 		if (it != request.end())
-				// 			request.erase(it);
-				// 	}
+			{
+				// char buff[1024];
+				// for(int i=0; i < 1024;i++)
+				// 	buff[i] = 0;
+				// int size = 0;
+				// if (request[event_wait[i].data.fd].kk == 0)
+				// {
+				// 	request[event_wait[i].data.fd].kk = 1;
+				// 	if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
+				// 		break ;
+				// 	request[event_wait[i].data.fd].size_read_request += size;
+				// 	request[event_wait[i].data.fd].read_request.append(buff,size);
+				// 	request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
 				// }
-				if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
+				
+				if (request[event_wait[i].data.fd].check_left_header == 0)
+				{
+					char buff[1024];
+	 				// cout << "dddd\n";
+					request[event_wait[i].data.fd].size = 0;
+					request[event_wait[i].data.fd].size = read(event_wait[i].data.fd, buff, 1024);
+					request[event_wait[i].data.fd].size_read_request += request[event_wait[i].data.fd].size;
+					request[event_wait[i].data.fd].read_request.append(buff,request[event_wait[i].data.fd].size);
+					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
+				}
+
+				if (request[event_wait[i].data.fd].methode == "POST")
+				{	
+ 
+					request[event_wait[i].data.fd].post(event_wait[i].data.fd);
+		 
+				}
+				else if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
 				{
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
   				    request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
@@ -159,6 +118,17 @@ multiplexing::multiplexing(servers &config)
 						if (it != request.end())
 							request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
+				}
+				if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1)
+				{
+ 
+					const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+					send(event_wait[i].data.fd, n, 170, 0);
+					close(event_wait[i].data.fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+					if (it != request.end())
+						request.erase(it);
 				}
 				// else
 				request[event_wait[i].data.fd].read_request.erase();

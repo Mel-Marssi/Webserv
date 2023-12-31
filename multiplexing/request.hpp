@@ -24,22 +24,42 @@
 class Request
 {
     public:
-        string methode;
-        string fir_body;
-        string read_request;
-        string _host, _port;
-        int check_first_line;
         int kk;
+        // string methode;
+        // string fir_body;
+        // string read_request;
+        string _host, _port;
+        // int check_first_line;
+        // int size_read;
+        // int size_read_request;
+        // long size_request;
+        // int check_left_header;
+        // int check_create_file;
+        // ofstream outputFile;
+        std::string methode;
+        std::string fir_body;
+        std::string URL;
+        // std::string Protocole;
+        std::string read_request;
         int size_read;
         int size_read_request;
+        int size ;
+        int total;
         long size_request;
         int check_left_header;
         int check_create_file;
-        ofstream outputFile;
+        int size_chunked;
+        int finir;
+        int acces_read_in_post;
+        int next_chunked;
+        std::ofstream outputFile;
         void create_file(ofstream& outputFile,   map<string, string>& map);
         int parse_line(string line, int check_first);
         int parce_request(string header);
         map<string, string>  header_request;
+        void  post(int fd);
+        void binary();
+        void chunked();
         // map<int, pair<string, string> > server_book;
         Request(map<int, pair<string, string> > server_book, int fd_client);
         Request();
