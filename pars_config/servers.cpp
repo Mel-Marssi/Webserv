@@ -15,6 +15,7 @@ servers::servers(const string &av)
 		string host =  it->get_host();
 		if (it->get_host().empty() || it->get_port() == -1 || it->get_server_name().empty())
 			throw (runtime_error("Invalid configue file!"));
+
 		for(server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
 			// cout << it2->get_port() <<endl;

@@ -43,9 +43,12 @@ class server_config
 		string get_index();
 		string get_host();
 		bool get_loc_delete(const string &name);
+		size_t get_loc_max_client_size(const string &name);
 		bool get_loc_post(const string &name);
 		bool get_loc_get(const string &name);
 		bool get_loc_auto_index(const string &name);
+		bool get_loc_upload(const string &name);
+		string get_loc_up_folder(string const &name);
 		string get_loc_root(const string &name);
 		string get_loc_index(const string &name);
 		string get_loc_redirection(const string &name);

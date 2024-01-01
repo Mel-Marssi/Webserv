@@ -217,6 +217,16 @@ bool server_config::get_loc_auto_index(const string &name)
 	return (false);
 }
 
+bool server_config::get_loc_upload(const string &name)
+{
+	location_iterator it = serv_locations.begin();
+	for(; it  != serv_locations.end(); it++)
+	{
+		if (it->get_path_location() == name)
+			return(it->get_upload());
+	}
+	return (false);
+}
 string server_config::get_loc_root(string const &name)
 {
 	location_iterator it = serv_locations.begin();
@@ -224,6 +234,29 @@ string server_config::get_loc_root(string const &name)
 	{
 		if (it->get_path_location() == name)
 			return(it->get_root());
+	}
+	return ("");
+}
+
+size_t server_config::get_loc_max_client_size(const string &name)
+{
+	location_iterator it = serv_locations.begin();
+	for(; it  != serv_locations.end(); it++)
+	{
+		if (it->get_path_location() == name){
+			return(it->get_max_client_size());
+		}
+	}
+	return (0);
+}
+
+string server_config::get_loc_up_folder(string const &name)
+{
+	location_iterator it = serv_locations.begin();
+	for(; it  != serv_locations.end(); it++)
+	{
+		if (it->get_path_location() == name)
+			return(it->get_upload_folder());
 	}
 	return ("");
 }

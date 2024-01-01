@@ -155,6 +155,8 @@ location::location(ifstream &config_fd, string &word_serv)
 			check_size_t(word.c_str(), "Invalid location!");
 			stringstream convert(word);
 			convert >> max_client_size;
+			cout << max_client_size <<endl;
+
 			cscan >>word;
 			if (max_client_size == 0 || word != ";")
 				throw(runtime_error("Invalid configue file!"));
