@@ -155,8 +155,6 @@ location::location(ifstream &config_fd, string &word_serv)
 			check_size_t(word.c_str(), "Invalid location!");
 			stringstream convert(word);
 			convert >> max_client_size;
-			cout << max_client_size <<endl;
-
 			cscan >>word;
 			if (max_client_size == 0 || word != ";")
 				throw(runtime_error("Invalid configue file!"));
@@ -180,6 +178,8 @@ location::location(ifstream &config_fd, string &word_serv)
 				throw(runtime_error("Invalide configue file!"));
 			cscan >> word;
 			uploads_folder = word;
+			if (access(uploads_folder.c_str(), F_OK) == -1)
+				throw(runtime_error("Invalid uploads_folder!"));
 			cscan >> word;
 			if (word != ";")
 				throw runtime_error("Invalid location!");
@@ -198,7 +198,7 @@ location::location(ifstream &config_fd, string &word_serv)
 			throw runtime_error("Invalid location!");
 			
 	}
-	if (word != "}")
+	if (word != "}" || (uploads_folder.empty() && _allow_upload == true) || (!uploads_folder.empty() && _allow_upload == false))
 		throw runtime_error("Invalid location!");
 }
 void check_size_t(const char *av, const char *message)
