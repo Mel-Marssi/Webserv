@@ -34,7 +34,6 @@ void Request::fill_status_code()
 string Request::get_status_code(string key)
 {
     map<string, string>::iterator it;
-
     it = status_code.find(key);
     if (it != status_code.end())
         return (it->second);

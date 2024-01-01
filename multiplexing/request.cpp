@@ -12,13 +12,9 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     size_request = 0;
     check_left_header = 0;
     check_create_file = 0;
-    // check_first_line = 0;
-    // kk = 0;
     fin_or_still = Still;
     check_req = 0;
     len = 0;
-    // check_first_time = 0;
-    // counter = 0;
     fir_body = "NULL";
     dire = NULL;
     exten = "";
@@ -30,6 +26,8 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
       total = 0;
       next_chunked = 0;
       acces_read_in_post = 0;
+      err = 0;
+      fill_content_type();
 }
 
 Request::Request(const Request& obj)
@@ -47,7 +45,7 @@ Request::Request(const Request& obj)
     kk = 0;
     len = 0;
     dire = NULL;
-
+    err = 0;
     fin_or_still = Still;
     // check_first_time = 0;
     // counter = obj.counter;
@@ -58,6 +56,7 @@ Request::Request(const Request& obj)
       total = 0;
       next_chunked = 0;
       acces_read_in_post = 0;
+      fill_content_type();
       (void) obj;
 }
  
@@ -144,52 +143,54 @@ int Request::parce_request(std::string read_request)
     return 0;
  
 }
+ 
 
-void Request::create_file(std::ofstream& outputFile,   std::map<std::string, std::string>& map)
+void Request::fill_content_type()
 {
+    cont_type["text/plain\r"] = ".txt";
+    cont_type["image/gif\r"] = ".gif";
+    cont_type["text/html\r"] = ".html";
+    cont_type["image/jpeg\r"] = ".jpeg";
+    cont_type["application/json\r"] = ".json";
+    cont_type["text/javascript\r"] = ".js";
+    cont_type["audio/mpeg\r"] = ".mp3";
+    cont_type["video/mp4\r"] = ".mp4";
+    cont_type["video/mpeg\r"] = ".mpeg";
+    cont_type["application/pdf\r"] = ".pdf";
+    cont_type["video/webm\r"] = ".webm";
+    cont_type["application/zip\r"] = ".zip";
+}
+
+
+void Request::create_file(std::ofstream& outputFile,   std::map<std::string, std::string>& map, servers &config, int index)
+{
+ 
    std::string type_file = map["Content-Type"];
-     std::cout  <<type_file <<   std::endl;
+   
+     std::map<std::string, std::string>::iterator it = header_request.find(type_file);
     srand (time(NULL));
     std::ostringstream str;
     str << rand();
-    if (type_file == "video/mp4\r")
-    {
 
-        std::cout << "uuuuu\n";
-        std::string randomName = str.str() + ".mp4";
+    if (it != cont_type.end())
+    {
+        std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + str.str() + cont_type[type_file];
         outputFile.open(randomName.c_str());
-        //   outputFile.open("tt");
 
-    }
-    else if (type_file == "image/png\r")
+    }  
+    else  
     {
-        // std::cout << "ddddd\n";
-        std::string randomName = str.str() + ".png";
+        std::string randomName = str.str() + ".x";
         outputFile.open(randomName.c_str());
-        // outputFile.open("tt");
-
-    }
-    else if (type_file == "image/jpeg\r")
-    {
-        // std::cout << "ddddd\n";
-        std::string randomName = str.str() + ".jpeg";
-        outputFile.open(randomName.c_str());
-        // outputFile.open("tt");
-
-    }
-    else
-    {
-     std::cout  <<type_file <<   std::endl;
-
     }
 }
 
 
-void Request::binary()
+void Request::binary(servers &config, int index)
 {
     if (check_create_file == 0)
 	{
-		create_file(outputFile, header_request);
+		create_file(outputFile, header_request, config,   index);
 		check_create_file = 1;
 		if (fir_body != "NULL")
 		{
@@ -210,14 +211,14 @@ void Request::binary()
 }
 
 
-void Request::chunked()
+void Request::chunked(servers &config, int index)
 {
            
 
  
     if (check_create_file == 0)
 	{
-		create_file(outputFile, header_request);
+		create_file(outputFile, header_request, config,  index);
 		check_create_file = 1;
 
         if (fir_body != "NULL")
@@ -236,8 +237,6 @@ void Request::chunked()
 		}
 		else
 		{
-			// cout <<"****************************************\n";
-
 			  outputFile << read_request;
         //    read_request.erase();
 		}
@@ -248,11 +247,27 @@ void Request::chunked()
 	}
 }
 
-void Request::post(int fd)
+void Request::post(int fd, servers &config, epoll_event &event)
 {
      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
    
     //  (void)fd;
+    this->parse_url_prot("POST");
+    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    // exit(4);
+    if ((config[index].get_loc_post(this->Path) == 0) && (Path.find(".") == string::npos))
+    {
+        err = 1;
+        error_page(event, fd, "405", config);
+        return;
+    }
+    cout << config[index].get_loc_upload(this->Path) << endl;
+    if ( config[index].get_loc_upload(this->Path) == 0)
+    {
+        err = 1;
+        error_page(event, fd, "403", config);
+        return;
+    }
 
      if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
      {
@@ -397,7 +412,7 @@ void Request::post(int fd)
         return;
      }
     }
-        chunked();
+        chunked(config, index);
         if (check_left_header == 1)
             acces_read_in_post = 1;
 }
@@ -406,7 +421,7 @@ void Request::post(int fd)
 
      else
      {
-        cout << "ana binary\n";
+        cout << "ana binary\n" << header_request["Content-Type"] << endl;
 
         if (acces_read_in_post == 1)
         {
@@ -417,9 +432,11 @@ void Request::post(int fd)
             size = read(fd, buff, 1024);
             size_read_request += size;
             read_request.append(buff,size);
+            outputFile << read_request;
+            return;
                         // parce_request(read_request);
         }
-        binary();
+        binary(config, index);
         if (check_left_header == 1)
             acces_read_in_post = 1;
      }

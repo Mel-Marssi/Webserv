@@ -52,15 +52,20 @@ class Request
         int finir;
         int acces_read_in_post;
         int next_chunked;
+        int err;
         std::ofstream outputFile;
-        void create_file(ofstream& outputFile,   map<string, string>& map);
+        void create_file(ofstream& outputFile,   map<string, string>& map, servers &config, int index);
         int parse_line(string line, int check_first);
         int parce_request(string header);
         map<string, string>  header_request;
-        void  post(int fd);
-        void binary();
-        void chunked();
-        // map<int, pair<string, string> > server_book;
+        void  post(int fd, servers &config, epoll_event &event);
+        void binary(servers &config, int index);
+        void chunked(servers &config, int index);
+        void default_error(string key, int fd);
+        // void get_path();
+        void fill_content_type();
+        std::map<std::string, std::string> cont_type;
+
         Request(map<int, pair<string, string> > server_book, int fd_client);
         Request();
         Request(const Request& obj);
@@ -74,11 +79,11 @@ class Request
         string Port;
         string Path_bef;
         
-        void parse_url_prot();
+        void parse_url_prot(string meth);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config);
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
-        void error_page(epoll_event &event, int epoll_fd, string key);
+        void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config, int index);

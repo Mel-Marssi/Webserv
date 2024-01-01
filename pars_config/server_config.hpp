@@ -31,9 +31,9 @@ class server_config
 		string server_name;
 		string index;
 		bool server_auto_index;
-		map<int, string> _error_book;
 		vector<location> serv_locations;
 	public:
+		map<int, string> _error_book;
 		server_config(ifstream &config_fd);
 		// void error_book();
 		int get_port();

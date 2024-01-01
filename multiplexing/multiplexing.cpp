@@ -31,7 +31,6 @@ multiplexing::multiplexing(servers &config)
 			throw(runtime_error("listen() call failed!"));
 		event.data.fd = server_socket[i];
 		event.events =  EPOLLIN | EPOLLOUT;
-		// cout << "-=----> " << event.data.fd <<endl;
 		if (epoll_ctl(epoll_fd,EPOLL_CTL_ADD, server_socket[i], &event) < 0)
 			throw(runtime_error("epoll_ctl() call failed!"));
 	}
@@ -56,20 +55,8 @@ multiplexing::multiplexing(servers &config)
 			}
 			else
 			{
-				// char buff[1024];
-				// for(int i=0; i < 1024;i++)
-				// 	buff[i] = 0;
-				// int size = 0;
-				// if (request[event_wait[i].data.fd].kk == 0)
-				// {
-				// 	request[event_wait[i].data.fd].kk = 1;
-				// 	if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
-				// 		break ;
-				// 	request[event_wait[i].data.fd].size_read_request += size;
-				// 	request[event_wait[i].data.fd].read_request.append(buff,size);
-				// 	request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-				// }
-				
+				request[event_wait[i].data.fd].fill_status_code();
+
 				if (request[event_wait[i].data.fd].check_left_header == 0)
 				{
 					char buff[1024];
@@ -84,7 +71,10 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_wait[i].data.fd].methode == "POST")
 				{	
  
-					request[event_wait[i].data.fd].post(event_wait[i].data.fd);
+					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
+  				    request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
+					
+					request[event_wait[i].data.fd].post(event_wait[i].data.fd, config, event_wait[i]);
 		 
 				}
 				else if (request[event_wait[i].data.fd].methode == "GET" && request[event_wait[i].data.fd].fin_or_still == Still)
@@ -95,7 +85,7 @@ multiplexing::multiplexing(servers &config)
 					// cout << "----->" << request[event_wait[i].data.fd]._port << " " << request[event_wait[i].data.fd]._host <<endl;
 					if (request[event_wait[i].data.fd].check_req == 0)
 					{
-						request[event_wait[i].data.fd].fill_status_code();
+						// request[event_wait[i].data.fd].fill_status_code();
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
 					}
 					else if (request[event_wait[i].data.fd].check_req == 1)
@@ -112,17 +102,20 @@ multiplexing::multiplexing(servers &config)
 				}
 				if (request[event_wait[i].data.fd].methode == "NONE")
 				{
-					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400");
+					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
 					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
 						if (it != request.end())
 							request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
 				}
-				if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1)
+				if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1)
 				{
+					if (request[event_wait[i].data.fd].err == 0)
+					{
+						const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+						send(event_wait[i].data.fd, n, 170, 0);
  
-					const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
-					send(event_wait[i].data.fd, n, 170, 0);
+					}
 					close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
 					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
