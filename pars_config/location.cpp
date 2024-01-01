@@ -17,9 +17,21 @@ bool location::get_auto_index() const
 {
 	return (_auto_index);
 }
+bool location::get_upload() const
+{
+	return (_allow_upload);
+}
+size_t location::get_max_client_size() const
+{
+	return (max_client_size);
+}
 string location::get_root() const
 {
 	return (root);
+}
+string location::get_upload_folder() const
+{
+	return (uploads_folder);
 }
 string location::get_index() const
 {
@@ -60,14 +72,15 @@ location::~location()
 location::location(ifstream &config_fd, string &word_serv)
 {
 	string file, word;
-	_get = _post = _auto_index = _delete = false;
+	_get = _post = _auto_index = _delete = _allow_upload = false;
 	if (word_serv == "location" || word_serv == "{")
 		throw(runtime_error("Invalide configue file!"));
 	path_location = word_serv;
 	index = "";
 	root = "";
 	redirection = "";
-	
+	uploads_folder = "";
+	max_client_size = 0;
 	while (getline(config_fd, file))
 	{
 		istringstream cscan(file);
@@ -117,7 +130,7 @@ location::location(ifstream &config_fd, string &word_serv)
 		else if (word == "index")
 		{
 			if (!index.empty())
-				throw(runtime_error("Invalide configue file!"));
+				throw(runtime_error("Invalid configue file!"));
 			cscan >> word;
 			index = word;
 			cscan >> word;
@@ -127,9 +140,44 @@ location::location(ifstream &config_fd, string &word_serv)
 		else if(word == "return")
 		{
 			if (!redirection.empty())
-				throw(runtime_error("Invalide configue file!"));
+				throw(runtime_error("Invalid configue file!"));
 			cscan >> word;
 			redirection = word;
+			cscan >> word;
+			if (word != ";")
+				throw runtime_error("Invalid location!");
+		}
+		else if (word == "max_client_size")
+		{
+			if (max_client_size != 0)
+				throw(runtime_error("Invalid configue file!"));
+			cscan >> word;
+			check_size_t(word.c_str(), "Invalid location!");
+			stringstream convert(word);
+			convert >> max_client_size;
+			cscan >>word;
+			if (max_client_size == 0 || word != ";")
+				throw(runtime_error("Invalid configue file!"));
+		}
+		else if (word == "allow_upload")
+		{
+			if (_allow_upload)
+				throw(runtime_error("Invalide configue file!"));
+			cscan >> word;
+			if (word == "on")
+				_allow_upload = true;
+			else if (word != "off")
+				throw(runtime_error("Invalid allow_upload!"));
+			cscan >> word;
+				if (word != ";")
+					throw runtime_error("Invalid location!");	
+		}
+		else if(word == "uploads_folder")
+		{
+			if (!uploads_folder.empty())
+				throw(runtime_error("Invalide configue file!"));
+			cscan >> word;
+			uploads_folder = word;
 			cscan >> word;
 			if (word != ";")
 				throw runtime_error("Invalid location!");
@@ -140,10 +188,6 @@ location::location(ifstream &config_fd, string &word_serv)
 			cgi_path = word;
 			//tanwseel double cgi
 		}
-		// else if (word == "uploads")
-		// {
-
-		// }
 		else if (word.empty())
 		 	throw runtime_error("Invalid location!");
 		else if (word == ";")
@@ -154,6 +198,14 @@ location::location(ifstream &config_fd, string &word_serv)
 	}
 	if (word != "}")
 		throw runtime_error("Invalid location!");
+}
+void check_size_t(const char *av, const char *message)
+{
+	for(int i = 0; i < (int)strlen(av);i++)
+	{
+		if(av[i] < '0' || av[i] > '9')
+			throw(runtime_error(message)); 
+	}
 }
 
 int check_atoi(const char *av, const char *message)

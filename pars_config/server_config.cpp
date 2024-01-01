@@ -225,7 +225,7 @@ string server_config::get_loc_root(string const &name)
 		if (it->get_path_location() == name)
 			return(it->get_root());
 	}
-	return ("false");
+	return ("");
 }
 
 string server_config::get_loc_index(const string  &name)
@@ -236,7 +236,7 @@ string server_config::get_loc_index(const string  &name)
 		if (it->get_path_location() == name)
 			return(it->get_index());
 	}
-	return ("false");
+	return ("");
 }
 
 string server_config::get_loc_redirection(const string  &name)
@@ -247,7 +247,7 @@ string server_config::get_loc_redirection(const string  &name)
 		if (it->get_path_location() == name)
 			return(it->get_redirection());
 	}
-	return ("false");
+	return ("");
 }
 
 string server_config::get_loc_cgi_path(const string  &name)
@@ -258,7 +258,7 @@ string server_config::get_loc_cgi_path(const string  &name)
 		if (it->get_path_location() == name)
 			return(it->get_cgi_path());
 	}
-	return ("false");
+	return ("");
 }
 
 string server_config::get_loc_path_location(const string  &name)
@@ -269,7 +269,7 @@ string server_config::get_loc_path_location(const string  &name)
 		if (it->get_path_location() == name)
 			return(it->get_path_location());
 	}
-	return ("false");
+	return ("");
 }
 
 int server_config::get_port()

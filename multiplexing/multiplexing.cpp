@@ -14,15 +14,14 @@ multiplexing::multiplexing(servers &config)
 
 	for (int i = 0; i < config.size(); i++)
 	{
-		stringstream int_to_string[2];
+		stringstream int_to_string;
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw (runtime_error("socket() call failed!"));
 		adress.sin_addr.s_addr = inet_addr(config[i].get_host().c_str());
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
-		int_to_string[0] << config[i].get_port();
-		int_to_string[1] << config[i].get_host();
-		server_book[server_socket[i]] = make_pair(int_to_string[0].str(), int_to_string[1].str());
+		int_to_string << config[i].get_port();
+		server_book[server_socket[i]] = make_pair(int_to_string.str(), config[i].get_host());
 
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
 			throw(runtime_error("setsockopt() call failed!"));

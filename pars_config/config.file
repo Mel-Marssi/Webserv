@@ -9,19 +9,13 @@ server {
     location / {
         allow_methods  DELETE POST GET ;
         autoindex on ;
-    }    
-
-    location /false {
-        autoindex on ;
-        root ./ ;
-        allow_methods GET POST ;
     }
-
 
     location /multiplexing {
         autoindex on ;
         root ./ ;
         allow_methods GET POST ;
+        max_client_size 1465456 ;
     }
 
     location /root_page {
@@ -30,6 +24,8 @@ server {
         index root.html ;
         allow_methods GET POST ;
         return /test/fich.pdf ;
+        allow_upload on ;
+        uploads_folder uploads ;
     }
 
     location /cgi-bin {
