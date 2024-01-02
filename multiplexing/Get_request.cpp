@@ -31,38 +31,7 @@ void    Request::parse_url_prot(string meth)
     // cout << this->Path  << endl;
         // cout << "---------||||||------\n";
 }
-std::string Request::read_buff(map<string, string> &m)
-{
-    string head;
-    stringstream size;
-    // //to get the size =======
-    op.seekg(0, ios::end);
-    streampos fileS = op.tellg();
-    op.seekg(0, ios::beg);
-    // struct stat fileStat;
-    // stat(this->Path.c_str(), &fileStat);
-    // std::stringstream fileSize;
-    // fileSize << fileStat.st_size;
-    // //=======================
 
-    char buffer[1024];
-    memset(buffer, 0, 1024 );
-    op.read(buffer, 1024);
-    line.append(buffer, 1024);
-    head += "HTTP/1.1 200 ok\r\nContent-Type: ";
-    con_type = get_content_type(m);
-    head += con_type;
-    head += "\r\nContent-Lenght:";
-    size << fileS;
-    head += size.str();
-    // size_f = size;
-    // size_f -= 1024;
-    // cout << fileSize.str() << "******\n";
-    head += "\r\n\r\n";
-    head += line;
-    line = "";
-    return (head);
-}
 
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
@@ -71,7 +40,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     //Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    if (config[index].get_loc_path_location(this->Path).empty())
+    // cout << Path << " " << full_Path << endl;
+    if ((config[index].get_loc_path_location(this->Path).empty()) && (Path.find(".") == string::npos))
         error_page(event, epoll_fd, "404", config);
     //check__if__methode__alowed :
     else if ((config[index].get_loc_get(this->Path) == 0) && (Path.find(".") == string::npos))
@@ -113,7 +83,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 error_page(event, epoll_fd, "404", config);
         }
     }
-    else if ((!config[index].get_loc_path_location(this->Path).empty()) && (!config[index].get_loc_root(this->Path).empty()))
+    else if (!(config[index].get_loc_path_location(this->Path).empty()) && !(config[index].get_loc_root(this->Path).empty()))
     {
         string root = config[index].get_loc_root(this->Path);
         if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
@@ -130,6 +100,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     redirection_content_backSlash(event, epoll_fd, config);
                 else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
+                    file_get = config[index].get_loc_index(this->Path);
                     op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                     if (op.is_open())
                     {
@@ -138,11 +109,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             end_of_file(event, epoll_fd);
                     }
                     else //not_found_or_forbiden :
-                    {
-                // cout << "SDFSDFSDFSDF" <<endl;
-                        close_dir();
                         error_page(event, epoll_fd, "404", config);
-                    }
                 }//check auto index
                 else if ((file_get != ""))
                 {
@@ -154,19 +121,15 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             end_of_file(event, epoll_fd);
                     }
                     else //not_found_or_forbiden :
-                    {
-                        close_dir();
                         error_page(event, epoll_fd, "404", config);
-                    }
                 }//if index not existe  
                 else if (config[index].get_loc_auto_index(this->Path))
                 {
-                //   cout << "AAAAAAA" <<endl;
                     close_dir();
                     root_page(event, epoll_fd, this->full_Path); 
                 }
             }
-            else if (config[index].get_loc_auto_index(this->Path))
+            else if (config[index].get_loc_auto_index(this->Path)) // hna ralat ==================
                 root_page(event, epoll_fd, (config[index].get_loc_root(this->Path) + "/"+this->Path));
             else
                 error_page(event, epoll_fd, "404", config);
@@ -174,7 +137,27 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config, index);
     }
+    else if (this->Path.find(".") != string::npos)
+    {
+        string root = config[index].get_root();
+        if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
+            this->full_Path.erase(0,1);
+        this->full_Path.insert(0, root);
+        op.open((this->full_Path).c_str());
+        if (op.is_open())
+        {
+        // cout << "-->>> "<< full_Path << endl;
+            read_for_send(m);
+            if (op.eof())
+            {
+                cout << "sallllla\n";
+                end_of_file(event, epoll_fd);
+            }
+        }
+        else //not_found_or_forbiden :
+            error_page(event, epoll_fd, "404", config);
 
+    }
     // else if ((config.get_loc_get(this->Path) && (config.get_loc_auto_index(this->Path) == 1)))
     // {
     //     int serv = get_right_index(config.server, (int)atoi(Port.c_str()), Host, server_name);
@@ -288,9 +271,13 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     //     error_page(event, epoll_fd, "404", config);
     // }
     else
+    {
+
         error_page(event, epoll_fd, "404", config);
+    }
     (void)m;
 }
+
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
     if (op.is_open())
@@ -348,7 +335,6 @@ void Request::default_error(string key, int fd)
 
         len = head.length();
         line = "";
-          cout << head << len<< endl;
         this->fin_or_still = finish;
         send(fd, head.c_str(), len, 0);
 }
@@ -357,7 +343,6 @@ void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &
 {
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    cout << config[index]._error_book[atoi(key.c_str())]<< endl; 
     close_dir();
     string str = config[index]._error_book[atoi(key.c_str())];
 
@@ -379,7 +364,6 @@ void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &
         head += line;
         len = head.length();
         line = "";
-         cout << head << endl;
         this->fin_or_still = finish;
         send(event.data.fd, head.c_str(), len, 0);
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
@@ -393,12 +377,8 @@ void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &
     }
     else
     {
-        cout << "Ffff\n";
         default_error(key, event.data.fd);
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
         close(event.data.fd);
-
-
     }
-        // cout << "Ffff\n";
 }

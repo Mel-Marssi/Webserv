@@ -66,6 +66,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].size_read_request += request[event_wait[i].data.fd].size;
 					request[event_wait[i].data.fd].read_request.append(buff,request[event_wait[i].data.fd].size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
+					// cout << request[event_wait[i].data.fd].read_request << endl;
 				}
 
 				if (request[event_wait[i].data.fd].methode == "POST")
@@ -108,20 +109,20 @@ multiplexing::multiplexing(servers &config)
 							request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
 				}
-				if ( request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1)
-				{
-					if (request[event_wait[i].data.fd].err == 0)
-					{
-						const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
-						send(event_wait[i].data.fd, n, 170, 0);
+				// if (request[event_wait[i].data.fd].methode != "GET" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
+				// {
+				// 	if (request[event_wait[i].data.fd].err == 0)
+				// 	{
+				// 		const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+				// 		send(event_wait[i].data.fd, n, 170, 0);
  
-					}
-					close(event_wait[i].data.fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
-					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
-					if (it != request.end())
-						request.erase(it);
-				}
+				// 	}
+				// 	close(event_wait[i].data.fd);
+				// 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+				// 	std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+				// 	if (it != request.end())
+				// 		request.erase(it);
+				// }
 				// else
 				request[event_wait[i].data.fd].read_request.erase();
 
