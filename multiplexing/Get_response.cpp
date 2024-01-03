@@ -42,7 +42,7 @@ void Request::read_for_send(map<string, string> &m)
 void Request::end_of_file(epoll_event &event, int epoll_fd)
 {
     fin_or_still = finish;
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event);
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
     close(event_fd);
     op.close();
     close_dir();

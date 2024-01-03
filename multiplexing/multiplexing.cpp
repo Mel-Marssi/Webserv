@@ -54,52 +54,8 @@ multiplexing::multiplexing(servers &config)
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 			}
 			else
-<<<<<<< HEAD
 			{
 				request[event_wait[i].data.fd].fill_status_code();
-=======
-			{	
-				// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << fd_client << endl;
-				//======== GET =============
-				// request[event_wait[i].data.fd].fin_or_still = Still;
-				// request[event_wait[i].data.fd].check_first_time = 0;
-				// request[event_wait[i].data.fd].counter = 0;
-				//===============================
-				char buff[1024];
-				for(int i=0; i < 1024;i++)
-					buff[i] = 0;
-				int size = 0;
-				// cout << event_wait[i].data.fd << "\t----------------------\t" << request[event_wait[i].data.fd].kk << endl;
-				if (request[event_wait[i].data.fd].kk == 0)
-				{
-					request[event_wait[i].data.fd].kk = 1;
-					// cout << "READ HANGING |||||\t" << event_wait[i].data.fd << "\t" << request[event_wait[i].data.fd].kk <<endl;
-					if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
-						break ;
-					// cout << "READ SIZE --------------===---------\t" << size <<endl;
-					// cout << buff << endl;
-					request[event_wait[i].data.fd].size_read_request += size;
-					request[event_wait[i].data.fd].read_request.append(buff,size);
-					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
-				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
-				// cout << endl;
-				}
-				// if (request[event_wait[i].data.fd].methode == "POST")
-				// {	
-				// 	// cout << "--------------------------------\n";
-				// 	if (request[event_wait[i].data.fd].check_create_file == 0)
-				// 	{
-				// 		request[event_wait[i].data.fd].create_file(request[event_wait[i].data.fd].outputFile, request[event_wait[i].data.fd].header_request);
-				// 		request[event_wait[i].data.fd].check_create_file = 1;
-				// 		if (request[event_wait[i].data.fd].fir_body != "NULL")
-				// 		{
-				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].fir_body;
-				// 			request[event_wait[i].data.fd].fir_body = "NULL";
-				// 		}
-				// 		else
-				// 		{
-				// 			cout <<"****************************************\n";
->>>>>>> 5d0219d (GET)
 
 				if (request[event_wait[i].data.fd].check_left_header == 0)
 				{
@@ -153,20 +109,20 @@ multiplexing::multiplexing(servers &config)
 							request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
 				}
-				// if (request[event_wait[i].data.fd].methode != "GET" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
-				// {
-				// 	if (request[event_wait[i].data.fd].err == 0)
-				// 	{
-				// 		const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
-				// 		send(event_wait[i].data.fd, n, 170, 0);
+				if (request[event_wait[i].data.fd].methode != "GET" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
+				{
+					if (request[event_wait[i].data.fd].err == 0)
+					{
+						const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+						send(event_wait[i].data.fd, n, 170, 0);
  
-				// 	}
-				// 	close(event_wait[i].data.fd);
-				// 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
-				// 	std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
-				// 	if (it != request.end())
-				// 		request.erase(it);
-				// }
+					}
+					close(event_wait[i].data.fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+					if (it != request.end())
+						request.erase(it);
+				}
 				// else
 				request[event_wait[i].data.fd].read_request.erase();
 

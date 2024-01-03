@@ -83,10 +83,7 @@ void Request::redirection_content(epoll_event &event, int epoll_fd, servers &con
 
 void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config)
 {
-<<<<<<< HEAD
     cout <<  "->>>>>>>>> " << this->Path <<endl;
-=======
->>>>>>> 5d0219d (GET)
     string head;
     head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
     head += this->Path + "/";
