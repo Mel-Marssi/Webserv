@@ -56,7 +56,7 @@ class Request
         std::ofstream outputFile;
         void create_file(ofstream& outputFile,   map<string, string>& map, servers &config, int index);
         int parse_line(string line, int check_first);
-        int parce_request(string header);
+        int parce_request(string read_request, epoll_event &event, int epoll_fd, servers &config);
         map<string, string>  header_request;
         void  post(int fd, servers &config, epoll_event &event);
         void binary(servers &config, int index);

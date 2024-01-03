@@ -102,7 +102,7 @@ int Request::parse_line(std::string line, int check_first)
     return 0;
 }
 
-int Request::parce_request(std::string read_request)
+int Request::parce_request(string read_request, epoll_event &event, int epoll_fd, servers &config)
 {
  
     size_t i = 0;
@@ -136,8 +136,17 @@ int Request::parce_request(std::string read_request)
         if (check_body != std::string::npos)
         {
             this->fir_body = read_request.substr(check_body + 3, read_request.length());
-            // size = size - (check_body + 3);
-            // cout << fir_body << endl;
+        }
+        if (this->methode == "POST")
+        {
+            map<string, string>::iterator it;
+            map<string, string>::iterator it0;
+            it = header_request.find("Transfer-Encoding");//Content-Length
+            it0 = header_request.find("Content-Length");//Content-Length
+            if ((it == header_request.end()) || (it0 == header_request.end()))
+            {
+                error_page(event, epoll_fd, "400", config);
+            }
         }
     
     return 0;
@@ -198,11 +207,7 @@ void Request::binary(servers &config, int index)
 			fir_body = "NULL";
 		}
 		else
-		{
-			cout <<"****************************************\n";
-
 			outputFile << read_request;
-		}
 	}
 	else
 	{
@@ -261,7 +266,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         error_page(event, fd, "405", config);
         return;
     }
-    cout << config[index].get_loc_upload(this->Path) << endl;
     if ( config[index].get_loc_upload(this->Path) == 0)
     {
         err = 1;
@@ -308,8 +312,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
                         if (size_chunked == 0)
                         {
-                        
-                            cout << size << "--"<< endl;
                             finir = 1;
                             return;
                         }

@@ -60,12 +60,11 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_wait[i].data.fd].check_left_header == 0)
 				{
 					char buff[1024];
-	 				// cout << "dddd\n";
 					request[event_wait[i].data.fd].size = 0;
 					request[event_wait[i].data.fd].size = read(event_wait[i].data.fd, buff, 1024);
 					request[event_wait[i].data.fd].size_read_request += request[event_wait[i].data.fd].size;
 					request[event_wait[i].data.fd].read_request.append(buff,request[event_wait[i].data.fd].size);
-					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
+					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request, event_wait[i], epoll_fd, config);
 					// cout << request[event_wait[i].data.fd].read_request << endl;
 				}
 

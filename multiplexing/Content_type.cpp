@@ -83,13 +83,11 @@ void Request::redirection_content(epoll_event &event, int epoll_fd, servers &con
 
 void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config)
 {
-    cout <<  "->>>>>>>>> " << this->Path <<endl;
     string head;
     head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
     head += this->Path + "/";
     // head += "/";
     head += "\r\n\r\n";
-    // cout << head <<"\n" << endl;
     
     size_t len = head.length();
     send(event.data.fd, head.c_str(), len, 0);

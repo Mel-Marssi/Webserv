@@ -16,7 +16,6 @@ void    Request::parse_url_prot(string meth)
         this->Path.insert(0, it->second, 0, i);
         i++;
         this->Protocole.insert(0, it->second, i, it->second.length());
-        cout << it->second << endl;
     }
     i = 1;
     i = this->Path.find("/", i);
@@ -87,13 +86,17 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 else
                    root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
             }
-            else//forbiden or not allowed
-                error_page(event, epoll_fd, "404", config);
+            else//forbiden 
+                error_page(event, epoll_fd, "403", config);
         }
     }
-    else if (!(config[index].get_loc_path_location(this->Path).empty()) && !(config[index].get_loc_root(this->Path).empty()))
+    else if (!(config[index].get_loc_path_location(this->Path).empty()))
     {
-        string root = config[index].get_loc_root(this->Path);
+        string root;
+        if (!config[index].get_loc_root(this->Path).empty())
+            root = config[index].get_loc_root(this->Path);
+        else
+            root = config[index].get_root();
         if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
             this->full_Path.erase(0,1);
         this->full_Path.insert(0, root);
@@ -109,6 +112,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
                     // file_get = config[index].get_loc_index(this->Path);
+    //cgi____file ---------------------
+                    // if (config[index].get_loc_index(this->Path).find(".php") != string::npos)
+                    // {
+                    //     //Morad______CGI :::::::
+                    // }
                     op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                     if (op.is_open())
                     {
@@ -132,13 +140,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         error_page(event, epoll_fd, "404", config);
                 }//if index not existe  
                 else if (config[index].get_loc_auto_index(this->Path))
-                {
-                    close_dir();
                     root_page(event, epoll_fd, this->full_Path); 
-                }
             }
-            else if (config[index].get_loc_auto_index(this->Path)) // hna ralat ==================
-                root_page(event, epoll_fd, (config[index].get_loc_root(this->Path) + "/"+this->Path));
             else
                 error_page(event, epoll_fd, "404", config);
         }
@@ -156,10 +159,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         {
             read_for_send(m);
             if (op.eof())
-            {
-                cout << "sallllla\n";
                 end_of_file(event, epoll_fd);
-            }
         }
         else //not_found_or_forbiden :
             error_page(event, epoll_fd, "404", config);

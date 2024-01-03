@@ -3,6 +3,7 @@
 
 void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
 {
+    close_dir();
     string head;
     head += "HTTP/1.1 200 ok\r\nContent-Type: ";
     head += "text/html";
@@ -17,7 +18,6 @@ void Request::root_page(epoll_event &event, int epoll_fd, string Pat)
         head += buffer;
         head += "<h1> Files Existent on the " + Pat + "</h1>";
         dire = opendir(Pat.c_str());
-            // cout << Pat<< "\t000000\n";
         if (dire)
         {
             struct dirent* entre;
