@@ -54,8 +54,52 @@ multiplexing::multiplexing(servers &config)
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 			}
 			else
+<<<<<<< HEAD
 			{
 				request[event_wait[i].data.fd].fill_status_code();
+=======
+			{	
+				// cout << event_wait[i].data.fd << "\t" << server_socket[config.size() - 1] << "\t" << fd_client << endl;
+				//======== GET =============
+				// request[event_wait[i].data.fd].fin_or_still = Still;
+				// request[event_wait[i].data.fd].check_first_time = 0;
+				// request[event_wait[i].data.fd].counter = 0;
+				//===============================
+				char buff[1024];
+				for(int i=0; i < 1024;i++)
+					buff[i] = 0;
+				int size = 0;
+				// cout << event_wait[i].data.fd << "\t----------------------\t" << request[event_wait[i].data.fd].kk << endl;
+				if (request[event_wait[i].data.fd].kk == 0)
+				{
+					request[event_wait[i].data.fd].kk = 1;
+					// cout << "READ HANGING |||||\t" << event_wait[i].data.fd << "\t" << request[event_wait[i].data.fd].kk <<endl;
+					if ((size = read(event_wait[i].data.fd, buff, 1024)) == 0)
+						break ;
+					// cout << "READ SIZE --------------===---------\t" << size <<endl;
+					// cout << buff << endl;
+					request[event_wait[i].data.fd].size_read_request += size;
+					request[event_wait[i].data.fd].read_request.append(buff,size);
+					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request);
+				// cout << request[event_wait[i].data.fd].read_request << "\n\n---"<< endl;
+				// cout << endl;
+				}
+				// if (request[event_wait[i].data.fd].methode == "POST")
+				// {	
+				// 	// cout << "--------------------------------\n";
+				// 	if (request[event_wait[i].data.fd].check_create_file == 0)
+				// 	{
+				// 		request[event_wait[i].data.fd].create_file(request[event_wait[i].data.fd].outputFile, request[event_wait[i].data.fd].header_request);
+				// 		request[event_wait[i].data.fd].check_create_file = 1;
+				// 		if (request[event_wait[i].data.fd].fir_body != "NULL")
+				// 		{
+				// 			request[event_wait[i].data.fd].outputFile << request[event_wait[i].data.fd].fir_body;
+				// 			request[event_wait[i].data.fd].fir_body = "NULL";
+				// 		}
+				// 		else
+				// 		{
+				// 			cout <<"****************************************\n";
+>>>>>>> 5d0219d (GET)
 
 				if (request[event_wait[i].data.fd].check_left_header == 0)
 				{

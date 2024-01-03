@@ -70,10 +70,18 @@ class Request
         Request();
         Request(const Request& obj);
         //==========GET==========================
+<<<<<<< HEAD
         string Path;
         string Protocole;
         string file_get;
         string full_Path;
+=======
+        std::string Path;
+        std::string Protocole;
+        std::string file_get;
+        std::string full_Path;
+        std::string Path_bef;
+>>>>>>> 5d0219d (GET)
         //Config_file :
         string Host, server_name;
         string Port;
@@ -92,9 +100,13 @@ class Request
         map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);
+<<<<<<< HEAD
         void read_for_send(map<string, string> &m);
         void end_of_file(epoll_event &event, int epoll_fd);
         void close_dir();
+=======
+        void redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config);
+>>>>>>> 5d0219d (GET)
 
         string fin_or_still;
         size_t check_first_time;
