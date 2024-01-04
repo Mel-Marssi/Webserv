@@ -7,10 +7,12 @@ multiplexing/multiplexing.cpp multiplexing/post.cpp  multiplexing/request.cpp \
 multiplexing/Get_request.cpp multiplexing/Get_response.cpp	\
 multiplexing/Content_type.cpp	multiplexing/root_page.cpp	\
 multiplexing/Delete_Methode.cpp	\
+cgi-bin/cgi_handler.cpp 
 
 OBJ=$(FILE:.cpp=.o)
 INCLUDE=pars_config/server_config.hpp pars_config/location.hpp \
 pars_config/servers.hpp multiplexing/multiplexing.hpp \
+
 
 all: $(NAME)
 $(NAME):$(OBJ)

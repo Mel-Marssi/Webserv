@@ -1,15 +1,19 @@
 #pragma once
 
-#include "pars_config/servers.hpp"
+#include "../pars_config/servers.hpp"
+#include "../multiplexing/multiplexing.hpp"
+class Request;
+class cgi_handler
+{
+	public:
+	static int i;
+		map<string, string> CGI_BOOK;
+		cgi_handler(Request &req);
+		~cgi_handler();
+};
 
-	// CGI_BOOK["SCRIPT_FILENAME"] = 
-	// CGI_BOOK["REQUEST_METHOD"] = 
-	// CGI_BOOK["QUERY_STRING"] = 
-	// CGI_BOOK["CONTENT_LENGTH"] = 
-	// CGI_BOOK["SERVER_PROTOCOL"] = "HTTP/1.1";
-	// CGI_BOOK["REDIRECT_STATUS"] = "200";
-	// CGI_BOOK["FCGI_ROLE"] = "RESPONDER";
-	// CGI_BOOK["REQUEST_SCHEME"] = "http";
+void php_cgi(Request &req, server_config &config);
+
 
 	// env.push_back("HTTP_COOKIE=");
 

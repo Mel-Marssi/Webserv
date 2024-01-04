@@ -22,14 +22,18 @@ void    Request::parse_url_prot(string meth)
     if (i != string::npos)
     {
         this->file_get.insert(0, this->Path, i + 1, this->Path.length());
+        cout << "----> " << Path << endl;
         this->Path_bef = this->Path;
         this->Path.erase(i, this->Path.length());
         this->full_Path = this->Path_bef;
         if (this->file_get.find("?") != string::npos)
         {
             size_t o;
+            
             o = this->file_get.find("?");
             this->Query_String.insert(0, file_get, o + 1, file_get.length());
+            full_Path[full_Path.find("?")] = '\0';
+            // full_Path.erase(o, full_Path.length());
             file_get.erase(o, file_get.length());
         }
         else
@@ -86,7 +90,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                    root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
             }
             else//forbiden 
+            {
                 error_page(event, epoll_fd, "403", config);
+            }
         }
     }
     else if (!(config[index].get_loc_path_location(this->Path).empty()))
@@ -110,12 +116,18 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     redirection_content_backSlash(event, epoll_fd, config);
                 else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
-                    // file_get = config[index].get_loc_index(this->Path);
-    //cgi____file ---------------------
-                    // if (config[index].get_loc_index(this->Path).find(".php") != string::npos)
-                    // {
-                    //     //Morad______CGI :::::::
-                    // }
+                    if (this->Path.find("cgi") != string::npos)
+                    {
+                        php_cgi(*this, config[index]);
+                         cout <<  "-----+> "<<cgi_file <<endl;
+                        op.open(cgi_file.c_str());
+                        if (op.is_open())
+                        {
+                            read_for_send(m);
+                            if (op.eof())
+                                end_of_file(event, epoll_fd);
+                        }
+                    }
                     op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                     if (op.is_open())
                     {
@@ -128,6 +140,18 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 }//check auto index
                 else if ((file_get != ""))
                 {
+                    if (this->Path.find("cgi") != string::npos)
+                    {
+                        php_cgi(*this, config[index]);
+                         cout <<  "-----+> "<< cgi_file <<endl;
+                        op.open(cgi_file.c_str());
+                        if (op.is_open())
+                        {
+                            read_for_send(m);
+                            if (op.eof())
+                                end_of_file(event, epoll_fd);
+                        }
+                    }
                     op.open((this->full_Path).c_str());
                     if (op.is_open())
                     {
@@ -153,21 +177,28 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
             this->full_Path.erase(0,1);
         this->full_Path.insert(0, root);
-        op.open((this->full_Path).c_str());
-        if (op.is_open())
+        if (this->Path.find("cgi") != string::npos)
         {
-            read_for_send(m);
-            if (op.eof())
-                end_of_file(event, epoll_fd);
+            php_cgi(*this, config[index]);
+            cout << "1-----+> " << cgi_file << endl;
         }
-        else //not_found_or_forbiden :
-            error_page(event, epoll_fd, "404", config);
+        else
+        {
+            op.open((this->full_Path).c_str());
+            if (op.is_open())
+            {
+                read_for_send(m);
+                if (op.eof())
+                    end_of_file(event, epoll_fd);
+            }
+            else //not_found_or_forbiden :
+                error_page(event, epoll_fd, "404", config);
+        }
     }
     else
         error_page(event, epoll_fd, "404", config);
     (void)m;
 }
-
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
     if (op.is_open())

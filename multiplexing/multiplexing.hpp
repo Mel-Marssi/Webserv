@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 
 typedef vector<int>::iterator iterator_client;
+class Request;
 class multiplexing
 {
 	private:

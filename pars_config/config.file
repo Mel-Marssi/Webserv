@@ -41,9 +41,10 @@ server {
     location /cgi-bin {
         root ./ ;
         autoindex on ;
-        index fich.php ;
         allow_methods GET POST DELETE ;
-        cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+        cgi_path /usr/bin/php ;
+        allow_upload on ;
+        uploads_folder uploads ;
     }
 
 }

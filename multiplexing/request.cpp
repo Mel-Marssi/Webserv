@@ -104,7 +104,10 @@ int Request::parse_line(std::string line, int check_first)
 
 int Request::parce_request(string read_request, epoll_event &event, int epoll_fd, servers &config)
 {
- 
+    (void)event;
+    (void)epoll_fd;
+    (void)config;
+
     size_t i = 0;
     if (check_left_header == 1)
     {
@@ -137,15 +140,15 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
         {
             this->fir_body = read_request.substr(check_body + 3, read_request.length());
         }
-        if (this->methode == "POST")
-        {
-            map<string, string>::iterator it;
-            map<string, string>::iterator it0;
-            it = header_request.find("Transfer-Encoding");//Content-Length
-            it0 = header_request.find("Content-Length");//Content-Length
-            if ((it == header_request.end()) || (it0 == header_request.end()))
-                error_page(event, epoll_fd, "400", config);
-        }
+        // if (this->methode == "POST")
+        // {
+        //     map<string, string>::iterator it;
+        //     map<string, string>::iterator it0;
+        //     it = header_request.find("Transfer-Encoding");//Content-Length
+        //     it0 = header_request.find("Content-Length");//Content-Length
+        //     if ((it == header_request.end()) || (it0 == header_request.end()))
+        //         error_page(event, epoll_fd, "400", config);
+        // }
     
     return 0;
  

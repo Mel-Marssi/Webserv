@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../pars_config/servers.hpp"
+#include "../cgi-bin/cgi_handler.hpp"
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <cstdlib>  
@@ -75,6 +76,7 @@ class Request
         string file_get;
         string full_Path;
         string Query_String;
+        string cgi_file;
         //Config_file :
         string Host, server_name;
         string Port;
