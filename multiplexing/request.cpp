@@ -144,9 +144,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
             it = header_request.find("Transfer-Encoding");//Content-Length
             it0 = header_request.find("Content-Length");//Content-Length
             if ((it == header_request.end()) || (it0 == header_request.end()))
-            {
                 error_page(event, epoll_fd, "400", config);
-            }
         }
     
     return 0;

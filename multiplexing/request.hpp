@@ -109,4 +109,6 @@ class Request
         streampos fileSize;
         int ck;
         int event_fd;
+        //============= Delete =========================
+        void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
 };

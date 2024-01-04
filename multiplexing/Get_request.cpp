@@ -47,7 +47,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     //Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    // cout << Path << " " << full_Path << endl;
     if ((config[index].get_loc_path_location(this->Path).empty()) && (Path.find(".") == string::npos))
         error_page(event, epoll_fd, "404", config);
     //check__if__methode__alowed :

@@ -100,6 +100,10 @@ multiplexing::multiplexing(servers &config)
 					}
 					// cout << request[event_wait[i].data.fd].header_request << endl;
 				}
+				else if (request[event_wait[i].data.fd].methode == "DELETE")
+				{
+					request[event_wait[i].data.fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
+				}
 				if (request[event_wait[i].data.fd].methode == "NONE")
 				{
 					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
