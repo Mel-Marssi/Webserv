@@ -22,7 +22,6 @@ void    Request::parse_url_prot(string meth)
     if (i != string::npos)
     {
         this->file_get.insert(0, this->Path, i + 1, this->Path.length());
-        cout << "----> " << Path << endl;
         this->Path_bef = this->Path;
         this->Path.erase(i, this->Path.length());
         this->full_Path = this->Path_bef;
@@ -119,7 +118,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     if (this->Path.find("cgi") != string::npos)
                     {
                         php_cgi(*this, config[index]);
-                         cout <<  "-----+> "<<cgi_file <<endl;
                         op.open(cgi_file.c_str());
                         if (op.is_open())
                         {
@@ -143,7 +141,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     if (this->Path.find("cgi") != string::npos)
                     {
                         php_cgi(*this, config[index]);
-                         cout <<  "-----+> "<< cgi_file <<endl;
                         op.open(cgi_file.c_str());
                         if (op.is_open())
                         {
@@ -183,7 +180,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         if (this->Path.find("cgi") != string::npos)
         {
             php_cgi(*this, config[index]);
-            cout << "1-----+> " << cgi_file << endl;
         }
         else
         {

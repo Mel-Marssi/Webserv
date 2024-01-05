@@ -85,7 +85,6 @@ void Request::delete_content(string pat, string file)
                 if (name[0] != '.')
                 {
                     string str = pat + "/" + name;
-                    cout << str << endl;
                     if (check_permission(str) == 1)
                     {
                         DIR* fold = opendir(str.c_str());
