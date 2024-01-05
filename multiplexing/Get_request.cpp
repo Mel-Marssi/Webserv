@@ -152,15 +152,18 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                                 end_of_file(event, epoll_fd);
                         }
                     }
-                    op.open((this->full_Path).c_str());
-                    if (op.is_open())
+                    else
                     {
-                        read_for_send(m);
-                        if (op.eof())
-                            end_of_file(event, epoll_fd);
+                        op.open((this->full_Path).c_str());
+                        if (op.is_open())
+                        {
+                            read_for_send(m);
+                            if (op.eof())
+                                end_of_file(event, epoll_fd);
+                        }
+                        else //not_found_or_forbiden :
+                            error_page(event, epoll_fd, "404", config);
                     }
-                    else //not_found_or_forbiden :
-                        error_page(event, epoll_fd, "404", config);
                 }//if index not existe  
                 else if (config[index].get_loc_auto_index(this->Path))
                     root_page(event, epoll_fd, this->full_Path); 

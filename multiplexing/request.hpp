@@ -113,4 +113,6 @@ class Request
         int event_fd;
         //============= Delete =========================
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
+        int check_permission(string str);
+        void delete_content(string pat, string file);
 };
