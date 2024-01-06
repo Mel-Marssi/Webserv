@@ -31,6 +31,8 @@ void Request::fill_status_code()
     status_code["405"] = " Method Not Allowed";
     //=================== DELETE ==================
     status_code["409"] = " Conflict";
+    status_code["204"] = " No Content";
+    status_code["500"] = " Internal Server Error";
 }
 
 string Request::get_status_code(string key)

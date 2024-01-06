@@ -50,7 +50,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     // con_type = get_content_type(m);
     // head += con_type;
     head += "Content-Lenght:";
-    size << fileS;
+    size << fileS; // check this
     head += size.str();
     head += "\r\n\r\n";
     head += line;
@@ -78,6 +78,7 @@ void Request::read_for_send(map<string, string> &m, int flg)
     send(event_fd, head.c_str(), len, 0);
     line = "";
 }
+
 
 void Request::end_of_file(epoll_event &event, int epoll_fd)
 {
@@ -133,7 +134,7 @@ int Request::is_open_fil(string str)
     return 0;
 }
 
-void Request::delete_content(string pat, string file)
+void Request::delete_content(string pat, string file, epoll_event& event, int epoll_fd)
 {
     DIR* FOLDER;
     struct dirent* entre;
@@ -157,7 +158,7 @@ void Request::delete_content(string pat, string file)
                             if (fold)
                             {
                                 if ((entre1 = readdir(fold)) != NULL)
-                                    delete_content((str), "");
+                                    delete_content((str), "", event, epoll_fd);
                                 else
                                     std::remove((str).c_str());
                                 closedir(fold);
@@ -167,11 +168,18 @@ void Request::delete_content(string pat, string file)
                                 std::remove((str).c_str());
                         }
                         else
-                            cout << "Error Page__\n";
+                            response_for_delete("403", event, epoll_fd);
                     }
                 }
-                close_dir();
-                std::remove((pat).c_str());
+                if (std::remove((pat).c_str()) == 0)
+                    response_for_delete("204", event, epoll_fd);
+                else
+                {
+                    if (check_permission(pat) == 1)
+                        response_for_delete("500", event, epoll_fd);
+                    else
+                        response_for_delete("403", event, epoll_fd);
+                }
                 closedir(FOLDER);
                 FOLDER = NULL;
             }
@@ -182,13 +190,23 @@ void Request::delete_content(string pat, string file)
                     str = pat + file.erase(0,1);
                 else
                     str = pat + "/" + file;
-                // cout << str << " -----\n";
-                if (is_open_diir(str) == 1)
-                    delete_content(str, "");
-                else if (is_open_fil(str) == 1)
-                    std::remove(str.c_str());
+                if (check_permission(str) == 1)
+                {
+                    // cout << str << " -----\n";
+                    if (is_open_diir(str) == 1)
+                        delete_content(str, "", event, epoll_fd);
+                    else if (is_open_fil(str) == 1)
+                    {
+                        if (std::remove(str.c_str()) == 0)
+                            response_for_delete("204", event, epoll_fd);
+                        else
+                            response_for_delete("403", event, epoll_fd);
+                    }
+                    else
+                        response_for_delete("403", event, epoll_fd);
+                }
                 else
-                    cout << "Error Page==\n";
+                    response_for_delete("500", event, epoll_fd);
             }
         }
         else
@@ -196,7 +214,23 @@ void Request::delete_content(string pat, string file)
             if (is_open_fil(pat) == 1)
                 std::remove(pat.c_str());
             else
-                cout << "Error Page\n";
+                response_for_delete("403", event, epoll_fd);
         }
-        (void)file;
+}
+
+void Request::response_for_delete(string status, epoll_event &event, int epoll_fd)
+{
+    string head;
+    size_t len;
+
+    head += "HTTP/1.1 ";
+    head += status;
+    head += get_status_code(status);
+    head += "\r\n\r\n";
+    len = head.length();
+
+    send(event.data.fd, head.c_str(), len, 0);
+    fin_or_still = finish;
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
+    close(event.data.fd);
 }

@@ -15,7 +15,8 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 		root = config[indx].get_root();
 
 	if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
-		redirection_content_backSlash(event, epoll_fd, 1);
+		response_for_delete("409", event, epoll_fd);
+		// redirection_content_backSlash(event, epoll_fd, 1);
 	else if (this->Path == "/")
 	{
 		if (config[indx].get_loc_auto_index(this->Path))
@@ -31,20 +32,25 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 	}
 	else if (!config[indx].get_loc_path_location(this->Path).empty())
 	{
+		if (Path == "cgi-bin")
+		{
+			cout << "Dkhell CGIIIIIIIIIIIII\n";
+			//morad
+		}
 		if (Path[0] == '/' && root[root.length() - 1] == '/')
 			root.erase(root.length() - 1, 1);
 		root += Path;
 		if (file_get == "")
 		{
 			if (check_permission(root) == 1)
-				delete_content(root, "");
+				delete_content(root, "", event, epoll_fd);
 			else
 				error_page(event, epoll_fd, "403", config);
 		}
 		else if (file_get != "")
 		{
 			if (check_permission(root) == 1)
-				delete_content(root, file_get);
+				delete_content(root, file_get, event, epoll_fd);
 			else
 				error_page(event, epoll_fd, "403", config);
 		}
@@ -57,7 +63,7 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 		root += Path;
 
 		if (check_permission(root) == 1)
-			delete_content(root, "");
+			delete_content(root, "", event, epoll_fd);
 		else
 			error_page(event, epoll_fd, "403", config);
 	}

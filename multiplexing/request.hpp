@@ -110,12 +110,14 @@ class Request
         DIR* dire;
         size_t len;
         streampos fileSize;
+        int epoll_fd_tmp;
         int ck;
         int event_fd;
         //============= Delete =========================
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         int check_permission(string str);
-        void delete_content(string pat, string file);
+        void delete_content(string pat, string file, epoll_event& event, int epoll_fd);
         int is_open_diir(string str);
         int is_open_fil(string str);
+        void response_for_delete(string status, epoll_event &event, int epoll_fd);
 };

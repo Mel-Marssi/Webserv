@@ -102,6 +102,7 @@ multiplexing::multiplexing(servers &config)
 				}
 				else if (request[event_wait[i].data.fd].methode == "DELETE")
 				{
+					request[event_wait[i].data.fd].epoll_fd_tmp = epoll_fd;
 					request[event_wait[i].data.fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
 				}
 				if (request[event_wait[i].data.fd].methode == "NONE")
