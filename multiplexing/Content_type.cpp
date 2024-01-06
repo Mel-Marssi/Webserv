@@ -29,6 +29,8 @@ void Request::fill_status_code()
     status_code["403"] = " Forbidden";
     status_code["400"] = " Bad Request";
     status_code["405"] = " Method Not Allowed";
+    //=================== DELETE ==================
+    status_code["409"] = " Conflict";
 }
 
 string Request::get_status_code(string key)
@@ -81,21 +83,36 @@ void Request::redirection_content(epoll_event &event, int epoll_fd, servers &con
     dire = NULL;
 }
 
-void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config)
+void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg)
 {
-    string head;
-    head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
-    head += this->Path + "/";
-    // head += "/";
-    head += "\r\n\r\n";
-    
-    size_t len = head.length();
-    send(event.data.fd, head.c_str(), len, 0);
-    fin_or_still = finish;
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-    close(event.data.fd);
-    op.close();
-    closedir(dire);
-    dire = NULL;
-    (void)config;
+    if (flg == 0)
+    {
+        string head;
+        head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
+        head += this->Path + "/";
+        head += "\r\n\r\n";
+        
+        size_t len = head.length();
+        send(event.data.fd, head.c_str(), len, 0);
+        fin_or_still = finish;
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
+        close(event.data.fd);
+        op.close();
+        close_dir();
+    }
+    else
+    {
+        string head;
+        head += "HTTP/1.1 409 Conflict\r\nLocation: ";
+        head += this->Path + "/";
+        head += "\r\n\r\n";
+        
+        size_t len = head.length();
+        send(event.data.fd, head.c_str(), len, 0);
+        fin_or_still = finish;
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
+        close(event.data.fd);
+        op.close();
+        close_dir();
+    }
 }

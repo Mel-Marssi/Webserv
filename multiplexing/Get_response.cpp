@@ -29,11 +29,51 @@ std::string Request::read_buff(map<string, string> &m)
     return (head);
 }
 
-void Request::read_for_send(map<string, string> &m)
+std::string Request::read_buff_cgi(map<string, string> &m)
 {
-    check_req = 1;
-    string head = read_buff(m);
-    len = head.length();
+    (void)m;
+    string head;
+    stringstream size;
+    // //to get the size =======
+    op.seekg(0, ios::end);
+    streampos fileS = op.tellg();
+    op.seekg(0, ios::beg);
+
+    char buffer[1024];
+    memset(buffer, 0, 1024 );
+    op.read(buffer, 1024);
+    //--- size of what read is reading ---
+    std::streamsize bytesRead = op.gcount();
+    line.append(buffer, bytesRead);
+    //------------------------------------
+    head += "HTTP/1.1 200 ok\r\n";
+    // con_type = get_content_type(m);
+    // head += con_type;
+    head += "Content-Lenght:";
+    size << fileS;
+    head += size.str();
+    head += "\r\n\r\n";
+    head += line;
+    line = "";
+    return (head);
+}
+
+void Request::read_for_send(map<string, string> &m, int flg)
+{
+    string head;
+    if (flg == 0)
+    {
+        check_req = 1;
+        head = read_buff(m);
+        len = head.length();
+    }
+    else
+    {
+        check_req = 1;
+        
+        head = read_buff_cgi(m);
+        len = head.length();
+    }
 
     send(event_fd, head.c_str(), len, 0);
     line = "";
@@ -69,127 +109,94 @@ int Request::check_permission(string str)
     return (0);
 }
 
+int Request::is_open_diir(string str)
+{
+    DIR* d;
+    d = opendir(str.c_str());
+    if (d)
+    {
+        closedir(d);
+        d = NULL;
+        return 1;
+    }
+    return 0;
+}
+
+int Request::is_open_fil(string str)
+{
+    ifstream fil(str.c_str());
+    if (fil.is_open())
+    {
+        fil.close();
+        return 1;
+    }
+    return 0;
+}
+
 void Request::delete_content(string pat, string file)
 {
     DIR* FOLDER;
     struct dirent* entre;
     struct dirent* entre1;
-    if (file_get == "")
-    {
+    // if (file_get == "")
+    // {
         FOLDER = opendir(pat.c_str());
         if (FOLDER)
         {
-            while ((entre = readdir(FOLDER)) != NULL)
+            if (file == "")
             {
-                string name = entre->d_name;
-                if (name[0] != '.')
+                while ((entre = readdir(FOLDER)) != NULL)
                 {
-                    string str = pat + "/" + name;
-                    if (check_permission(str) == 1)
+                    string name = entre->d_name;
+                    if (name[0] != '.')
                     {
-                        DIR* fold = opendir(str.c_str());
-                        if (fold)
+                        string str = pat + "/" + name;
+                        if (check_permission(str) == 1)
                         {
-                            if ((entre1 = readdir(fold)) != NULL)
-                                delete_content((str), "");
+                            DIR* fold = opendir(str.c_str());
+                            if (fold)
+                            {
+                                if ((entre1 = readdir(fold)) != NULL)
+                                    delete_content((str), "");
+                                else
+                                    std::remove((str).c_str());
+                                closedir(fold);
+                                fold = NULL;
+                            }
                             else
                                 std::remove((str).c_str());
-                            closedir(fold);
-                            fold = NULL;
                         }
                         else
-                            std::remove((str).c_str());
+                            cout << "Error Page__\n";
                     }
-                    else
-                        cout << "Error Page\n";
                 }
+                close_dir();
+                std::remove((pat).c_str());
+                closedir(FOLDER);
+                FOLDER = NULL;
             }
-            close_dir();
-            std::remove((pat).c_str());
+            else
+            {
+                string str;
+                if ((pat[pat.length() - 1] == '/') && (file[0] == '/'))
+                    str = pat + file.erase(0,1);
+                else
+                    str = pat + "/" + file;
+                // cout << str << " -----\n";
+                if (is_open_diir(str) == 1)
+                    delete_content(str, "");
+                else if (is_open_fil(str) == 1)
+                    std::remove(str.c_str());
+                else
+                    cout << "Error Page==\n";
+            }
         }
         else
-            cout << "Error Page\n";
-        closedir(FOLDER);
-        FOLDER = NULL;
+        {
+            if (is_open_fil(pat) == 1)
+                std::remove(pat.c_str());
+            else
+                cout << "Error Page\n";
+        }
         (void)file;
-    }
-    // else
-    // {
-    //         cout << "frrrrrrrrrrrrrrrrr\n";
-    //     dire = opendir(pat.c_str());
-    //     if (dire)
-    //     {
-    //         if (check_permission(pat + "/" + file) == 1)
-    //             std::remove((pat + "/" + file).c_str());
-    //         else{}
-    //             //error
-    //     }
-    //     close_dir();
-    // }
-    // if ((entre = readdir(dire)) == NULL)
-    // {
-    //     close_dir();
-
-    //     std::remove((pat).c_str());
-    //     // check = 1;
-     
-    // }
 }
-
-// void Request::delete_content(string pat, string file, string first)
-// {
-//     struct dirent* entre;
-//     struct dirent* entre1;
-
-//     if (file_get == "")
-//     {
-//         dire = opendir(pat.c_str());
-//         if (dire)
-//         {
-//             // entre = readdir(dire);
-//             // cout << "----- << " << entre->d_name << endl;
-//             //             entre = readdir(dire);
-//             // cout << "----- << " << entre->d_name << endl;
-//             //             entre = readdir(dire);
-//             // cout << "----- << " << entre->d_name << endl;
-//             // if ((entre = readdir(dire)) == NULL)
-//             // {
-//             //     cout << "=========>> " << pat << endl;
-//             //     std::remove((pat).c_str());
-//             //     return ;
-//             // }
-//             while (dire && (entre = readdir(dire)) != NULL)
-//             {
-//                 cout << "3iiiiiiwwwwwwwwwwww\n" << endl;
-//                 string name = entre->d_name;
-                
-//                 if (name[0] != '.')
-//                 {
-//                     string str = pat + "/" + name;
-//                     if (check_permission(str) == 1)
-//                     {
-//                         // flag = 1;
-//                         DIR* fold = opendir(str.c_str());
-//                         if (fold)
-//                         {
-//                             // cout << "--->> " << str << endl;
-//                             if ((entre1 = readdir(fold)) != NULL)
-//                             {
-//                                 cout << "/////////////////\n";
-//                                 delete_content((str), "",first);
-//                             }
-//                             else
-//                                 std::remove((str).c_str());
-//                             closedir(fold);
-//                             fold = NULL;
-//                         }
-//                         else
-//                             std::remove((str).c_str());
-//                     }
-//                 // std::remove((str).c_str());
-//                 }
-//             }
-//         }
-//         close_dir();
-//         (void)file;
-//     }

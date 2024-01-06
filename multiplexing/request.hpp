@@ -83,7 +83,7 @@ class Request
         string Path_bef;
         
         void parse_url_prot(string meth);
-        void redirection_content_backSlash(epoll_event &event, int epoll_fd, servers &config);
+        void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
         void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
@@ -95,9 +95,10 @@ class Request
         map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);
-        void read_for_send(map<string, string> &m);
+        void read_for_send(map<string, string> &m, int flg);
         void end_of_file(epoll_event &event, int epoll_fd);
         void close_dir();
+        std::string read_buff_cgi(map<string, string> &m);
 
         string fin_or_still;
         size_t check_first_time;
@@ -115,4 +116,6 @@ class Request
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         int check_permission(string str);
         void delete_content(string pat, string file);
+        int is_open_diir(string str);
+        int is_open_fil(string str);
 };

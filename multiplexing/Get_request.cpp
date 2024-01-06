@@ -67,7 +67,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 op.open((config[index].get_root() + config[index].get_index()).c_str());
                 if (op.is_open())
                 {
-                    read_for_send(m);
+                    read_for_send(m, 0);
                     if (op.eof())
                         end_of_file(event, epoll_fd);
                 }//not_found or forbiden
@@ -112,7 +112,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             if (dire)
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
-                    redirection_content_backSlash(event, epoll_fd, config);
+                    redirection_content_backSlash(event, epoll_fd, 0);
                 else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
                     if (this->Path.find("cgi") != string::npos)
@@ -121,7 +121,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op.open(cgi_file.c_str());
                         if (op.is_open())
                         {
-                            read_for_send(m);
+                            read_for_send(m, 1);
                             if (op.eof())
                                 end_of_file(event, epoll_fd);
                         }
@@ -129,7 +129,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                     if (op.is_open())
                     {
-                        read_for_send(m);
+                        read_for_send(m, 0);
                         if (op.eof())
                             end_of_file(event, epoll_fd);
                     }
@@ -144,7 +144,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op.open(cgi_file.c_str());
                         if (op.is_open())
                         {
-                            read_for_send(m);
+                            read_for_send(m, 1);
                             if (op.eof())
                                 end_of_file(event, epoll_fd);
                         }
@@ -154,7 +154,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op.open((this->full_Path).c_str());
                         if (op.is_open())
                         {
-                            read_for_send(m);
+                            read_for_send(m, 0);
                             if (op.eof())
                                 end_of_file(event, epoll_fd);
                         }
@@ -186,7 +186,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             op.open((this->full_Path).c_str());
             if (op.is_open())
             {
-                read_for_send(m);
+                read_for_send(m, 0);
                 if (op.eof())
                     end_of_file(event, epoll_fd);
             }
