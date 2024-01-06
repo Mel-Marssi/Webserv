@@ -47,6 +47,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
 {
     //Pars__Line__Get :
     this->parse_url_prot("GET");
+    
     //Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
