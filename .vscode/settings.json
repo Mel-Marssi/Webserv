@@ -57,6 +57,9 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "iosfwd": "cpp",
+    "*.tcc": "cpp",
+    "istream": "cpp"
   }
 }

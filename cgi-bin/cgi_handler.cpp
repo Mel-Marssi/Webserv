@@ -5,16 +5,15 @@
 int cgi_handler::i = 0;
 void php_cgi(Request &req, server_config &config)
 {
-
+cout << "CGI------------>"<< endl;
 	(void)config;
 	cgi_handler cgi(req);
 	char *env[cgi.CGI_BOOK.size() + 1];
 	string file = req.full_Path;
-	
+	time_t t = time(NULL);
 	stringstream to_s;
-	to_s << cgi_handler::i;
+	to_s << t;
 
-	cgi_handler::i++;
 	string tmp_file = "/tmp/_" + to_s.str();
 	req.cgi_file = tmp_file;
 	int fd[2];
@@ -24,7 +23,6 @@ void php_cgi(Request &req, server_config &config)
 	{
 		string tmp = it->first + "=" + it->second;
 		env[i] = (char*)tmp.c_str();
-		cout << "env : " <<  env[i] << endl;
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
 
@@ -43,7 +41,6 @@ void php_cgi(Request &req, server_config &config)
 		cout << "error execve" << endl;
 		exit(1);
 	}
-cout << "waitpid" << endl;
 	waitpid(pid, NULL, WNOHANG);
 }
 cgi_handler::cgi_handler(Request &req)

@@ -1,7 +1,7 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-void    Request::parse_url_prot(string meth)
+void Request::parse_url_prot(string meth)
 {
     map<string, string>::iterator it;
     size_t i;
@@ -10,7 +10,7 @@ void    Request::parse_url_prot(string meth)
     this->Protocole = "";
     this->file_get = "";
     it = header_request.find(meth);
-    if(it->first == meth)
+    if (it->first == meth)
     {
         i = it->second.find(" ");
         this->Path.insert(0, it->second, 0, i);
@@ -28,7 +28,7 @@ void    Request::parse_url_prot(string meth)
         if (this->file_get.find("?") != string::npos)
         {
             size_t o;
-            
+
             o = this->file_get.find("?");
             this->Query_String.insert(0, file_get, o + 1, file_get.length());
             full_Path[full_Path.find("?")] = '\0';
@@ -42,22 +42,22 @@ void    Request::parse_url_prot(string meth)
         this->full_Path = this->Path;
 }
 
-
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
-    //Pars__Line__Get :
+    // Pars__Line__Get :
+    cout << "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD->"<<endl;
     this->parse_url_prot("GET");
-    
-    //Check__if__Loc__exisite_in__Server :
+
+    // Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
     if ((config[index].get_loc_path_location(this->Path).empty()) && (Path.find(".") == string::npos))
         error_page(event, epoll_fd, "404", config);
-    //check__if__methode__alowed :
+    // check__if__methode__alowed :
     else if ((config[index].get_loc_get(this->Path) == 0) && (Path.find(".") == string::npos))
         error_page(event, epoll_fd, "405", config);
 
-    //if Path Empty__serve__the __server:
+    // if Path Empty__serve__the __server:
     else if (this->Path == "/")
     {
         if (!config[index].get_index().empty())
@@ -71,7 +71,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     read_for_send(m, 0);
                     if (op.eof())
                         end_of_file(event, epoll_fd);
-                }//not_found or forbiden
+                } // not_found or forbiden
                 else
                     error_page(event, epoll_fd, "404", config);
             }
@@ -80,16 +80,16 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         }
         else
         {
-            //check_auto_index
+            // check_auto_index
             if (config[index].get_loc_auto_index(this->Path))
             {
                 string str = config[index].get_root();
                 if (full_Path[0] != '/' && str[str.length() - 1] != '/')
-                   root_page(event, epoll_fd, ((str + this->full_Path)));
+                    root_page(event, epoll_fd, ((str + this->full_Path)));
                 else
-                   root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
+                    root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
             }
-            else//forbiden 
+            else // forbiden
             {
                 error_page(event, epoll_fd, "403", config);
             }
@@ -102,14 +102,14 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             root = config[index].get_loc_root(this->Path);
         else
             root = config[index].get_root();
-        if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
-            this->full_Path.erase(0,1);
+        if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
+            this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
-        //check__redirection :
+        // check__redirection :
         if (config[index].get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
-            dire = opendir((root + str.erase(0,1)).c_str());
+            dire = opendir((root + str.erase(0, 1)).c_str());
             if (dire)
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
@@ -119,34 +119,43 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     if (this->Path.find("cgi") != string::npos)
                     {
                         php_cgi(*this, config[index]);
-                        op.open(cgi_file.c_str());
+                        cout << "cgi_file : " << cgi_file << endl;
+                        op_cgi.open(cgi_file.c_str());
+                        // if (op_cgi.is_open())
+                        // {
+                                            cout << "bbbbbbb" <<endl;
+
+                            read_for_send(m, 1);
+                            if (op_cgi.eof())
+                                end_of_file(event, epoll_fd);
+                        // }
+                    }
+                    else
+                    {
+                        op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
                         if (op.is_open())
                         {
-                            read_for_send(m, 1);
+                            read_for_send(m, 0);
                             if (op.eof())
                                 end_of_file(event, epoll_fd);
                         }
+                        else // not_found_or_forbiden :
+                            error_page(event, epoll_fd, "404", config);
                     }
-                    op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
-                    if (op.is_open())
-                    {
-                        read_for_send(m, 0);
-                        if (op.eof())
-                            end_of_file(event, epoll_fd);
-                    }
-                    else //not_found_or_forbiden :
-                        error_page(event, epoll_fd, "404", config);
-                }//check auto index
+                } // check auto index
                 else if ((file_get != ""))
                 {
                     if (this->Path.find("cgi") != string::npos)
                     {
-                        php_cgi(*this, config[index]);
-                        op.open(cgi_file.c_str());
-                        if (op.is_open())
+                        if (cgi_file.empty() == true)
+                            php_cgi(*this, config[index]);
+                        cout << "cgi_file : " << cgi_file << endl;
+                        op_cgi.open(cgi_file.c_str());
+                        if (op_cgi.is_open())
                         {
+                                            cout << "AAAAAAA" <<endl;
                             read_for_send(m, 1);
-                            if (op.eof())
+                            if (op_cgi.eof())
                                 end_of_file(event, epoll_fd);
                         }
                     }
@@ -159,12 +168,12 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             if (op.eof())
                                 end_of_file(event, epoll_fd);
                         }
-                        else //not_found_or_forbiden :
+                        else // not_found_or_forbiden :
                             error_page(event, epoll_fd, "404", config);
                     }
-                }//if index not existe  
+                } // if index not existe
                 else if (config[index].get_loc_auto_index(this->Path))
-                    root_page(event, epoll_fd, this->full_Path); 
+                    root_page(event, epoll_fd, this->full_Path);
             }
             else
                 error_page(event, epoll_fd, "404", config);
@@ -175,12 +184,21 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     else if (this->Path.find(".") != string::npos)
     {
         string root = config[index].get_root();
-        if (root[root.length() - 1] == '/')// && (this->full_Path[0] == '/'))
-            this->full_Path.erase(0,1);
+        if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
+            this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
         {
             php_cgi(*this, config[index]);
+            cout << "cgi_file : " << cgi_file << endl;
+            op_cgi.open(cgi_file.c_str());
+            // if (op_cgi.is_open())
+            // {
+                cout << "dddddd" <<endl;
+                read_for_send(m, 1);
+                if (op_cgi.eof())
+                    end_of_file(event, epoll_fd);
+            // }
         }
         else
         {
@@ -191,7 +209,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 if (op.eof())
                     end_of_file(event, epoll_fd);
             }
-            else //not_found_or_forbiden :
+            else // not_found_or_forbiden :
                 error_page(event, epoll_fd, "404", config);
         }
     }
@@ -204,7 +222,7 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
     if (op.is_open())
     {
         char buffer[1024];
-        memset(buffer, 0, 1024 );
+        memset(buffer, 0, 1024);
         op.read(buffer, sizeof(buffer));
         line.append(buffer, 1024);
 
@@ -212,7 +230,7 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
         if (con_type.find("text") != string::npos)
         {
             len = strlen(line.c_str());
-            send(event.data.fd, line.c_str(), len, 0);            
+            send(event.data.fd, line.c_str(), len, 0);
         }
         else
         {
@@ -227,25 +245,25 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 
 void Request::default_error(string key, int fd)
 {
-        string head;
-        string status = get_status_code(key);
-        // int size = (status.length() * 3) + (key.length() * 2) + 119;
-        int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
-        std::ostringstream oss;
-        oss << size;
-        head  = "HTTP/1.1 ";
-        head += key;
-        head += status;
-        head += "\r\n";
-        head += "Content-Type: text/html\r\nContent-Lenght:";
-        head += oss.str();
-        head += "\r\n\r\n";
-        head += "<html><head><title>" + status +"</title></head><body><h1>" + key + " " + status +"</h1></body></html>";
+    string head;
+    string status = get_status_code(key);
+    // int size = (status.length() * 3) + (key.length() * 2) + 119;
+    int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
+    std::ostringstream oss;
+    oss << size;
+    head = "HTTP/1.1 ";
+    head += key;
+    head += status;
+    head += "\r\n";
+    head += "Content-Type: text/html\r\nContent-Lenght:";
+    head += oss.str();
+    head += "\r\n\r\n";
+    head += "<html><head><title>" + status + "</title></head><body><h1>" + key + " " + status + "</h1></body></html>";
 
-        len = head.length();
-        line = "";
-        this->fin_or_still = finish;
-        send(fd, head.c_str(), len, 0);
+    len = head.length();
+    line = "";
+    this->fin_or_still = finish;
+    send(fd, head.c_str(), len, 0);
 }
 
 void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &config)

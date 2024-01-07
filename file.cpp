@@ -11,8 +11,13 @@
 #include <sstream>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <fstream>
 
 int main()
 {
-	std::cout << std::remove("./a.out") << std::endl;
+	std::ifstream la("/tmp/_1704621054");
+	if (la.is_open())
+		std::cout <<"------------\n";
+	else
+		std::cout << "++++++++++++++\n";
 }

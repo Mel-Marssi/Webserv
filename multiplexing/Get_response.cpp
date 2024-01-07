@@ -35,16 +35,17 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     string head;
     stringstream size;
     // //to get the size =======
-    op.seekg(0, ios::end);
-    streampos fileS = op.tellg();
-    op.seekg(0, ios::beg);
+    op_cgi.seekg(0, ios::end);
+    streampos fileS = op_cgi.tellg();
+    op_cgi.seekg(0, ios::beg);
 
     char buffer[1024];
     memset(buffer, 0, 1024 );
-    op.read(buffer, 1024);
+    op_cgi.read(buffer, 1024);
     //--- size of what read is reading ---
-    std::streamsize bytesRead = op.gcount();
+    std::streamsize bytesRead = op_cgi.gcount();
     line.append(buffer, bytesRead);
+    cout << "line: " << buffer << endl;
     //------------------------------------
     head += "HTTP/1.1 200 ok\r\n";
     // con_type = get_content_type(m);
@@ -55,6 +56,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     head += "\r\n\r\n";
     head += line;
     line = "";
+    cout << head << endl;
     return (head);
 }
 

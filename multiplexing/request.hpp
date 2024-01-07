@@ -77,6 +77,8 @@ class Request
         string full_Path;
         string Query_String;
         string cgi_file;
+        int fd[2];
+        ssize_t eof_cgi;
         //Config_file :
         string Host, server_name;
         string Port;
@@ -104,6 +106,7 @@ class Request
         size_t check_first_time;
         int check_req;
         ifstream op;
+        ifstream op_cgi;
         string exten;
         string con_type;
         string line;

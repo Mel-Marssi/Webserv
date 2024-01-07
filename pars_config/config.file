@@ -49,7 +49,7 @@ server {
         root ./ ;
         autoindex on ;
         allow_methods GET POST DELETE ;
-        cgi_path /usr/bin/php ;
+        cgi_path /usr/bin/php-cgi ;
         allow_upload on ;
         uploads_folder uploads ;
     }
