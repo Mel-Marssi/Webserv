@@ -18,6 +18,8 @@ void multiplexing::fill_content_type()
     cont_type["webm"] = "video/webm";
     cont_type["pdf"] = "application/pdf";
     cont_type["zip"] = "application/zip";
+    cont_type["php"] = "application/x-httpd-php";
+    cont_type["tar"] = "application/x-tar";
 }
 
 void Request::fill_status_code()
