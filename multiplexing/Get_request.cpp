@@ -1,6 +1,6 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
-
+#include <fcntl.h>
 void Request::parse_url_prot(string meth)
 {
     map<string, string>::iterator it;
@@ -45,7 +45,7 @@ void Request::parse_url_prot(string meth)
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     // Pars__Line__Get :
-    cout << "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD->"<<endl;
+    cout << "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD->" << endl;
     this->parse_url_prot("GET");
 
     // Check__if__Loc__exisite_in__Server :
@@ -123,11 +123,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op_cgi.open(cgi_file.c_str());
                         // if (op_cgi.is_open())
                         // {
-                                            cout << "bbbbbbb" <<endl;
+                        cout << "bbbbbbb" << endl;
 
-                            read_for_send(m, 1);
-                            if (op_cgi.eof())
-                                end_of_file(event, epoll_fd);
+                        read_for_send(m, 1);
+                        if (op_cgi.eof())
+                            end_of_file(event, epoll_fd);
                         // }
                     }
                     else
@@ -150,10 +150,20 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         if (cgi_file.empty() == true)
                             php_cgi(*this, config[index]);
                         cout << "cgi_file : " << cgi_file << endl;
+                        // {
+                        //     int df = open(cgi_file.c_str(), O_RDONLY); // Use open() with O_RDONLY flag
+                        //     char buff[1024];
+                        //     read(df, buff, 1024);
+                        //     for (int i = 0; i < 1024; i++)
+                        //         cout << buff[i];
+                        //     cout << endl;
+                        // }
+                        // waitpid(pid, NULL, WNOHANG);
+                        cout << "-->" <<	waitpid(pid, NULL, 0)<< endl;
+
                         op_cgi.open(cgi_file.c_str());
                         if (op_cgi.is_open())
                         {
-                                            cout << "AAAAAAA" <<endl;
                             read_for_send(m, 1);
                             if (op_cgi.eof())
                                 end_of_file(event, epoll_fd);
@@ -194,10 +204,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             op_cgi.open(cgi_file.c_str());
             // if (op_cgi.is_open())
             // {
-                cout << "dddddd" <<endl;
-                read_for_send(m, 1);
-                if (op_cgi.eof())
-                    end_of_file(event, epoll_fd);
+            cout << "dddddd" << endl;
+            read_for_send(m, 1);
+            if (op_cgi.eof())
+                end_of_file(event, epoll_fd);
             // }
         }
         else

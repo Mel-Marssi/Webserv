@@ -15,6 +15,8 @@
 #include <sstream>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/wait.h>
 #define POST "POST"
 #define GET "GET"
 #define DELETE "DELETE"
@@ -107,6 +109,7 @@ class Request
         int check_req;
         ifstream op;
         ifstream op_cgi;
+        pid_t pid;
         string exten;
         string con_type;
         string line;

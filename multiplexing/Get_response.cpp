@@ -45,7 +45,6 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     //--- size of what read is reading ---
     std::streamsize bytesRead = op_cgi.gcount();
     line.append(buffer, bytesRead);
-    cout << "line: " << buffer << endl;
     //------------------------------------
     head += "HTTP/1.1 200 ok\r\n";
     // con_type = get_content_type(m);
@@ -53,10 +52,9 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     head += "Content-Lenght:";
     size << fileS; // check this
     head += size.str();
-    head += "\r\n\r\n";
+    // head += "\r\n\r\n";
     head += line;
     line = "";
-    cout << head << endl;
     return (head);
 }
 
