@@ -52,6 +52,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     head += "Content-Lenght:";
     size << fileS; // check this
     head += size.str();
+    head += "\r\n";
     // head += "\r\n\r\n";
     head += line;
     line = "";
