@@ -58,8 +58,7 @@ server {
     root ./ ;
     autoindex on ;
     allow_methods GET POST DELETE ;
-}
-
+    }
 }
 server {
     listen 8081 ;
