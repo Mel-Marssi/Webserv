@@ -24,6 +24,14 @@
 #define Still "Still"
 #define finish "finish"
 
+
+#include <cstdio>
+#include <sys/stat.h>
+
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 class Request
 {
     public:
@@ -56,6 +64,17 @@ class Request
         int acces_read_in_post;
         int next_chunked;
         int err;
+        int wait;
+        int last;
+        string fake_bondary;
+        string boudri;
+        string last_boundri;
+        void boundaries(servers &config, int index,int fd);
+        void boundar(servers &config, int index);
+
+        // string filename;
+        void create_file_bondar(ofstream& outputFile,   map<string, string>& map, servers &config, int index,string name,  string content);
+
         std::ofstream outputFile;
         void create_file(ofstream& outputFile,   map<string, string>& map, servers &config, int index);
         int parse_line(string line, int check_first);

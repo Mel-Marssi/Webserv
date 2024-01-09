@@ -103,7 +103,7 @@ int Request::check_permission(string str)
 {
     if (access((str).c_str(), F_OK) != -1)
     {
-        if ((access((str).c_str(), R_OK) && access((str).c_str(), W_OK) && access((str).c_str(), X_OK)) == 0)
+        if (access((str).c_str(), R_OK) && access((str).c_str(), W_OK) && access((str).c_str(), X_OK) == 0)
             return (1);
         else
             return (0);

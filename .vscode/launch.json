@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/nfs/homes/hrakik/Desktop/Webserver (1)",
-      "program": "/nfs/homes/hrakik/Desktop/Webserver (1)/build/Debug/outDebug",
+      "cwd": "/nfs/homes/hrakik/Desktop/Webserver_1",
+      "program": "/nfs/homes/hrakik/Desktop/Webserver_1/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

@@ -27,11 +27,19 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
       next_chunked = 0;
       acces_read_in_post = 0;
       err = 0;
+      last = 0;
+
+       fake_bondary = "NULL";
+      wait = 0;
       fill_content_type();
 }
 
 Request::Request(const Request& obj)
 {
+     fake_bondary = "NULL";
+      wait = 0;
+      last = 0;
+
     event_fd = 0;
     ck = 0;
     read_request = "";
@@ -64,7 +72,7 @@ Request::Request(const Request& obj)
 
 int Request::parse_line(std::string line, int check_first)
 {
-    // cout << line << endl;
+      cout << "line" << endl;
 
     if (check_first == 0)
     {
@@ -92,6 +100,7 @@ int Request::parse_line(std::string line, int check_first)
         {
             this->methode = NONE;
         }
+        
     }
     else
     {
@@ -122,33 +131,40 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     check_body++;
     std::string line;
     int check_first_line = 0;
-    while (read_request[i] && i <= check_body)
+    while (read_request[i] )//&& i <= check_body
     {
+
         if (read_request[i] != '\n')
             line += read_request[i];
         else
         {
+            cout << "ffffffffff\n";
             parse_line(line, check_first_line);
             line = "";
             check_first_line = 1;
         }
         i++;
     }
+    // cout << line << endl;
+    //     exit(1);
     std::string l = header_request["Content-Length"];
 		size_request = atol(l.c_str());
-        if (check_body != std::string::npos)
+        if (check_body != std::string::npos && methode == "POST")
         {
             this->fir_body = read_request.substr(check_body + 3, read_request.length());
         }
-        // if (this->methode == "POST")
-        // {
-        //     map<string, string>::iterator it;
-        //     map<string, string>::iterator it0;
-        //     it = header_request.find("Transfer-Encoding");//Content-Length
-        //     it0 = header_request.find("Content-Length");//Content-Length
-        //     if ((it == header_request.end()) || (it0 == header_request.end()))
-        //         error_page(event, epoll_fd, "400", config);
-        // }
+        if (this->methode == "POST")
+        {
+            // string content = header_request["Content-Type"];
+            // size_t si = content.find("multipart/form-data");
+
+            map<string, string>::iterator it;
+            map<string, string>::iterator it0;
+            it = header_request.find("Transfer-Encoding");//Content-Length
+            it0 = header_request.find("Content-Length");//Content-Length
+            if ((it == header_request.end()) && (it0 == header_request.end() ))//&& si != string::npos
+                error_page(event, epoll_fd, "400", config);
+        }
     
     return 0;
  
@@ -236,6 +252,9 @@ void Request::chunked(servers &config, int index)
             size_chunked =  strtol(num.c_str(), &endptr, 16);
         
             fir_body = fir_body.substr(position_int + 2, fir_body.length());
+            size_t check_last = fir_body.find("\r\n0\r\n");
+            if (check_last != string::npos)
+                fir_body = fir_body.substr(0, check_last);
 			  outputFile << fir_body;
                 // total += (size - position_int + 2);
              size_chunked -= fir_body.length();
@@ -253,6 +272,169 @@ void Request::chunked(servers &config, int index)
 	}
 }
 
+void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::string, std::string>& map, servers &config, int index, string name, string content)
+{
+ (void)map;
+ content = content+ "\r";
+    cout << "fffff\n";
+
+    //  outputFile.open("tt.txt");
+    // return;
+ 
+   std::string type_file = content;
+    
+     std::map<std::string, std::string>::iterator it = cont_type.find(type_file);
+    srand (time(NULL));
+    std::ostringstream str;
+    str << rand();
+
+    if (it != cont_type.end())
+    {
+        std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
+        cout << randomName << endl;
+        outputFile.open(randomName.c_str());
+
+    }  
+    else  
+    {
+        std::string randomName = str.str() + ".x";
+        outputFile.open(randomName.c_str());
+    }
+
+//  exit(1);
+}
+
+void Request::boundar(servers &config, int index)
+{
+           
+    if (check_create_file == 0)
+	{
+        string content = header_request["Content-Type"];
+     
+        boudri = content.substr(content.find("=") + 1, content.length() -(content.find("=") + 1) - 1);
+        last_boundri = boudri;
+        last_boundri += "--";
+        // cout << content << endl;
+        // cout << last_boundri << endl;
+        //  exit(1);
+		check_create_file = 1;
+
+        if (fir_body != "NULL")
+		{
+            int position_int = fir_body.find("\r\n\r\n"); 
+            std::string boundary = fir_body.substr(0, position_int);
+            string filename_content = boundary.substr(boundary.find("name=\""));
+            string filename = filename_content.substr(6, filename_content.find("\";")  - 6);
+
+            string Content = filename_content.substr(filename_content.find("\r\n") + 16);
+		    create_file_bondar(outputFile, header_request, config,  index, filename, Content);
+            fir_body = fir_body.substr(position_int + 4 , fir_body.length());
+            //  cout << fir_body;
+            // exit(1);
+			  outputFile << fir_body;
+
+             size_chunked -= fir_body.length();
+			fir_body = "NULL";
+		}
+		else
+		{
+			  outputFile << read_request;
+        //    read_request.erase();
+		}
+	}
+	else
+	{
+		outputFile << read_request;			
+	}
+}
+
+
+
+void Request::boundaries(servers &config, int index, int fd)
+{
+    char buff[1024];
+    memset(buff, 0, 1024);
+    if (acces_read_in_post == 1)
+    {
+        size_t a = read(fd, buff, 1024);
+        read_request.clear();
+        if (fake_bondary != "NULL")
+        {
+            read_request = fake_bondary;
+            fake_bondary = "NULL";
+        }
+        read_request.append(buff,a);
+        //    outputFile << read_request;
+
+        size_t found_bondary = read_request.find(boudri);
+        if (found_bondary == string::npos)
+        {
+            fake_bondary = read_request.substr(read_request.length() - boudri.length()); // , read_request.length()
+            read_request = read_request.substr(0, read_request.length() - boudri.length());
+            outputFile << read_request;
+        }
+        else
+        {
+            size_t last_bondary = read_request.find(last_boundri);
+            if (last_bondary != string::npos )//&& a < 1024
+            {
+                // if (boundary.find("name=\"") != string::npos)
+                read_request = read_request.substr(0, last_bondary - 4);
+                outputFile << read_request ;
+                size_t found_bondary_2 = read_request.find(boudri);
+                if (found_bondary_2 != string::npos) // mochkil kayn kay kon file hna
+                {
+                    size_t position_int = read_request.find("\r\n\r\n");
+                    if ((position_int + 4) < read_request.length() && last != 1)
+                    {
+                        cout << read_request << endl << "----------------------------\n";
+                        fake_bondary = read_request.substr(position_int + 4, read_request.length());  
+                        cout << fake_bondary << endl;
+                        // outputFile << read_request ;
+
+                    }
+                     std::string boundary = read_request.substr(found_bondary, position_int);
+                string filename_content = boundary.substr(boundary.find("name=\""));
+                string filename = filename_content.substr(6, filename_content.find("\";")  - 6);
+                string Content = filename_content.substr(filename_content.find("\r\n") + 16, filename_content.find("\r\n\r\n") - (filename_content.find("\r\n") + 16) ) ;
+                read_request = read_request.substr(0, found_bondary -2 );
+                // // cout << read_request;
+                // // exit(1);
+                outputFile << read_request ;
+                 outputFile.close();
+		        create_file_bondar(outputFile, header_request, config,  index, filename, Content);
+                outputFile << fake_bondary;
+                    // cout << read_request;
+                }
+                last = 1;
+                finir = 1;
+                 return;
+            }
+       
+                fake_bondary = "NULL";
+                size_t position_int = read_request.find("\r\n\r\n");
+                if ((position_int + 4) < read_request.length() && last != 1)
+                    fake_bondary = read_request.substr(position_int + 4, read_request.length());              
+                std::string boundary = read_request.substr(found_bondary, position_int);
+                string filename_content = boundary.substr(boundary.find("name=\""));
+                string filename = filename_content.substr(6, filename_content.find("\";")  - 6);
+                string Content = filename_content.substr(filename_content.find("\r\n") + 16, filename_content.find("\r\n\r\n") - (filename_content.find("\r\n") + 16) ) ;
+                 outputFile.close();
+                read_request = read_request.substr(0, found_bondary -2 );
+                outputFile << read_request ;
+		        create_file_bondar(outputFile, header_request, config,  index, filename, Content);
+
+                read_request.clear();
+        }
+       
+        return;
+        // exit(1);
+    }
+    if (check_left_header == 1)
+            acces_read_in_post = 1;
+    boundar(config,   index);
+}
+
 void Request::post(int fd, servers &config, epoll_event &event)
 {
      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
@@ -261,6 +443,13 @@ void Request::post(int fd, servers &config, epoll_event &event)
     this->parse_url_prot("POST");
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     // exit(4);
+    // if ((this->Path_bef[Path_bef.length() - 1] != '/'))
+    // {
+    //             redirection_content_backSlash(event, fd, config);
+    //     err = 1;
+
+    //     return;
+    // }
     if ((config[index].get_loc_post(this->Path) == 0) && (Path.find(".") == string::npos))
     {
         err = 1;
@@ -313,6 +502,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
                         if (size_chunked == 0)
                         {
+                        
                             finir = 1;
                             return;
                         }
@@ -424,24 +614,42 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
      else
      {
-        cout << "ana binary\n" << header_request["Content-Type"] << endl;
 
-        if (acces_read_in_post == 1)
+        string content = header_request["Content-Type"];
+     
+        // boudri = content.substr(content.find("=") + 1, content.length() -(content.find("=") + 1) - 2);
+        // last_boundri = boudri;
+        // last_boundri += "--";
+        // cout << content << endl;
+        // exit(1);
+        size_t si = content.find("multipart/form-data");
+        if (si != string::npos)
         {
-
-            char buff[1024];
-        
-            size = 0;
-            size = read(fd, buff, 1024);
-            size_read_request += size;
-            read_request.append(buff,size);
-            outputFile << read_request;
-            return;
-                        // parce_request(read_request);
+            // cout << "boundaries\n";
+            boundaries(config, index, fd);
+            // exit(1);
         }
-        binary(config, index);
-        if (check_left_header == 1)
-            acces_read_in_post = 1;
+        else
+        {
+            cout << "ana binary\n" ;
+            if (acces_read_in_post == 1)
+            {
+
+                char buff[1024];
+            
+                size = 0;
+                size = read(fd, buff, 1024);
+                size_read_request += size;
+                read_request.append(buff,size);
+                outputFile << read_request;
+                return;
+                            // parce_request(read_request);
+            }
+            binary(config, index);
+            if (check_left_header == 1)
+                acces_read_in_post = 1;
+        }
      }
      
 }
+

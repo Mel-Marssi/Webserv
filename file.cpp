@@ -15,9 +15,9 @@
 
 int main()
 {
-	std::ifstream la("/tmp/_1704621054");
+	std::ifstream la("/tmp/_1704622471");
 	if (la.is_open())
-		std::cout <<"------------\n";
+		std::cout << "------------\n";
 	else
 		std::cout << "++++++++++++++\n";
 }

@@ -1,6 +1,6 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
-#include <fcntl.h>
+
 void Request::parse_url_prot(string meth)
 {
     map<string, string>::iterator it;
@@ -45,16 +45,16 @@ void Request::parse_url_prot(string meth)
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     // Pars__Line__Get :
-    cout << "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD->" << endl;
     this->parse_url_prot("GET");
 
     // Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    if ((config[index].get_loc_path_location(this->Path).empty()) && (Path.find(".") == string::npos))
+    cout << Path << endl;
+    if ((config[index].get_loc_path_location(this->Path).empty()) && ((is_open_diir(Path) == 0) && is_open_fil("."+Path) == 0))//(Path.find(".") == string::npos))
         error_page(event, epoll_fd, "404", config);
     // check__if__methode__alowed :
-    else if ((config[index].get_loc_get(this->Path) == 0) && (Path.find(".") == string::npos))
+    else if ((config[index].get_loc_get(this->Path) == 0) && ((is_open_diir(Path) == 0) && is_open_fil("."+Path) == 0))//(Path.find(".") == string::npos))
         error_page(event, epoll_fd, "405", config);
 
     // if Path Empty__serve__the __server:
@@ -121,14 +121,14 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         php_cgi(*this, config[index]);
                         cout << "cgi_file : " << cgi_file << endl;
                         op_cgi.open(cgi_file.c_str());
-                        // if (op_cgi.is_open())
-                        // {
-                        cout << "bbbbbbb" << endl;
+                        if (op_cgi.is_open())
+                        {
+                            cout << "bbbbbbb" <<endl;
 
-                        read_for_send(m, 1);
-                        if (op_cgi.eof())
-                            end_of_file(event, epoll_fd);
-                        // }
+                            read_for_send(m, 1);
+                            if (op_cgi.eof())
+                                end_of_file(event, epoll_fd);
+                        }
                     }
                     else
                     {
@@ -149,17 +149,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     {
                         if (cgi_file.empty() == true)
                             php_cgi(*this, config[index]);
-                        cout << "cgi_file : " << cgi_file << endl;
-                        // {
-                        //     int df = open(cgi_file.c_str(), O_RDONLY); // Use open() with O_RDONLY flag
-                        //     char buff[1024];
-                        //     read(df, buff, 1024);
-                        //     for (int i = 0; i < 1024; i++)
-                        //         cout << buff[i];
-                        //     cout << endl;
-                        // }
-                        // waitpid(pid, NULL, WNOHANG);
-                        cout << "-->" <<	waitpid(pid, NULL, 0)<< endl;
+                         cout << "-->" <<	waitpid(pid, NULL, 0)<< endl;
 
                         op_cgi.open(cgi_file.c_str());
                         if (op_cgi.is_open())
@@ -184,6 +174,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 } // if index not existe
                 else if (config[index].get_loc_auto_index(this->Path))
                     root_page(event, epoll_fd, this->full_Path);
+                else
+                    error_page(event, epoll_fd, "403", config);
             }
             else
                 error_page(event, epoll_fd, "404", config);
@@ -191,7 +183,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config, index);
     }
-    else if (this->Path.find(".") != string::npos)
+    else if (is_open_fil("."+Path) == 1) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
     {
         string root = config[index].get_root();
         if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
@@ -204,10 +196,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             op_cgi.open(cgi_file.c_str());
             // if (op_cgi.is_open())
             // {
-            cout << "dddddd" << endl;
-            read_for_send(m, 1);
-            if (op_cgi.eof())
-                end_of_file(event, epoll_fd);
+                cout << "dddddd" <<endl;
+                read_for_send(m, 1);
+                if (op_cgi.eof())
+                    end_of_file(event, epoll_fd);
             // }
         }
         else

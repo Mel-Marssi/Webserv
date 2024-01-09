@@ -113,11 +113,11 @@ multiplexing::multiplexing(servers &config)
 							request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
 				}
-				if (request[event_wait[i].data.fd].methode != "GET" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
+				if (request[event_wait[i].data.fd].methode == "POST" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
 					if (request[event_wait[i].data.fd].err == 0)
 					{
-						const char n[170] = "HTTP/1.1 200 ok\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
+						const char n[170] = "HTTP/1.1 201 created\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
 						send(event_wait[i].data.fd, n, 170, 0);
  
 					}
