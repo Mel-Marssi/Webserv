@@ -104,8 +104,8 @@ void Request::delete_content(string pat, string file, epoll_event& event, int ep
                             else
                                 std::remove((str).c_str());
                         }
-                        else
-                            response_for_delete("403", event, epoll_fd);
+                        // else
+                        //     response_for_delete("403", event, epoll_fd);
                     }
                 }
                 if (std::remove((pat).c_str()) == 0)
