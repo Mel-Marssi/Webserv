@@ -63,6 +63,7 @@
     "istream": "cpp",
     "sstream": "cpp",
     "iostream": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "stdexcept": "cpp"
   }
 }

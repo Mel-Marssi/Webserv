@@ -17,10 +17,12 @@ class location
 		string index;
 		string redirection;
 		string cgi_path;
-		string path_location;
+		vector<string> cgi_exec_path;
+		// string path_location;
 		string uploads_folder;
 	public:
-		location(ifstream &config_fd, string &tmp);
+		location();
+		location(ifstream &config_fd, string word_serv);
 		size_t get_max_client_size() const;
 		bool get_delete() const;
 		bool get_post() const;
@@ -32,7 +34,7 @@ class location
 		string get_index() const;
 		string get_redirection() const;
 		string get_cgi_path() const;
-		string get_path_location() const;
+		// string get_path_location() const;
 		~location();
 };
 

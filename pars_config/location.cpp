@@ -1,6 +1,15 @@
 #include "location.hpp"
 
-
+location::location()
+{
+	_get = _post = _auto_index = _delete = _allow_upload = false;
+	// path_location = "";
+	index = "";
+	root = "";
+	redirection = "";
+	uploads_folder = "";
+	max_client_size = 0;
+}
 bool location::get_delete() const
 {
 	return (_delete);
@@ -45,15 +54,15 @@ string location::get_cgi_path() const
 {
 	return (cgi_path);
 }
-string location::get_path_location() const
-{
-	return (path_location);
-}
+// string location::get_path_location() const
+// {
+// 	return (path_location);
+// }
 
 
 ostream &operator<<(ostream &var,const location &obj)
 {
-	var << "path_location: " << obj.get_path_location() << "\n";
+	// var << "path_location: " << obj.get_path_location() << "\n";
 	var << "get: " << obj.get() << "\n";
 	var << "post: " <<  obj.get_post() << "\n";
 	var << "root: " <<  obj.get_root() << "\n";
@@ -69,13 +78,13 @@ location::~location()
 }
 
 
-location::location(ifstream &config_fd, string &word_serv)
+location::location(ifstream &config_fd, string word_serv)
 {
 	string file, word;
 	_get = _post = _auto_index = _delete = _allow_upload = false;
 	if (word_serv == "location" || word_serv == "{")
 		throw(runtime_error("Invalide configue file!"));
-	path_location = word_serv;
+	// path_location = word_serv;
 	index = "";
 	root = "";
 	redirection = "";
@@ -186,8 +195,20 @@ location::location(ifstream &config_fd, string &word_serv)
 		}
 		else if (word == "cgi_path")
 		{
+			if (!cgi_path.empty())
+				throw(runtime_error("Invalid configue file!"));
 			cscan >> word;
-			cgi_path = word;
+			while (word != ";")
+			{
+				if (word[word.size() - 1] == ';')
+					throw(runtime_error("Invalid cgi_path \";\""));
+				cgi_path = word;
+				if (access(cgi_path.c_str(), F_OK) == -1)
+					throw(runtime_error("Invalid cgi_path!"));
+				cgi_exec_path.push_back(word);
+				cscan >> word;
+			}
+
 			//tanwseel double cgi
 		}
 		else if (word.empty())

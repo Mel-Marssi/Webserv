@@ -22,6 +22,7 @@ using namespace std;
 class location;
 typedef vector<location>::iterator location_iterator;
 typedef map<int, string>::iterator error_book_iterator;
+typedef map<string, location>::iterator location_map_iterator;
 class server_config
 {
 	private:
@@ -31,7 +32,8 @@ class server_config
 		string server_name;
 		string index;
 		bool server_auto_index;
-		vector<location> serv_locations;
+		// vector<location> serv_locations;
+		map<string, location> serv_locations;
 	public:
 		map<int, string> _error_book;
 		server_config(ifstream &config_fd);

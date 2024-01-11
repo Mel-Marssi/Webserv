@@ -88,15 +88,15 @@ multiplexing::multiplexing(servers &config)
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
 						if (request[event_wait[i].data.fd].Path.find("cgi") != std::string::npos)
 						{
-							// int out;
+							int out;
 							//  start = clock();
-							if ((waitpid(request[event_wait[i].data.fd].pid, NULL, WNOHANG)) == 0)
+							if ((out = waitpid(request[event_wait[i].data.fd].pid, NULL, WNOHANG)) == 0)
 							{
 								request[event_wait[i].data.fd].get_to_cgi = true;
-								// double tmp = (clock() - request[event_wait[i].data.fd].start) / CLOCKS_PER_SEC;
-								if ( (clock() - request[event_wait[i].data.fd].start) / CLOCKS_PER_SEC >= 5)
+								double tmp = (clock() - request[event_wait[i].data.fd].start) / CLOCKS_PER_SEC;
+								if (tmp >= 5)
 								{
-									cout << "kill" << endl;
+									cout << "kill : " << tmp << endl;
 									kill(request[event_wait[i].data.fd].pid, SIGKILL);
 									request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "504", config);
 								}

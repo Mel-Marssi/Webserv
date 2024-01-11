@@ -119,9 +119,10 @@ server_config::server_config(ifstream &config_fd)
 		else if (word == "location")
 		{
 			cscan >> word;
-			if (get_loc_path_location(word) == word)
+			if (serv_locations.find(word) != serv_locations.end())
 				throw(runtime_error("Invalid configue file!"));
-			this->serv_locations.push_back(location(config_fd, word));
+			serv_locations.insert(std::make_pair(word, location(config_fd, word)));
+			// this->serv_locations.push_back(_locations[word]);
 			word.erase();
 			file.erase();
 		}
@@ -168,140 +169,104 @@ server_config::server_config(ifstream &config_fd)
 	// {
 	// 	cout << serv_locations[i] <<endl;
 	// }
-	
+
 	// cout << "-----------------------------------------------------------" <<endl;
 }
 
 
 bool server_config::get_loc_delete(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_delete());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_delete());
 	return (false);
 }
 
 bool server_config::get_loc_post(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_post());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_post());
 	return (false);
 }
 
 bool server_config::get_loc_get(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get());
 	return (false);
 }
 
 bool server_config::get_loc_auto_index(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_auto_index());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_auto_index());
 	return (false);
 }
 
 bool server_config::get_loc_upload(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_upload());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_upload());
 	return (false);
 }
 string server_config::get_loc_root(string const &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_root());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_root());
 	return ("");
 }
 
 size_t server_config::get_loc_max_client_size(const string &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name){
-			return(it->get_max_client_size());
-		}
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_max_client_size());
 	return (0);
 }
 
 string server_config::get_loc_up_folder(string const &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_upload_folder());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_upload_folder());
 	return ("");
 }
 
 string server_config::get_loc_index(const string  &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_index());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_index());
 	return ("");
 }
 
 string server_config::get_loc_redirection(const string  &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_redirection());
-	}
+
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_redirection());
 	return ("");
 }
 
 string server_config::get_loc_cgi_path(const string  &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_cgi_path());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->second.get_cgi_path());
 	return ("");
 }
 
 string server_config::get_loc_path_location(const string  &name)
 {
-	location_iterator it = serv_locations.begin();
-	for(; it  != serv_locations.end(); it++)
-	{
-		if (it->get_path_location() == name)
-			return(it->get_path_location());
-	}
+	location_map_iterator it1=serv_locations.find(name);
+	if (it1 !=serv_locations.end())
+		return (it1->first);
 	return ("");
 }
 
