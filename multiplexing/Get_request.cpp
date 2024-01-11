@@ -50,11 +50,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     // Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    cout << Path << endl;
-    if ((config[index].get_loc_path_location(this->Path).empty()) && ((is_open_diir(Path) == 0) && is_open_fil("."+Path) == 0))//(Path.find(".") == string::npos))
-        error_page(event, epoll_fd, "404", config);
+    if ((config[index].get_loc_path_location(this->Path).empty()) && ((is_open_diir(Path) == 0) && is_open_fil("." + Path) == 0)) //(Path.find(".") == string::npos))
+       error_page(event, epoll_fd, "404", config);
     // check__if__methode__alowed :
-    else if ((config[index].get_loc_get(this->Path) == 0) && ((is_open_diir(Path) == 0) && is_open_fil("."+Path) == 0))//(Path.find(".") == string::npos))
+    else if ((config[index].get_loc_get(this->Path) == 0) && ((is_open_diir(Path) == 0) && is_open_fil("." + Path) == 0)) //(Path.find(".") == string::npos))
         error_page(event, epoll_fd, "405", config);
 
     // if Path Empty__serve__the __server:
@@ -109,6 +108,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         if (config[index].get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
+            if(dire)
+                closedir(dire);
             dire = opendir((root + str.erase(0, 1)).c_str());
             if (dire)
             {
@@ -118,17 +119,17 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 {
                     if (this->Path.find("cgi") != string::npos)
                     {
-                        php_cgi(*this, config[index]);
-                        cout << "cgi_file : " << cgi_file << endl;
-                        op_cgi.open(cgi_file.c_str());
-                        if (op_cgi.is_open())
+                        if (cgi_file.empty() == true && get_to_cgi == false)
                         {
-                            cout << "bbbbbbb" <<endl;
-
-                            read_for_send(m, 1);
-                            if (op_cgi.eof())
-                                end_of_file(event, epoll_fd);
+                            php_cgi(*this, config[index]);
+                            op_cgi.open(cgi_file.c_str());
                         }
+                        // if (op_cgi.is_open())
+                        // {
+                        //     read_for_send(m, 1);
+                        //     if (op_cgi.eof())
+                        //         end_of_file(event, epoll_fd);
+                        // }
                     }
                     else
                     {
@@ -147,17 +148,19 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 {
                     if (this->Path.find("cgi") != string::npos)
                     {
-                        if (cgi_file.empty() == true)
-                            php_cgi(*this, config[index]);
-                         cout << "-->" <<	waitpid(pid, NULL, 0)<< endl;
-
-                        op_cgi.open(cgi_file.c_str());
-                        if (op_cgi.is_open())
+                        if (cgi_file.empty() == true && get_to_cgi == false)
                         {
-                            read_for_send(m, 1);
-                            if (op_cgi.eof())
-                                end_of_file(event, epoll_fd);
+                            cout << "here ------ " << endl;
+                            php_cgi(*this, config[index]);
+                        
+                            op_cgi.open(cgi_file.c_str());
                         }
+                        // if (op_cgi.is_open() && get_to_cgi == true)
+                        // {
+                        //     read_for_send(m, 1);
+                        //     if (op_cgi.eof())
+                        //         end_of_file(event, epoll_fd);
+                        // }
                     }
                     else
                     {
@@ -183,7 +186,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config, index);
     }
-    else if (is_open_fil("."+Path) == 1) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
+    else if (is_open_fil("." + Path) == 1) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
     {
         string root = config[index].get_root();
         if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
@@ -191,15 +194,17 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
         {
-            php_cgi(*this, config[index]);
-            cout << "cgi_file : " << cgi_file << endl;
-            op_cgi.open(cgi_file.c_str());
-            // if (op_cgi.is_open())
+            if (cgi_file.empty() == true && get_to_cgi == false)
+            {
+                php_cgi(*this, config[index]);
+                // cout << "-->" << waitpid(pid, NULL, 0) << endl;
+                op_cgi.open(cgi_file.c_str());
+            }
+            // if (op_cgi.is_open() && get_to_cgi == true)
             // {
-                cout << "dddddd" <<endl;
-                read_for_send(m, 1);
-                if (op_cgi.eof())
-                    end_of_file(event, epoll_fd);
+            //     read_for_send(m, 1);
+            //     if (op_cgi.eof())
+            //         end_of_file(event, epoll_fd);
             // }
         }
         else
@@ -218,6 +223,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     else
         error_page(event, epoll_fd, "404", config);
     (void)m;
+    // cgi_file.erase();
 }
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {

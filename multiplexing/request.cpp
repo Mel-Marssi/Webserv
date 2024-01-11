@@ -6,7 +6,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
 (void)server_book;
 (void)fd_client;
-
+    get_to_cgi = false;
     size_read = 0;
     size_read_request = 0;
     size_request = 0;
@@ -39,7 +39,7 @@ Request::Request(const Request& obj)
      fake_bondary = "NULL";
       wait = 0;
       last = 0;
-
+    get_to_cgi = obj.get_to_cgi;
     event_fd = 0;
     ck = 0;
     read_request = "";
@@ -72,8 +72,6 @@ Request::Request(const Request& obj)
 
 int Request::parse_line(std::string line, int check_first)
 {
-      cout << "line" << endl;
-
     if (check_first == 0)
     {
         size_t found_POST = line.find("POST");
@@ -138,7 +136,6 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
             line += read_request[i];
         else
         {
-            cout << "ffffffffff\n";
             parse_line(line, check_first_line);
             line = "";
             check_first_line = 1;
@@ -276,7 +273,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
 {
  (void)map;
  content = content+ "\r";
-    cout << "fffff\n";
+    cout << content<<endl;
 
     //  outputFile.open("tt.txt");
     // return;

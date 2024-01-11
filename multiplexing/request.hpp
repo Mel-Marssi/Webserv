@@ -40,6 +40,7 @@ class Request
         // string fir_body;
         // string read_request;
         string _host, _port;
+        bool get_to_cgi;
         // int check_first_line;
         // int size_read;
         // int size_read_request;
@@ -98,6 +99,7 @@ class Request
         string full_Path;
         string Query_String;
         string cgi_file;
+        clock_t start;
         int fd[2];
         ssize_t eof_cgi;
         //Config_file :
