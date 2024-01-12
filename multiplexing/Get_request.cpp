@@ -150,7 +150,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     {
                         if (cgi_file.empty() == true && get_to_cgi == false)
                         {
-                            cout << "here ------ " << endl;
+                            // cout << "here ------ " << endl;
                             php_cgi(*this, config[index]);
                         
                             op_cgi.open(cgi_file.c_str());

@@ -5,7 +5,7 @@ int cgi_handler::i = 0;
 
 void php_cgi(Request &req, server_config &config)
 {
-	cout << "CGI------------>" << endl;
+	// cout << "CGI------------>" << endl;
 	(void)config;
 	cgi_handler cgi(req);
 	string file = req.full_Path;
