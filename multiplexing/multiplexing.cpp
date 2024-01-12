@@ -86,6 +86,7 @@ multiplexing::multiplexing(servers &config)
 					{
 						// request[event_wait[i].data.fd].fill_status_code();
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
+						// update changes
 						if (request[event_wait[i].data.fd].Path.find("cgi") != std::string::npos)
 						{
 							int out;
@@ -113,6 +114,7 @@ multiplexing::multiplexing(servers &config)
 								}
 							}
 						}
+						//end update changes
 					}
 					else if (request[event_wait[i].data.fd].check_req == 1)
 						request[event_wait[i].data.fd].Generate_req_second(event_wait[i], epoll_fd);

@@ -117,6 +117,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     redirection_content_backSlash(event, epoll_fd, 0);
                 else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
                 {
+                    // update changes
                     if (this->Path.find("cgi") != string::npos)
                     {
                         if (cgi_file.empty() == true && get_to_cgi == false)
@@ -124,6 +125,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                             php_cgi(*this, config[index]);
                             op_cgi.open(cgi_file.c_str());
                         }
+                    //end update changes
                         // if (op_cgi.is_open())
                         // {
                         //     read_for_send(m, 1);
@@ -146,15 +148,15 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 } // check auto index
                 else if ((file_get != ""))
                 {
+                    // update changes
                     if (this->Path.find("cgi") != string::npos)
                     {
                         if (cgi_file.empty() == true && get_to_cgi == false)
                         {
-                            // cout << "here ------ " << endl;
                             php_cgi(*this, config[index]);
-                        
                             op_cgi.open(cgi_file.c_str());
                         }
+                    //end update changes
                         // if (op_cgi.is_open() && get_to_cgi == true)
                         // {
                         //     read_for_send(m, 1);
@@ -194,12 +196,13 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
         {
+            // update changes
             if (cgi_file.empty() == true && get_to_cgi == false)
             {
                 php_cgi(*this, config[index]);
-                // cout << "-->" << waitpid(pid, NULL, 0) << endl;
                 op_cgi.open(cgi_file.c_str());
             }
+            //end update changes
             // if (op_cgi.is_open() && get_to_cgi == true)
             // {
             //     read_for_send(m, 1);
