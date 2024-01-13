@@ -203,12 +203,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 op_cgi.open(cgi_file.c_str());
             }
             //end update changes
-            // if (op_cgi.is_open() && get_to_cgi == true)
-            // {
-            //     read_for_send(m, 1);
-            //     if (op_cgi.eof())
-            //         end_of_file(event, epoll_fd);
-            // }
         }
         else
         {

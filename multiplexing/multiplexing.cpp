@@ -57,7 +57,7 @@ multiplexing::multiplexing(servers &config)
 			{
 				request[event_wait[i].data.fd].fill_status_code();
 
-				if (request[event_wait[i].data.fd].check_left_header == 0)
+				if (request[event_wait[i].data.fd].check_left_header == 0 && event.events & EPOLLIN)
 				{
 					char buff[1024];
 					request[event_wait[i].data.fd].size = 0;
@@ -66,11 +66,11 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].read_request.append(buff, request[event_wait[i].data.fd].size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request, event_wait[i], epoll_fd, config);
 					// cout << request[event_wait[i].data.fd].read_request << endl;
+					// cout << endl;
 				}
 
 				if (request[event_wait[i].data.fd].methode == "POST")
 				{
-
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
 					request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
 
@@ -140,8 +140,9 @@ multiplexing::multiplexing(servers &config)
 					if (it != request.end())
 						request.erase(it);
 					request[event_wait[i].data.fd].read_request = "";
+					// event_wait[i].events
 				}
-				if (request[event_wait[i].data.fd].methode == "POST" && (request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
+				if (request[event_wait[i].data.fd].methode == "POST"  &&  event_wait[i].events & EPOLLOUT  && (request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))// ||request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
 					if (request[event_wait[i].data.fd].err == 0)
 					{
@@ -154,7 +155,6 @@ multiplexing::multiplexing(servers &config)
 					if (it != request.end())
 						request.erase(it);
 				}
-				// else
 
 				request[event_wait[i].data.fd].read_request.erase();
 			}

@@ -93,6 +93,7 @@ int Request::parse_line(std::string line, int check_first)
         {
             header_request.insert(std::make_pair(line.substr(0,found_DELETE+6),   (line.substr(found_DELETE + 7,line.length()).c_str())));
             this->methode = DELETE;
+            cout << "Gggggggggg\n";
         }
         else
         {
@@ -150,18 +151,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
         {
             this->fir_body = read_request.substr(check_body + 3, read_request.length());
         }
-        if (this->methode == "POST")
-        {
-            // string content = header_request["Content-Type"];
-            // size_t si = content.find("multipart/form-data");
-
-            map<string, string>::iterator it;
-            map<string, string>::iterator it0;
-            it = header_request.find("Transfer-Encoding");//Content-Length
-            it0 = header_request.find("Content-Length");//Content-Length
-            if ((it == header_request.end()) && (it0 == header_request.end() ))//&& si != string::npos
-                error_page(event, epoll_fd, "400", config);
-        }
+     
     
     return 0;
  
@@ -437,6 +427,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
    
     //  (void)fd;
+            // map<string, string>::iterator it1;
+            map<string, string>::iterator it0;
+            // it1 = header_request.find("Transfer-Encoding");//Content-Length
+            it0 = header_request.find("Content-Length");//Content-Length
+            if ((it == header_request.end()) && (it0->second.empty()))
+            {
+                error_page(event, fd, "400", config);
+             
+                }
     this->parse_url_prot("POST");
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     // exit(4);
@@ -622,14 +621,19 @@ void Request::post(int fd, servers &config, epoll_event &event)
         size_t si = content.find("multipart/form-data");
         if (si != string::npos)
         {
-            // cout << "boundaries\n";
+             cout << "boundaries\n";
             boundaries(config, index, fd);
             // exit(1);
         }
         else
         {
             cout << "ana binary\n" ;
-            if (acces_read_in_post == 1)
+            if (!(event.events & EPOLLIN))
+            {
+                size_read_request = size_request;
+                return;
+            }
+            if (acces_read_in_post == 1  && event.events & EPOLLIN)
             {
 
                 char buff[1024];
