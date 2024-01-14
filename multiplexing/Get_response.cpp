@@ -99,16 +99,19 @@ void Request::close_dir()
     }
 }
 
-int Request::check_permission(string str)
+int Request::check_permission_F(string str)
 {
     if (access((str).c_str(), F_OK) != -1)
-    {
-        if (access((str).c_str(), R_OK) && access((str).c_str(), W_OK) && access((str).c_str(), X_OK) == 0)
-            return (1);
-        else
-            return (0);
-    }
+        return (1);
     return (0);
+}
+
+int Request::check_permission_X(string str)
+{
+    if (access((str).c_str(), X_OK) != -1)
+        return (1);
+    else
+        return (0);
 }
 
 int Request::is_open_diir(string str)

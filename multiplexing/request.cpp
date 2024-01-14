@@ -28,7 +28,6 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
       acces_read_in_post = 0;
       err = 0;
       last = 0;
-
        fake_bondary = "NULL";
       wait = 0;
       fill_content_type();
@@ -93,7 +92,6 @@ int Request::parse_line(std::string line, int check_first)
         {
             header_request.insert(std::make_pair(line.substr(0,found_DELETE+6),   (line.substr(found_DELETE + 7,line.length()).c_str())));
             this->methode = DELETE;
-            cout << "Gggggggggg\n";
         }
         else
         {

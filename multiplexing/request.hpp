@@ -142,7 +142,8 @@ class Request
         int event_fd;
         //============= Delete =========================
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
-        int check_permission(string str);
+        int check_permission_F(string str);
+        int check_permission_X(string str);
         void delete_content(string pat, string file, epoll_event& event, int epoll_fd);
         int is_open_diir(string str);
         int is_open_fil(string str);

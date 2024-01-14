@@ -132,6 +132,14 @@ multiplexing::multiplexing(servers &config)
 				{
 					request[event_wait[i].data.fd].epoll_fd_tmp = epoll_fd;
 					request[event_wait[i].data.fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
+					if (request[event_wait[i].data.fd].fin_or_still == finish)
+					{
+						std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+						if (it != request.end())
+							request.erase(it);
+						// request[event_wait[i].data.fd].read_request = "";
+						request[event_wait[i].data.fd].read_request.erase();
+					}
 				}
 				if (request[event_wait[i].data.fd].methode == "NONE")
 				{
