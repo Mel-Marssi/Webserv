@@ -65,10 +65,10 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].size_read_request += request[event_wait[i].data.fd].size;
 					request[event_wait[i].data.fd].read_request.append(buff, request[event_wait[i].data.fd].size);
 					request[event_wait[i].data.fd].parce_request(request[event_wait[i].data.fd].read_request, event_wait[i], epoll_fd, config);
+					// cout << endl;
 					// cout << request[event_wait[i].data.fd].read_request << endl;
 					// cout << endl;
 				}
-
 				if (request[event_wait[i].data.fd].methode == "POST")
 				{
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
