@@ -162,6 +162,7 @@ void Request::fill_content_type()
     cont_type["image/gif\r"] = ".gif";
     cont_type["text/html\r"] = ".html";
     cont_type["image/jpeg\r"] = ".jpeg";
+    cont_type["image/png\r"] = ".png";
     cont_type["application/json\r"] = ".json";
     cont_type["text/javascript\r"] = ".js";
     cont_type["audio/mpeg\r"] = ".mp3";

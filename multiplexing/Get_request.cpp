@@ -158,7 +158,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     }
     else if (!(config[index].get_loc_path_location(this->Path).empty()))
     {
-        cout << index << " " << config[index].get_loc_path_location(this->Path) << endl;
         string root;
         if (!config[index].get_loc_root(this->Path).empty())
             root = config[index].get_loc_root(this->Path);

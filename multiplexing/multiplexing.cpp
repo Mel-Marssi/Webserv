@@ -89,12 +89,10 @@ multiplexing::multiplexing(servers &config)
 						// update changes
 						if (request[event_wait[i].data.fd].Path.find("cgi") != std::string::npos)
 						{
-							cout << "start cgi" << endl;
 							int out;
 							//  start = clock();
 							if ((out = waitpid(request[event_wait[i].data.fd].pid, NULL, WNOHANG)) == 0)
 							{
-								cout << "waitpid : " << out << endl;
 								request[event_wait[i].data.fd].get_to_cgi = true;
 								double tmp = (clock() - request[event_wait[i].data.fd].start) / CLOCKS_PER_SEC;
 								if (tmp >= 5)
