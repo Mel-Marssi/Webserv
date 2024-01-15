@@ -107,7 +107,7 @@ class Request
         string Port;
         string Path_bef;
         
-        void parse_url_prot(string meth);
+        void parse_url_prot(string meth, int epoll_fd, epoll_event &event, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd);
@@ -148,4 +148,5 @@ class Request
         int is_open_diir(string str);
         int is_open_fil(string str);
         void response_for_delete(string status, epoll_event &event, int epoll_fd);
+        string get_the_p(servers &config, string Path, string file_get);
 };

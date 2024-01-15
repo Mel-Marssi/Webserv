@@ -8,15 +8,16 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 	(void)epoll_fd;
 	(void)m;
 	int indx = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-	this->parse_url_prot("DELETE");
+	
+    this->parse_url_prot("DELETE", epoll_fd, event, config);
 
-	string root = config[indx].get_loc_root(this->Path);
-	if (root == "")
-		root = config[indx].get_root();
+    string root = get_the_p(config, Path, file_get);
+    cout << root << "  ==  " << Path  << "  --  "<<file_get<< endl;
+    // string tmp;
+    // if ()
 
 	if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
 		response_for_delete("409", event, epoll_fd);
-		// redirection_content_backSlash(event, epoll_fd, 1);
 	else if (this->Path == "/")
 	{
 		if (config[indx].get_loc_auto_index(this->Path))
@@ -32,10 +33,6 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 	}// //file
 	else if (is_open_diir("." + Path) == 0)
 	{
-		if ((Path[0] == '/') && (root[root.length() - 1] == '/'))
-			root.erase(root.length() - 1, 1);
-		root += Path;
-
 		if (check_permission_F(root) == 1)
             delete_content(root, "", event, epoll_fd);
         else
@@ -43,9 +40,6 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
     }
     else if (is_open_diir("." + Path) == 1)
     {
-        if (Path[0] == '/' && root[root.length() - 1] == '/')
-			root.erase(root.length() - 1, 1);
-		root += Path;
 		if (file_get == "")
 		{
 			if (check_permission_F(root) == 1)

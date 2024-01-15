@@ -18,7 +18,12 @@ int main()
 {
 // char *realpath(const char *restrict path,char *restrict resolved_path);
 
-	char *u = "./";
-	char *b= realpath("./../bin", u);
-	cout << b << endl;
+	// char *u = "./";
+	// char *b= realpath("./../bin", u);
+	// cout << b << endl;
+
+	ifstream ope("./test9");
+	if (ope.is_open())
+		cout << "Dkhelll\n";
+	cout << "-------------\n";
 }

@@ -1,10 +1,56 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-void Request::parse_url_prot(string meth)
+// void Request::parse_url_prot(string meth)
+// {
+//     map<string, string>::iterator it;
+//     size_t i;
+
+//     this->Path = "";
+//     this->Protocole = "";
+//     this->file_get = "";
+//     it = header_request.find(meth);
+//     if (it->first == meth)
+//     {
+//         i = it->second.find(" ");
+//         this->Path.insert(0, it->second, 0, i);
+//         i++;
+//         this->Protocole.insert(0, it->second, i, it->second.length());
+//     }
+//     i = 1;
+//     i = this->Path.find("/", i);
+//     if (i != string::npos)
+//     {
+//         this->file_get.insert(0, this->Path, i + 1, this->Path.length());
+//         this->Path_bef = this->Path;
+//         this->Path.erase(i, this->Path.length());
+//         this->full_Path = this->Path_bef;
+//         if (this->file_get.find("?") != string::npos)
+//         {
+//             size_t o;
+
+//             o = this->file_get.find("?");
+//             this->Query_String.insert(0, file_get, o + 1, file_get.length());
+//             full_Path[full_Path.find("?")] = '\0';
+//             // full_Path.erase(o, full_Path.length());
+//             file_get.erase(o, file_get.length());
+//         }
+//         else
+//             Query_String = "";
+//     }
+//     else
+//         this->full_Path = this->Path;
+// }
+
+void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, servers &config)
 {
     map<string, string>::iterator it;
     size_t i;
+
+    //=====================================
+    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    string root = config[index].get_root();
+    //=====================================
 
     this->Path = "";
     this->Protocole = "";
@@ -16,6 +62,21 @@ void Request::parse_url_prot(string meth)
         this->Path.insert(0, it->second, 0, i);
         i++;
         this->Protocole.insert(0, it->second, i, it->second.length());
+    }
+    if (root[root.length() - 1] =='/' && Path[0] == '/')
+        root.erase(root.length() - 1, root.length());
+    char buffer[1024];
+    char *b = realpath((root + Path).c_str(), buffer);
+    if (b == NULL)
+        error_page(event, epoll_fd, "404", config);
+    else
+    {
+        string tmp = b;
+        string tmp2 = config[index].get_root();
+        b = realpath(tmp2.c_str(), buffer);
+        tmp2 = b;
+        if (tmp.find(tmp2) == string::npos)
+            error_page(event, epoll_fd, "403", config);
     }
     i = 1;
     i = this->Path.find("/", i);
@@ -42,10 +103,11 @@ void Request::parse_url_prot(string meth)
         this->full_Path = this->Path;
 }
 
+
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
     // Pars__Line__Get :
-    this->parse_url_prot("GET");
+    this->parse_url_prot("GET", epoll_fd, event, config);
 
     // Check__if__Loc__exisite_in__Server :
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
@@ -189,7 +251,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config, index);
     }
-    else if (is_open_fil("." + Path) == 1) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
+    else if (is_open_diir("." + Path) == 0) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
     {
         string root = config[index].get_root();
         if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
@@ -220,8 +282,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     }
     else
         error_page(event, epoll_fd, "404", config);
-    (void)m;
-    // cgi_file.erase();
 }
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {

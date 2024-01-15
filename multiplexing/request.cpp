@@ -434,7 +434,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 error_page(event, fd, "400", config);
              
                 }
-    this->parse_url_prot("POST");
+    this->parse_url_prot("POST", fd, event, config);
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     // exit(4);
     // if ((this->Path_bef[Path_bef.length() - 1] != '/'))

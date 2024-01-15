@@ -132,6 +132,7 @@ int Request::is_open_fil(string str)
     ifstream fil(str.c_str());
     if (fil.is_open())
     {
+        cout << "----===\t" << str << endl;
         fil.close();
         return 1;
     }
@@ -153,4 +154,20 @@ void Request::response_for_delete(string status, epoll_event &event, int epoll_f
     fin_or_still = finish;
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
     close(event.data.fd);
+}
+
+string Request::get_the_p(servers &config, string Path, string file_get)
+{
+    (void)file_get;
+	int indx = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+
+	string root = config[indx].get_loc_root(this->Path);
+	if (root == "")
+		root = config[indx].get_root();
+    
+    if (((Path[0] == '/') && (root[root.length() - 1] == '/')))
+        root.erase(root.length() - 1, 1);
+
+    // cout << root << "  ||==||  " << Path  << "  ||--||  "<<file_get<< endl;
+    return (root);
 }
