@@ -176,148 +176,87 @@ server_config::server_config(ifstream &config_fd)
 
 bool server_config::get_loc_delete(const string &name)
 {
-	try
-	{
-		return serv_locations[name].get_delete();
-	}
-	catch(...)
-	{
-		return (false);
-	}
-	
+	if (serv_locations.find(name) != serv_locations.end())
+		return serv_locations[name].get_delete();	
+	return (false);
 }
 
 bool server_config::get_loc_post(const string &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_post();
-	}
-	catch(...)
-	{
-		return (false);
-	}
+	return (false);
 }
 
 bool server_config::get_loc_get(const string &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get();
-	}
-	catch(...)
-	{
-		return (false);
-	}
+	return (false);
 }
 
 bool server_config::get_loc_auto_index(const string &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_auto_index();
-	}
-	catch(...)
-	{
-		return (false);
-	}
+	return (false);
 }
 
 bool server_config::get_loc_upload(const string &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_upload();
-	}
-	catch(...)
-	{
-		return (false);
-	}
+	return (false);
 
 }
 string server_config::get_loc_root(string const &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_root();
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
 }
 
 size_t server_config::get_loc_max_client_size(const string &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_max_client_size();
-	}
-	catch(...)
-	{
-		return (0);
-	}
+	return (0);
 }
 
 string server_config::get_loc_up_folder(string const &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_upload_folder();
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
 }
 
 string server_config::get_loc_index(const string  &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_index();
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
 }
 
 string server_config::get_loc_redirection(const string  &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_redirection();
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
 }
 
 string server_config::get_loc_cgi_path(const string  &name)
 {
-	try
-	{
+	if(serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_cgi_path();
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
 }
 
 string server_config::get_loc_path_location(const string  &name)
 {
-	try
-	{
-		serv_locations[name];
+	if(serv_locations.find(name) != serv_locations.end())
 		return name;
-	}
-	catch(...)
-	{
-		return ("");
-	}
+	return ("");
+
 }
 
 int server_config::get_port()
