@@ -6,6 +6,8 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
 (void)server_book;
 (void)fd_client;
+size_chuked = 0;
+read_get = 0;
     get_to_cgi = false;
     size_read = 0;
     size_read_request = 0;
@@ -18,6 +20,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     fir_body = "NULL";
     dire = NULL;
     exten = "";
+    check_read_get = 0;
     read_request = "";
     ck = 0;
     event_fd = 0;
@@ -30,11 +33,20 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
       last = 0;
        fake_bondary = "NULL";
       wait = 0;
+    status_pro = "NULL";
+    size_body_get = 0;
+    fd_request = 0;
       fill_content_type();
 }
 
 Request::Request(const Request& obj)
 {
+size_chuked = 0;
+read_get = 0;
+    fd_request = 0;
+    size_body_get = 0;
+    check_read_get = 0;
+    status_pro = "NULL";
      fake_bondary = "NULL";
       wait = 0;
       last = 0;
@@ -66,7 +78,7 @@ Request::Request(const Request& obj)
       fill_content_type();
       (void) obj;
 }
- 
+
 
 
 int Request::parse_line(std::string line, int check_first)
@@ -103,7 +115,8 @@ int Request::parse_line(std::string line, int check_first)
     {
         size_t found_POINT = line.find(":");
         // cout << found_POINT << " " << line.length() << " ---\n";
-        header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length() - 1).c_str())));
+        if (found_POINT != string::npos)
+            header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length() - 1).c_str())));
     }
     return 0;
 }
@@ -128,9 +141,8 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     check_body++;
     std::string line;
     int check_first_line = 0;
-    while (read_request[i] )//&& i <= check_body
+    while (read_request[i])// && i <= check_body)//&& i <= check_body
     {
-
         if (read_request[i] != '\n')
             line += read_request[i];
         else
@@ -141,20 +153,50 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
         }
         i++;
     }
-    // cout << line << endl;
     //     exit(1);
     std::string l = header_request["Content-Length"];
 		size_request = atol(l.c_str());
-        if (check_body != std::string::npos && methode == "POST")
+        cout << methode << "-------"<< endl;
+        // if (check_body != std::string::npos && methode == "POST")
+        // {
+        //      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
+   
+        //     map<string, string>::iterator it0;
+        //     it0 = header_request.find("Content-Length");
+        //     if ((it == header_request.end()) && (it0->second.empty()))
+        //     {
+        //         error_page(event, epoll_fd, "400", config);
+        //     }
+        //     this->parse_url_prot("POST", epoll_fd, event, config);
+        //     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+        
+        //     // cout << index << endl;
+        //     if ((config[index].get_loc_post(this->Path) == 0)  && (is_open_diir(Path) == 0)) //&& (events & EPOLLOUT ) && (is_open_diir(Path) == 0)
+        //     {
+        //         err = 1;
+        //         error_page(event, epoll_fd, "405", config);
+        //         return 0;
+        //     }
+        //     if ( config[index].get_loc_upload(this->Path) == 0  )//&& (events & EPOLLOUT )
+        //     {
+        //         err = 1;
+        //         error_page(event, epoll_fd, "403", config);
+        //         return 0;
+        //     }
+        // }
+        if (check_body + 3 < read_request.length())
         {
             this->fir_body = read_request.substr(check_body + 3, read_request.length());
+            size_body_get += size_read_request -check_body + 3 ;
+
         }
-     
-    
+            
+            // cout << size_read_request -check_body + 3 << endl;
+            // exit(4);
+           
     return 0;
  
 }
- 
 
 void Request::fill_content_type()
 {
@@ -187,12 +229,13 @@ void Request::create_file(std::ofstream& outputFile,   std::map<std::string, std
     if (it != cont_type.end())
     {
         std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + str.str() + cont_type[type_file];
+        file_name_post = randomName;
         outputFile.open(randomName.c_str());
 
     }  
     else  
     {
-        std::string randomName = str.str() + ".x";
+        std::string randomName = str.str() + ".txt";
         outputFile.open(randomName.c_str());
     }
 }
@@ -217,6 +260,41 @@ void Request::binary(servers &config, int index)
 		outputFile << read_request;			
 	}
 }
+
+int Request::Handle_error(int fd, servers &config, epoll_event &event)
+{
+      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
+   
+    map<string, string>::iterator it0;
+    it0 = header_request.find("Content-Length");//Content-Length
+    this->parse_url_prot("POST", fd, event, config);
+    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    if ((it == header_request.end()) && (it0->second.empty()))
+    {
+
+        status_pro = "400";
+        return 1;
+    }
+ 
+    // cout << index << endl;
+    if ((config[index].get_loc_post(this->Path) == 0)  && (is_open_diir(Path) == 0) ) // && (event.events & EPOLLOUT) && (is_open_diir(Path) == 0)
+    {
+         cout << "AAAA";
+ 
+        status_pro = "405";
+ 
+        return 1;
+    }
+      if ( config[index].get_loc_upload(this->Path) == 0  )//&& (events & EPOLLOUT )
+    {
+        // err = 1;
+        status_pro = "405";
+
+        return 1 ;
+    }
+    return 0;
+}
+
 
 
 void Request::chunked(servers &config, int index)
@@ -243,6 +321,7 @@ void Request::chunked(servers &config, int index)
                 fir_body = fir_body.substr(0, check_last);
 			  outputFile << fir_body;
                 // total += (size - position_int + 2);
+                size_chuked += fir_body.length();
              size_chunked -= fir_body.length();
 			fir_body = "NULL";
 		}
@@ -277,7 +356,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     if (it != cont_type.end())
     {
         std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
-        cout << randomName << endl;
+        // cout << randomName << endl;
         outputFile.open(randomName.c_str());
 
     }  
@@ -303,7 +382,6 @@ void Request::boundar(servers &config, int index)
         // cout << content << endl;
         // cout << last_boundri << endl;
         //  exit(1);
-		check_create_file = 1;
 
         if (fir_body != "NULL")
 		{
@@ -314,12 +392,20 @@ void Request::boundar(servers &config, int index)
 
             string Content = filename_content.substr(filename_content.find("\r\n") + 16);
 		    create_file_bondar(outputFile, header_request, config,  index, filename, Content);
+		    check_create_file = 1;
             fir_body = fir_body.substr(position_int + 4 , fir_body.length());
-            //  cout << fir_body;
+             cout << fir_body;
             // exit(1);
 			  outputFile << fir_body;
-
-             size_chunked -= fir_body.length();
+            //   size_t last_bondary = fir_body.find(last_boundri);
+            //   if (last_bondary != string::npos)
+            //   { 
+            //          last = 1;
+            //     finir = 1;
+            //     return;
+            //   }
+            //  size_chunked -= fir_body.length();
+            size_read_request = -99;
 			fir_body = "NULL";
 		}
 		else
@@ -340,6 +426,7 @@ void Request::boundaries(servers &config, int index, int fd)
 {
     char buff[1024];
     memset(buff, 0, 1024);
+        cout <<"buff" << endl;
     if (acces_read_in_post == 1)
     {
         size_t a = read(fd, buff, 1024);
@@ -373,9 +460,9 @@ void Request::boundaries(servers &config, int index, int fd)
                     size_t position_int = read_request.find("\r\n\r\n");
                     if ((position_int + 4) < read_request.length() && last != 1)
                     {
-                        cout << read_request << endl << "----------------------------\n";
+                        // cout << read_request << endl << "----------------------------\n";
                         fake_bondary = read_request.substr(position_int + 4, read_request.length());  
-                        cout << fake_bondary << endl;
+                        // cout << fake_bondary << endl;
                         // outputFile << read_request ;
 
                     }
@@ -425,41 +512,57 @@ void Request::post(int fd, servers &config, epoll_event &event)
 {
      std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
    
-    //  (void)fd;
-            // map<string, string>::iterator it1;
-            map<string, string>::iterator it0;
-            // it1 = header_request.find("Transfer-Encoding");//Content-Length
-            it0 = header_request.find("Content-Length");//Content-Length
-            if ((it == header_request.end()) && (it0->second.empty()))
-            {
-                error_page(event, fd, "400", config);
-             
-                }
-    this->parse_url_prot("POST", fd, event, config);
-    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-    // exit(4);
-    // if ((this->Path_bef[Path_bef.length() - 1] != '/'))
+    // map<string, string>::iterator it0;
+    // it0 = header_request.find("Content-Length");//Content-Length
+    // if ((it == header_request.end()) && (it0->second.empty()))
     // {
-    //             redirection_content_backSlash(event, fd, config);
-    //     err = 1;
+    //     error_page(event, fd, "400", config);
+    // }
+     
+        
+    // cout << status_pro << endl;
+    if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0) && status_pro != "NULL" )
+    {   
+         size_read_request = -9;
+         err = 0;
+            int hh = 0;
+            char buff[1024];
+            if (check_read_get == 1)
+            {
+                hh = read(event.data.fd, buff, 1024);
+                 size_body_get += hh;
+                read_request.clear();
+                read_request.append(buff,hh);
+            }
+            if (header_request["Transfer-Encoding"] == "chunked\r" && read_request.find("\r\n0\r\n") != string::npos)
+                finir = 1;
+            else if ( size_body_get >= atol(header_request["Content-Length"].c_str()))
+                finir = 1;
+            return;
+        }
+ 
 
+    // if (status_pro != "NULL" && (event.events & EPOLLIN))
+    // {
+    //     char buff[1024];
+    //     memset(buff, 0, 1024);
+    //     read(fd, buff, 1024);
     //     return;
     // }
-    if ((config[index].get_loc_post(this->Path) == 0) && (Path.find(".") == string::npos))
-    {
-        err = 1;
-        error_page(event, fd, "405", config);
-        return;
-    }
-    if ( config[index].get_loc_upload(this->Path) == 0)
-    {
-        err = 1;
-        error_page(event, fd, "403", config);
-        return;
-    }
+    this->parse_url_prot("POST", fd, event, config);
+    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+
 
      if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
      {
+        if ((config[index].get_loc_max_client_size(this->Path) < (size_t)size_chuked))
+            {
+                cout << "fffffffffff\n";
+                outputFile.close();
+                std::remove(file_name_post.c_str());
+                status_pro = "413";
+                 return;
+            }
          char buff[1024];
         memset(buff, 0, 1024);
         if (acces_read_in_post == 1)
@@ -468,6 +571,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
             {
                 int a = 0;
                 a = read(fd, buff, 1024 - size);
+                size_chuked += a;
                 if (a < 1024 - size)
                 {
                     size += a;
@@ -550,6 +654,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
             if (size_chunked - total >= 1024) 
             {
                 size = read(fd, buff, 1024);
+                size_chuked += size;
                 total+=size;
                 read_request.append(buff,size);
                 outputFile << read_request;	
@@ -563,6 +668,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 // cout << size_chunked - total << " //// \n";
                 size = read(fd, buff, size_chunked - total);
                 total+=size;
+                size_chuked += size;
                 if (size ==  (size_chunked - total))
                 {
                     read_request.append(buff,size);
@@ -626,7 +732,12 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         else
         {
-            cout << "ana binary\n" ;
+           
+            if ((config[index].get_loc_max_client_size(this->Path) < (size_t)size_request))
+            {
+                status_pro = "413";
+                 return;
+            }
             if (!(event.events & EPOLLIN))
             {
                 size_read_request = size_request;

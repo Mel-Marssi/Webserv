@@ -6,8 +6,8 @@ pars_config/location.cpp pars_config/servers.cpp \
 multiplexing/multiplexing.cpp multiplexing/post.cpp  multiplexing/request.cpp \
 multiplexing/Get_request.cpp multiplexing/Get_response.cpp	\
 multiplexing/Content_type.cpp	multiplexing/root_page.cpp	\
-multiplexing/Delete_Methode.cpp	\
-cgi-bin/cgi_handler.cpp 
+multiplexing/Delete_Methode.cpp	multiplexing/cgi_file.cpp \
+cgi-bin/cgi_handler.cpp	multiplexing/helper_file.cpp
 
 OBJ=$(FILE:.cpp=.o)
 INCLUDE=pars_config/server_config.hpp pars_config/location.hpp \

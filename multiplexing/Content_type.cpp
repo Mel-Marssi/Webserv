@@ -22,7 +22,8 @@ void multiplexing::fill_content_type()
     cont_type["tar"] = "application/x-tar";
 }
 
-void Request::fill_status_code()
+
+  void Request::fill_status_code()
 {
     //===================== status ====================
     status_code["404"] = " Not Found";
@@ -31,11 +32,15 @@ void Request::fill_status_code()
     status_code["403"] = " Forbidden";
     status_code["400"] = " Bad Request";
     status_code["405"] = " Method Not Allowed";
+    status_code["504"] = " Gateway Timeout";
+    status_code["413"] = " Request Entity Too Large";
     //=================== DELETE ==================
     status_code["409"] = " Conflict";
     status_code["204"] = " No Content";
     status_code["500"] = " Internal Server Error";
+    
 }
+ 
 
 string Request::get_status_code(string key)
 {

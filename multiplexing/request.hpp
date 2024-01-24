@@ -67,9 +67,11 @@ class Request
         int err;
         int wait;
         int last;
+        string file_name_post;
         string fake_bondary;
         string boudri;
         string last_boundri;
+        long size_chuked;
         void boundaries(servers &config, int index,int fd);
         void boundar(servers &config, int index);
 
@@ -87,6 +89,7 @@ class Request
         void default_error(string key, int fd);
         // void get_path();
         void fill_content_type();
+        int Handle_error(int fd, servers &config, epoll_event &event);
         std::map<std::string, std::string> cont_type;
 
         Request(map<int, pair<string, string> > server_book, int fd_client);
@@ -94,11 +97,15 @@ class Request
         Request(const Request& obj);
         //==========GET==========================
         string Path;
+        int size_body_get;
+        int check_read_get;
+        string status_pro;
         string Protocole;
         string file_get;
         string full_Path;
         string Query_String;
         string cgi_file;
+        int read_get;
         clock_t start;
         int fd[2];
         ssize_t eof_cgi;
@@ -120,11 +127,11 @@ class Request
         map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);
-        void read_for_send(map<string, string> &m, int flg);
+        void read_for_send(epoll_event &event, map<string, string> &m, int flg);
         void end_of_file(epoll_event &event, int epoll_fd);
         void close_dir();
         std::string read_buff_cgi(map<string, string> &m);
-
+         clock_t startTime;
         string fin_or_still;
         size_t check_first_time;
         int check_req;
@@ -140,6 +147,7 @@ class Request
         int epoll_fd_tmp;
         int ck;
         int event_fd;
+        int fd_request;
         //============= Delete =========================
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         int check_permission_F(string str);
@@ -149,4 +157,12 @@ class Request
         int is_open_fil(string str);
         void response_for_delete(string status, epoll_event &event, int epoll_fd);
         string get_the_p(servers &config, string Path, string file_get);
+        //=============EPOLL IN OUT =====================
+        string buffer;
+        void cgi_handle_get(int epoll_fd, epoll_event &event, servers &config);
+        void find_cgi(servers &config, int index);
+        void check_url_encoding();
+        string enco_form_txt(string str);
+        void read_buuf_for_get(epoll_event &event);
+        int check_body_get(epoll_event &event);
 };
