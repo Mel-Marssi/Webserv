@@ -36,8 +36,12 @@ void php_cgi(Request &req, server_config &config)
 		strcpy(env[i], tmp.c_str());
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
-	string extention = req.file_get.substr(req.file_get.find(".") + 1);
-	string tmp = get_cgi_path(extention, config.get_loc_cgi_exec_path(req.Path));
+	string tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".") + 1), config.get_loc_cgi_exec_path(req.Path));
+	if(tmp == "")
+	{
+		req.status_pro = "500";
+		return ;
+	}
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
 	fd[0] = open(file.c_str(), O_RDONLY);
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
