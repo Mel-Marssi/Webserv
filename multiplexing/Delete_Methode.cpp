@@ -24,9 +24,9 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 		{
 			string str = config[indx].get_root();
 			if (full_Path[0] != '/' && str[str.length() - 1] != '/')
-				root_page(event, epoll_fd, ((str + this->full_Path)));
+				root_page(event, ((str + this->full_Path)));
 			else
-				root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
+				root_page(event, ((str.erase((str.length() - 1), 1) + this->full_Path)));
 		}
 		else//forbiden 
 			error_page(event, epoll_fd, "403", config);

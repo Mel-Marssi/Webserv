@@ -5,10 +5,7 @@ int cgi_handler::i = 0;
 
 void php_cgi(Request &req, server_config &config)
 {
-<<<<<<< HEAD
-=======
 	//  cout << "CGI------------>" << endl;
->>>>>>> 7915505 (GET_hahowa_ja)
 	(void)config;
 	cgi_handler cgi(req);
 	string file = req.full_Path;

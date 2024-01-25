@@ -97,26 +97,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
 void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
 {
     string head;
-    // if (read_buuf_for_get(event);
-//  cout << "4444\n";
 
-    // if ( size_body_get >= atol(header_request["Content-Length"].c_str()))
-    // {
-    //     cout << "Fffffffefe\n";
-    //     fir_body = "NULL";
-    // }
-    // else if (!(event.events & EPOLLIN))
-    //     return;
-    // if (fir_body != "NULL" && (event.events & EPOLLIN) && check_read_get == 1)
-    // {
-    //     int hh = 0;
-    //     char buff[1024];
-    //     cout << "999999999999\n";
-    //     hh = read(event.data.fd, buff, 1024);
-    //     size_body_get += hh;
-    //     fir_body = "oo";
-    //     return;
-    // }
     if (flg == 0)
     {
         check_req = 1;
@@ -134,6 +115,7 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
     {
         if (buffer != "")
         {
+
             len = buffer.length();
             send(event.data.fd, buffer.c_str(), len, 0);
             buffer = "";
@@ -183,8 +165,6 @@ void Request::end_of_file(epoll_event &event, int epoll_fd)
     str += "0\r\n\r\n";
     send(event.data.fd, str.c_str(), str.length(), 0);
     fin_or_still = finish;
-    // close(event.data.fd);
-    // epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
     op.close();
     close_dir();
 }
@@ -326,23 +306,4 @@ string Request::enco_form_txt(string str)
     map["%7E"] = "~";
 
     return (map[str]);
-}
-
-void Request::read_buuf_for_get(epoll_event &event)
-{
-    if ( size_body_get >= atol(header_request["Content-Length"].c_str()))
-        fir_body = "NULL";
-    else if (!(event.events & EPOLLIN))
-        return ;
-    if (fir_body != "NULL" && (event.events & EPOLLIN) && check_read_get == 1)
-    {
-        int hh = 0;
-        char buff[1024];
-        cout << "999999999999\n";
-        hh = read(event.data.fd, buff, 1024);
-        cout << "111111111111111\n";
-        size_body_get += hh;
-        fir_body = "oo";
-    }
-    return ;
 }

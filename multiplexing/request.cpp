@@ -9,6 +9,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 size_chuked = 0;
 read_get = 0;
     get_to_cgi = false;
+    index_serv = -1;
     size_read = 0;
     size_read_request = 0;
     size_request = 0;
@@ -43,6 +44,7 @@ Request::Request(const Request& obj)
 {
 size_chuked = 0;
 read_get = 0;
+    index_serv = -1;
     fd_request = 0;
     size_body_get = 0;
     check_read_get = 0;

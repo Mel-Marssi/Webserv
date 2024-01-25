@@ -70,68 +70,62 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
 {
     if (check_body_get(event) == 1)
         return ;
-
     this->parse_url_prot("GET", epoll_fd, event, config);
 
-    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    read_buuf_for_get(event);
+    // string root;
+    // if (!config[index_serv].get_loc_root(this->Path).empty())
+    //     root = config[index_serv].get_loc_root(this->Path);
+    // else
+    //     root = config[index_serv].get_root();
 
-    if ((config[index].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
-       error_page(event, epoll_fd, "404", config);
-    else if ((config[index].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
+    if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
+       status_pro = "404";
+    else if ((config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
     else if (this->Path == "/")
     {
-        if (!config[index].get_index().empty())
+        if (!config[index_serv].get_index().empty())
         {
-            dire = opendir(config[index].get_root().c_str());
+            dire = opendir(config[index_serv].get_root().c_str());
             if (dire)
             {
-                op.open((config[index].get_root() + config[index].get_index()).c_str());
+                op.open((config[index_serv].get_root() + config[index_serv].get_index()).c_str());
                 if (op.is_open())
-                {
                     read_for_send(event, m, 0);
-                    if (op.eof())
-                        end_of_file(event, epoll_fd);
-                } // not_found or forbiden
                 else
                     status_pro = "404";
-
-                    // error_page(event, epoll_fd, "404", config);
             }
             else
-                    status_pro = "404";
-
-                // error_page(event, epoll_fd, "404", config);
+                status_pro = "404";
         }
         else
         {
-            // check_auto_index
-            if (config[index].get_loc_auto_index(this->Path))
+            if (config[index_serv].get_loc_auto_index(this->Path))
             {
-                string str = config[index].get_root();
-                if (full_Path[0] != '/' && str[str.length() - 1] != '/')
-                    root_page(event, epoll_fd, ((str + this->full_Path)));
+                string str = config[index_serv].get_root();
+                if (Path[0] != '/' && str[str.length() - 1] != '/')
+                    root_page(event, ((str + Path)));
                 else
-                    root_page(event, epoll_fd, ((str.erase((str.length() - 1), 1) + this->full_Path)));
+                    root_page(event, ((str.erase((str.length() - 1), 1) + Path)));
             }
-            else // forbiden
-                error_page(event, epoll_fd, "403", config);
+            else
+                status_pro = "403";
         }
     }
-    else if (!(config[index].get_loc_path_location(this->Path).empty()))
+    else if (!(config[index_serv].get_loc_path_location(this->Path).empty()))
     {
         string root;
-        if (!config[index].get_loc_root(this->Path).empty())
-            root = config[index].get_loc_root(this->Path);
+        if (!config[index_serv].get_loc_root(this->Path).empty())
+            root = config[index_serv].get_loc_root(this->Path);
         else
-            root = config[index].get_root();
+            root = config[index_serv].get_root();
         if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
             this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
         // check__redirection :
-        if (config[index].get_loc_redirection(this->Path) == "")
+        if (config[index_serv].get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
             close_dir();
@@ -140,96 +134,79 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
                     redirection_content_backSlash(event, epoll_fd, 0);
-                else if ((file_get == "") && (!(config[index].get_loc_index(this->Path).empty()))) // ===============
+                else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty()))) // ===============
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
-                        find_cgi(config, index); // ila f location dyal cgi kan index file -------------------------
+                        find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
                     else
                     {
-                        op.open((this->full_Path + config[index].get_loc_index(this->Path)).c_str());
+                        op.open((this->full_Path + config[index_serv].get_loc_index(this->Path)).c_str());
                         if (op.is_open())
-                        {
                             read_for_send(event, m, 0);
-                            if (op.eof())
-                                end_of_file(event, epoll_fd);
-                        }
                         else // not_found_or_forbiden :
-                            error_page(event, epoll_fd, "404", config);
+                            status_pro = "404";
                     }
                 } // check auto index
                 else if ((file_get != ""))
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
-                        find_cgi(config, index); // ila f location dyal cgi kan index file -------------------------
+                        find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
                     else
                     {
                         op.open((this->full_Path).c_str());
                         if (op.is_open())
-                        {
-					cout << "dkhaaaaaaaaaaaaal\n";
                             read_for_send(event, m, 0);
-                            if (op.eof())
-                                end_of_file(event, epoll_fd);
-                        }
                         else // not_found_or_forbiden :
-                            error_page(event, epoll_fd, "404", config);
+                            status_pro = "404";
                     }
                 } // if index not existe
-                else if (config[index].get_loc_auto_index(this->Path))
-                {
-                    root_page(event, epoll_fd, this->full_Path);
-                }
+                else if (config[index_serv].get_loc_auto_index(this->Path))
+                    root_page(event, this->full_Path);
                 else
-                    error_page(event, epoll_fd, "403", config);
+                    status_pro = "403";
             }
             else
-                error_page(event, epoll_fd, "404", config);
+                status_pro = "404";
         }
         else
-            redirection_content(event, epoll_fd, config, index);
+            redirection_content(event, epoll_fd, config, index_serv);
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1)) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
     {
-        string root = config[index].get_root();
+        string root = config[index_serv].get_root();
         if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
             this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
-            find_cgi(config, index); // ila f location dyal cgi kan index file -------------------------
+            find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
         else
         {
             op.open((this->full_Path).c_str());
             if (op.is_open())
-            {
                 read_for_send(event, m, 0);
-                if (op.eof())
-                    end_of_file(event, epoll_fd);
-            }
             else // not_found_or_forbiden :
-                error_page(event, epoll_fd, "404", config);
+                status_pro = "404";
         }
     }
     else
-        error_page(event, epoll_fd, "404", config);
+        status_pro = "404";
     close_dir();
 }
 
 void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
-    if (check_body_get(event) == 1)
-        return ;
-
-
     if (op.is_open() && event.events & EPOLLOUT)
     {
-        // read_buuf_for_get(event);
-
         char buf[1024];
         memset(buf, 0, 1024);
-        op.read(buf, sizeof(buf));
-        line.append(buf, 1024);
+        op.read(buf, 1024);
+
+        std::streamsize bytesRead = op.gcount();
+        line.append(buf, bytesRead);
+
+        // line.append(buf, 1024);
 
         if (buffer != "")
         {
@@ -242,7 +219,7 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
         string str;
         if (con_type.find("text") != string::npos)
         {
-
+            
             len = line.length();
             len = strlen(line.c_str());
             size << std::hex << len;
@@ -262,11 +239,15 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
             str += line;
             str += "\r\n";
             len = str.length();
-            send(event.data.fd, str.c_str(), len, 0);
+            // cout << len << endl;
+            cout << send(event.data.fd, str.c_str(), len, 0) << endl;
         }
         line = "";
         if (op.eof())
+        {
+        cout << "fffff-------\n";
             end_of_file(event, epoll_fd);
+        }
     }
 }
 
@@ -322,11 +303,7 @@ void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &
         send(event.data.fd, head.c_str(), len, 0);
         end_of_file(event, epoll_fd);
         ovp.close();
-        // close(event.data.fd);
     }
     else
         default_error(key, event.data.fd);
-    // epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-    // close(event.data.fd);
-
 }

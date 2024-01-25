@@ -86,8 +86,9 @@ multiplexing::multiplexing(servers &config)
 						else if (  request[event_wait[i].data.fd].methode == "POST" && request[event_wait[i].data.fd].size_request == 0  && request[event_wait[i].data.fd].fir_body != "NULL")
 				 		{
 							request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
-							close(event_wait[i].data.fd);
+							// close(event_wait[i].data.fd);
 							epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+
 							flg_remv = 1;
 							continue;
 				 		}
@@ -96,8 +97,9 @@ multiplexing::multiplexing(servers &config)
 				else if (request[event_wait[i].data.fd].check_left_header == 0 && !(event_wait[i].events & EPOLLIN) && !(request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
         			request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
-					close(event_wait[i].data.fd);
+					// close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+	 
 					flg_remv = 1;
 				}
 
@@ -118,50 +120,21 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
 					request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
 					request[event_wait[i].data.fd].event_fd = event_wait[i].data.fd;
+
+					// request[event_wait[i].data.fd].index_serv = get_right_index(config.server, atoi(request[event_wait[i].data.fd]._port.c_str()), request[event_wait[i].data.fd]._host, config.get_server_name(atoi(request[event_wait[i].data.fd]._port.c_str())));
+					// cout << "index :::::::::::::      " << request[event_wait[i].data.fd].index_serv << endl;
 					if (request[event_wait[i].data.fd].check_req == 0 && request[event_wait[i].data.fd].read_get == 1)
 					{
 						request[event_wait[i].data.fd].Generate_req_first(event_wait[i], config, epoll_fd, cont_type);
 						// update changes
-<<<<<<< HEAD
-						if (request[event_wait[i].data.fd].Path.find("cgi") != std::string::npos)
-						{
-							int out;
-							//  start = clock();
-							if ((out = waitpid(request[event_wait[i].data.fd].pid, NULL, WNOHANG)) == 0)
-							{
-								request[event_wait[i].data.fd].get_to_cgi = true;
-								double tmp = (clock() - request[event_wait[i].data.fd].start) / CLOCKS_PER_SEC;
-								if (tmp >= 5)
-								{
-									cout << "kill : " << tmp << endl;
-									kill(request[event_wait[i].data.fd].pid, SIGKILL);
-									request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "504", config);
-								}
-							}
-							else
-							{
-								request[event_wait[i].data.fd].get_to_cgi = false;
-								if (request[event_wait[i].data.fd].op_cgi.is_open())
-								{
-									//cout << "open cgi" << endl;
-
-									request[event_wait[i].data.fd].read_for_send(cont_type, 1);
-									if (request[event_wait[i].data.fd].op_cgi.eof())
-										request[event_wait[i].data.fd].end_of_file(event, epoll_fd);
-								}
-							}
-						}
-=======
 						request[event_wait[i].data.fd].cgi_handle_get(epoll_fd, event_wait[i], config);
->>>>>>> 7915505 (GET_hahowa_ja)
 						//end update changes
 					}
-					else if (request[event_wait[i].data.fd].check_req == 1 )
-					{
+					else if (request[event_wait[i].data.fd].check_req == 1)
 						request[event_wait[i].data.fd].Generate_req_second(event_wait[i], epoll_fd);
-					}
 					if (request[event_wait[i].data.fd].fin_or_still == finish)
 						flg_remv = 1;
+
 					request[event_wait[i].data.fd].read_get = 1;
 				}
 				else if (request[event_wait[i].data.fd].methode == "DELETE")
@@ -177,8 +150,8 @@ multiplexing::multiplexing(servers &config)
 				//   cout << request[event_wait[i].data.fd].err << " " << request[event_wait[i].data.fd].methode << " " << (event_wait[i].events & EPOLLOUT )<< endl;
 				if ((request[event_wait[i].data.fd].methode == "POST" || request[event_wait[i].data.fd].methode == "GET" ) &&  (event_wait[i].events & EPOLLOUT ) && ((request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request ) || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))// ||request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
-					cout << request[event_wait[i].data.fd].finir  << " " << request[event_wait[i].data.fd].err<<endl ;
-					cout << "******\n";
+					// cout << request[event_wait[i].data.fd].finir  << " " << request[event_wait[i].data.fd].err<<endl ;
+					// cout << "******\n";
 					request[fd_client].startTime = clock();
 					if (request[event_wait[i].data.fd].status_pro != "NULL")
 					{
@@ -195,8 +168,10 @@ multiplexing::multiplexing(servers &config)
 				}
 				if (flg_remv == 1)
 				{
+					// cout << "hnaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
 					close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+			 
 					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
 					if (it != request.end())
 						request.erase(it);
