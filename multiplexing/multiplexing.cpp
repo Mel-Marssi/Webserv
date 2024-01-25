@@ -86,7 +86,7 @@ multiplexing::multiplexing(servers &config)
 						else if (  request[event_wait[i].data.fd].methode == "POST" && request[event_wait[i].data.fd].size_request == 0  && request[event_wait[i].data.fd].fir_body != "NULL")
 				 		{
 							request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
-							// close(event_wait[i].data.fd);
+							close(event_wait[i].data.fd);
 							epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
 
 							flg_remv = 1;
@@ -97,7 +97,7 @@ multiplexing::multiplexing(servers &config)
 				else if (request[event_wait[i].data.fd].check_left_header == 0 && !(event_wait[i].events & EPOLLIN) && !(request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
         			request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
-					// close(event_wait[i].data.fd);
+					close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
 	 
 					flg_remv = 1;
@@ -147,17 +147,14 @@ multiplexing::multiplexing(servers &config)
 					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
 					flg_remv = 1;
 				}
-				//   cout << request[event_wait[i].data.fd].err << " " << request[event_wait[i].data.fd].methode << " " << (event_wait[i].events & EPOLLOUT )<< endl;
 				if ((request[event_wait[i].data.fd].methode == "POST" || request[event_wait[i].data.fd].methode == "GET" ) &&  (event_wait[i].events & EPOLLOUT ) && ((request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request ) || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))// ||request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
-					// cout << request[event_wait[i].data.fd].finir  << " " << request[event_wait[i].data.fd].err<<endl ;
-					// cout << "******\n";
+					cout << "******\n";
 					request[fd_client].startTime = clock();
 					if (request[event_wait[i].data.fd].status_pro != "NULL")
 					{
 						flg_remv = 1;
 						request[event_wait[i].data.fd].error_page(event, event_wait[i].data.fd, request[event_wait[i].data.fd].status_pro , config);
-
 					}
 					else if (request[event_wait[i].data.fd].methode == "POST")
 					{
@@ -168,7 +165,6 @@ multiplexing::multiplexing(servers &config)
 				}
 				if (flg_remv == 1)
 				{
-					// cout << "hnaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
 					close(event_wait[i].data.fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
 			 

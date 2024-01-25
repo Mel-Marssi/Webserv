@@ -24,7 +24,9 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
     }
     if (root[root.length() - 1] =='/' && Path[0] == '/')
         root.erase(root.length() - 1, root.length());
+    // cout << Path << " ----==" <<endl;
     check_url_encoding();
+        // cout << Path << "  =====--"<< endl;
     if (meth == "DELETE")
     {
         char buff[1024];
@@ -74,11 +76,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
 
     index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-    // string root;
-    // if (!config[index_serv].get_loc_root(this->Path).empty())
-    //     root = config[index_serv].get_loc_root(this->Path);
-    // else
-    //     root = config[index_serv].get_root();
+    string root;
+    if (!config[index_serv].get_loc_root(this->Path).empty())
+        root = config[index_serv].get_loc_root(this->Path);
+    else
+        root = config[index_serv].get_root();
 
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
        status_pro = "404";
@@ -104,11 +106,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         {
             if (config[index_serv].get_loc_auto_index(this->Path))
             {
-                string str = config[index_serv].get_root();
-                if (Path[0] != '/' && str[str.length() - 1] != '/')
-                    root_page(event, ((str + Path)));
+                if (Path[0] != '/' && root[root.length() - 1] != '/')
+                    root_page(event, ((root + Path)));
                 else
-                    root_page(event, ((str.erase((str.length() - 1), 1) + Path)));
+                    root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
             }
             else
                 status_pro = "403";
@@ -116,12 +117,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     }
     else if (!(config[index_serv].get_loc_path_location(this->Path).empty()))
     {
-        string root;
-        if (!config[index_serv].get_loc_root(this->Path).empty())
-            root = config[index_serv].get_loc_root(this->Path);
-        else
-            root = config[index_serv].get_root();
-        if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
+        if ((root[root.length() - 1] == '/') && (this->full_Path[0] == '/'))
             this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
         // check__redirection :
@@ -144,10 +140,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op.open((this->full_Path + config[index_serv].get_loc_index(this->Path)).c_str());
                         if (op.is_open())
                             read_for_send(event, m, 0);
-                        else // not_found_or_forbiden :
+                        else
                             status_pro = "404";
                     }
-                } // check auto index
+                }
                 else if ((file_get != ""))
                 {
                     // update changes
@@ -158,10 +154,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                         op.open((this->full_Path).c_str());
                         if (op.is_open())
                             read_for_send(event, m, 0);
-                        else // not_found_or_forbiden :
+                        else
                             status_pro = "404";
                     }
-                } // if index not existe
+                }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
                     root_page(event, this->full_Path);
                 else
@@ -173,11 +169,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         else
             redirection_content(event, epoll_fd, config, index_serv);
     }
-    else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1)) //(this->Path.find(".") != string::npos)//(is_open_diir(Path) == 0)
+    else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
     {
-        string root = config[index_serv].get_root();
-        if (root[root.length() - 1] == '/') // && (this->full_Path[0] == '/'))
-            this->full_Path.erase(0, 1);
         this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
             find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
@@ -186,7 +179,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             op.open((this->full_Path).c_str());
             if (op.is_open())
                 read_for_send(event, m, 0);
-            else // not_found_or_forbiden :
+            else
                 status_pro = "404";
         }
     }
@@ -205,8 +198,6 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 
         std::streamsize bytesRead = op.gcount();
         line.append(buf, bytesRead);
-
-        // line.append(buf, 1024);
 
         if (buffer != "")
         {
@@ -244,10 +235,7 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd)
         }
         line = "";
         if (op.eof())
-        {
-        cout << "fffff-------\n";
             end_of_file(event, epoll_fd);
-        }
     }
 }
 
