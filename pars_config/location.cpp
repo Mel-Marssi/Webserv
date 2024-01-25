@@ -54,6 +54,10 @@ string location::get_cgi_path() const
 {
 	return (cgi_path);
 }
+vector<string> location::get_cgi_exec_path() const
+{
+	return (cgi_exec_path);
+}
 // string location::get_path_location() const
 // {
 // 	return (path_location);

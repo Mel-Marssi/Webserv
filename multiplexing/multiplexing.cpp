@@ -149,7 +149,6 @@ multiplexing::multiplexing(servers &config)
 				}
 				if ((request[event_wait[i].data.fd].methode == "POST" || request[event_wait[i].data.fd].methode == "GET" ) &&  (event_wait[i].events & EPOLLOUT ) && ((request[event_wait[i].data.fd].size_request <= request[event_wait[i].data.fd].size_read_request ) || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))// ||request[event_wait[i].data.fd].size_request < request[event_wait[i].data.fd].size_read_request || request[event_wait[i].data.fd].finir == 1 || request[event_wait[i].data.fd].err == 1))
 				{
-					cout << "******\n";
 					request[fd_client].startTime = clock();
 					if (request[event_wait[i].data.fd].status_pro != "NULL")
 					{

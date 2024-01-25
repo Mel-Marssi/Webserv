@@ -3,12 +3,22 @@
 
 int cgi_handler::i = 0;
 
+string get_cgi_path(string extention, vector<string> cgi_exec_path)
+{
+	for (size_t i = 0; i < cgi_exec_path.size(); i++)
+	{
+		if (cgi_exec_path[i].find(extention) != string::npos)
+			return (cgi_exec_path[i]);
+	}
+	return ("");
+}
 void php_cgi(Request &req, server_config &config)
 {
 	//  cout << "CGI------------>" << endl;
 	(void)config;
 	cgi_handler cgi(req);
 	string file = req.full_Path;
+	
 	time_t t = time(NULL);
 	stringstream to_s;
 	to_s << t;
@@ -26,8 +36,8 @@ void php_cgi(Request &req, server_config &config)
 		strcpy(env[i], tmp.c_str());
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
-
-	string tmp = config.get_loc_cgi_path("/cgi-bin");
+	string extention = req.file_get.substr(req.file_get.find(".") + 1);
+	string tmp = get_cgi_path(extention, config.get_loc_cgi_exec_path(req.Path));
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
 	fd[0] = open(file.c_str(), O_RDONLY);
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);

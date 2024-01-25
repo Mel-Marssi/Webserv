@@ -47,7 +47,7 @@ server {
         root ./ ;
         autoindex on ;
         allow_methods GET POST DELETE ;
-        cgi_path /usr/bin/php-cgi ;
+        cgi_path /usr/bin/php-cgi /usr/bin/python3 ;
         allow_upload on ;
         uploads_folder uploads ;
     }

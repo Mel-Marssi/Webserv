@@ -251,6 +251,12 @@ string server_config::get_loc_cgi_path(const string  &name)
 	return ("");
 }
 
+vector<string> server_config::get_loc_cgi_exec_path(const string  &name)
+{
+	if(serv_locations.find(name) != serv_locations.end())
+		return serv_locations[name].get_cgi_exec_path();
+	return (vector<string>());
+}
 string server_config::get_loc_path_location(const string  &name)
 {
 	if(serv_locations.find(name) != serv_locations.end())

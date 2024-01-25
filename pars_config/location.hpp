@@ -29,6 +29,7 @@ class location
 		bool get() const;
 		bool get_auto_index() const;
 		bool get_upload() const;
+		vector<string> get_cgi_exec_path() const;
 		string get_root() const;
 		string get_upload_folder() const;
 		string get_index() const;
