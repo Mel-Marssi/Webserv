@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background:linear-gradient(90deg, rgba(26,26,27,1) 27%, rgba(91,91,94,0.7959558823529411) 66%, rgba(185,191,193,1) 100%);
+      background-size: 400% 400%;
+      animation: gradientAnimation 15s ease infinite;
+    }
+
+    .navbar {
+      display: flex;
+      background-color: #343a40; /* Dark grey background for navbar */
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    a.button {
+      display: block;
+      padding: 15px 20px;
+      font-size: 18px;
+      color: #fff;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    a.button:hover {
+      background-color: #495057; /* Darker grey on hover */
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+  <title>Webserv</title>
+</head>
+<body>
+
+  <div class="navbar">
+    <a href="http://localhost:8090/root.html" class="button">Folders</a>
+    <a href="http://localhost:8090/cgi-bin/script.php" class="button">Upload</a>
+    <a href="http://localhost:8090/cgi-bin/" class="button">CGI</a>
+  </div>
+
+</body>
+</html>

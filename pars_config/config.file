@@ -3,6 +3,7 @@ server {
     server_name localhost ;
     host 127.0.0.1 ;
     root ./ ;
+    index index.html ;
     error_pages 400 index.ml ;
     error_pages 405 prblm/405.html ;
 
