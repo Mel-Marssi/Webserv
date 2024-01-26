@@ -10,6 +10,7 @@ size_chuked = 0;
 read_get = 0;
     get_to_cgi = false;
     size_read = 0;
+    flg_send = 0;
     size_read_request = 0;
     size_request = 0;
     check_left_header = 0;
@@ -42,6 +43,7 @@ read_get = 0;
 Request::Request(const Request& obj)
 {
 size_chuked = 0;
+    flg_send = 0;
 read_get = 0;
     fd_request = 0;
     size_body_get = 0;
@@ -352,6 +354,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     if (it != cont_type.end())
     {
         std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
+        path_post = randomName;
         // cout << randomName << endl;
         outputFile.open(randomName.c_str());
 
@@ -360,6 +363,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     {
         // std::string randomName = str.str() + ".x";
         std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
+        path_post = randomName;
 
         outputFile.open(randomName.c_str());
     }

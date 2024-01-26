@@ -67,12 +67,11 @@ string Request::get_content_type(map<string, string>& m)
         s++;
         exten.insert(0, this->Path, s, this->Path.length());
     }
-    // s++;
-    // exten.insert(0, this->file_get, s, this->file_get.length());
+    cout << "exten: " << exten << endl;
     it = m.find(exten);
     if (it != m.end())
         return (it->second);
-    return ("NULL");
+    return ("text/plain");
 }
 
 void Request::redirection_content(epoll_event &event, int epoll_fd, servers &config , int index)

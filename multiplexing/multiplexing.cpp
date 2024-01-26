@@ -131,7 +131,10 @@ multiplexing::multiplexing(servers &config)
 						//end update changes
 					}
 					else if (request[event_wait[i].data.fd].check_req == 1)
-						request[event_wait[i].data.fd].Generate_req_second(event_wait[i], epoll_fd);
+					{
+						request[event_wait[i].data.fd].Generate_req_second(event_wait[i], epoll_fd, cont_type);
+					    request[event_wait[i].data.fd].flg_send = 1;
+					}
 					if (request[event_wait[i].data.fd].fin_or_still == finish)
 						flg_remv = 1;
 

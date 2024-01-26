@@ -36,22 +36,11 @@ class Request
 {
     public:
         int kk;
-        // string methode;
-        // string fir_body;
-        // string read_request;
         string _host, _port;
         bool get_to_cgi;
-        // int check_first_line;
-        // int size_read;
-        // int size_read_request;
-        // long size_request;
-        // int check_left_header;
-        // int check_create_file;
-        // ofstream outputFile;
         std::string methode;
         std::string fir_body;
         std::string URL;
-        // std::string Protocole;
         std::string read_request;
         int size_read;
         int size_read_request;
@@ -71,6 +60,7 @@ class Request
         string fake_bondary;
         string boudri;
         string last_boundri;
+        string path_post;
         long size_chuked;
         void boundaries(servers &config, int index,int fd);
         void boundar(servers &config, int index);
@@ -118,7 +108,7 @@ class Request
         void parse_url_prot(string meth, int epoll_fd, epoll_event &event, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
-        void Generate_req_second(epoll_event &event, int epoll_fd);
+        void Generate_req_second(epoll_event &event, int epoll_fd, map<string, string> &m);
         void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);
@@ -167,4 +157,5 @@ class Request
         string enco_form_txt(string str);
         void read_buuf_for_get(epoll_event &event);
         int check_body_get(epoll_event &event);
+        int flg_send;
 };

@@ -95,7 +95,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             {
                 op.open((config[index_serv].get_root() + config[index_serv].get_index()).c_str());
                 if (op.is_open())
+                {
+                    Path = config[index_serv].get_index();
                     read_for_send(event, m, 0);
+                }
                 else
                     status_pro = "404";
             }
@@ -192,8 +195,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     close_dir();
 }
 
-void Request::Generate_req_second(epoll_event &event, int epoll_fd)
+void Request::Generate_req_second(epoll_event &event, int epoll_fd, map<string, string> &m)
 {
+    (void)m;
     if (op.is_open() && event.events & EPOLLOUT)
     {
         char buf[1024];
