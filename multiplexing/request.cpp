@@ -9,7 +9,6 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 size_chuked = 0;
 read_get = 0;
     get_to_cgi = false;
-    index_serv = -1;
     size_read = 0;
     size_read_request = 0;
     size_request = 0;
@@ -44,7 +43,6 @@ Request::Request(const Request& obj)
 {
 size_chuked = 0;
 read_get = 0;
-    index_serv = -1;
     fd_request = 0;
     size_body_get = 0;
     check_read_get = 0;
@@ -343,10 +341,6 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
 {
  (void)map;
  content = content+ "\r";
-    cout << content<<endl;
-
-    //  outputFile.open("tt.txt");
-    // return;
  
    std::string type_file = content;
     
@@ -364,7 +358,9 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     }  
     else  
     {
-        std::string randomName = str.str() + ".x";
+        // std::string randomName = str.str() + ".x";
+        std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
+
         outputFile.open(randomName.c_str());
     }
 
@@ -398,17 +394,22 @@ void Request::boundar(servers &config, int index)
             fir_body = fir_body.substr(position_int + 4 , fir_body.length());
              cout << fir_body;
             // exit(1);
+             size_t found_last = fir_body.find(last_boundri);
+            if (found_last != string::npos )//&& a < 1024
+            {
+                // if (boundary.find("name=\"") != string::npos)
+                fir_body = fir_body.substr(0, found_last - 4);
+                outputFile << fir_body ;
+                     last = 1;
+                finir = 1;
+                return;
+            }
+            else
 			  outputFile << fir_body;
-            //   size_t last_bondary = fir_body.find(last_boundri);
-            //   if (last_bondary != string::npos)
-            //   { 
-            //          last = 1;
-            //     finir = 1;
-            //     return;
-            //   }
+        
             //  size_chunked -= fir_body.length();
             size_read_request = -99;
-			fir_body = "NULL";
+			fir_body = "NULLLL";
 		}
 		else
 		{
@@ -453,7 +454,6 @@ void Request::boundaries(servers &config, int index, int fd)
             size_t last_bondary = read_request.find(last_boundri);
             if (last_bondary != string::npos )//&& a < 1024
             {
-                // if (boundary.find("name=\"") != string::npos)
                 read_request = read_request.substr(0, last_bondary - 4);
                 outputFile << read_request ;
                 size_t found_bondary_2 = read_request.find(boudri);
@@ -462,11 +462,7 @@ void Request::boundaries(servers &config, int index, int fd)
                     size_t position_int = read_request.find("\r\n\r\n");
                     if ((position_int + 4) < read_request.length() && last != 1)
                     {
-                        // cout << read_request << endl << "----------------------------\n";
                         fake_bondary = read_request.substr(position_int + 4, read_request.length());  
-                        // cout << fake_bondary << endl;
-                        // outputFile << read_request ;
-
                     }
                      std::string boundary = read_request.substr(found_bondary, position_int);
                 string filename_content = boundary.substr(boundary.find("name=\""));
@@ -715,7 +711,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
  
      
 
-     else
+     else if(fir_body != "NULL")
      {
 
         string content = header_request["Content-Type"];
@@ -726,13 +722,14 @@ void Request::post(int fd, servers &config, epoll_event &event)
         // cout << content << endl;
         // exit(1);
         size_t si = content.find("multipart/form-data");
+        cout << fir_body << endl;
+        // exit(1);
         if (si != string::npos)
         {
              cout << "boundaries\n";
             boundaries(config, index, fd);
-            // exit(1);
         }
-        else
+        else if (fir_body != "NULL")
         {
            
             if ((config[index].get_loc_max_client_size(this->Path) < (size_t)size_request))

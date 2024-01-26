@@ -60,3 +60,15 @@ int Request::check_body_get(epoll_event &event)
     }
 	return 0;
 }
+
+string Request::resp_post()
+{
+    string tmp= "HTTP/1.1 201 created\r\nContent-Type:  text/html\r\nContent-Lenght: 790\r\n\r\n";
+    tmp +=  "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>201 Created</title></head><style>";
+    tmp += "body{background-color: rgb(247, 253, 247);overflow: hidden;}";
+    tmp += "span{display: flex;height: 100vh;justify-content: center;align-items: center;}";
+    tmp += ".symbol{font-size: 7.5em;color: green;text-shadow: 2px 2px 5px rgb(142, 142, 142);}";
+    tmp += " .text{font-size: 3.5em;color: green;text-shadow: 2px 2px 5px rgb(142, 142, 142);}</style>";
+    tmp += "<body><span><label for=\"\" class=\"symbol\">&#10003;</label><label for=\"\" class=\"text\">201 Created</label></span></body></html>";
+    return tmp;
+}

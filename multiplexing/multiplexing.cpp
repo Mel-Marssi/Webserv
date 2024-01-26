@@ -157,25 +157,24 @@ multiplexing::multiplexing(servers &config)
 					}
 					else if (request[event_wait[i].data.fd].methode == "POST")
 					{
-						const char n[170] = "HTTP/1.1 201 created\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>Hello Page</title></head><body><h1>Hello, client!</h1></body></html>";
-						send(event_wait[i].data.fd, n, 170, 0);
+						send(event_wait[i].data.fd, request[event_wait[i].data.fd].resp_post().c_str(), 862, 0);
 						flg_remv = 1;
 					}
 				}
-				if (flg_remv == 1)
-				{
-					close(event_wait[i].data.fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
-			 
-					std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
-					if (it != request.end())
-						request.erase(it);
-					request[event_wait[i].data.fd].outputFile.close();
-					flg_remv = 0;
-				}
- 
+			}
+			if (flg_remv == 1)
+			{
+				close(event_wait[i].data.fd);
+				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+			
+				std::map<int, Request>::iterator it = request.find(event_wait[i].data.fd);
+				if (it != request.end())
+					request.erase(it);
+				request[event_wait[i].data.fd].outputFile.close();
+				flg_remv = 0;
 			}
 		}
+	}
 
 		// int y = server_socket[config.size() - 1]+1;
 		// std::map<int, Request>::iterator it = request.find(y);
@@ -203,7 +202,6 @@ multiplexing::multiplexing(servers &config)
 			// 	}
 			// }
 			
-	}
 }
 
 multiplexing::~multiplexing()

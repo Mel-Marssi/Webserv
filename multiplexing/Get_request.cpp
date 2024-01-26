@@ -159,7 +159,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     }
                 }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
+                {
+                cout << "============================\n";
+
                     root_page(event, this->full_Path);
+                }
                 else
                     status_pro = "403";
             }

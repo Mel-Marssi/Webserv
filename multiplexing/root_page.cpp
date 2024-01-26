@@ -3,6 +3,7 @@
 
 void Request::root_page(epoll_event &event, string Pat)
 {
+    cout <<"dgduduhduhduhduhduhduhduhd\n";
     string head;
     string tmp;
     stringstream ss;
@@ -16,14 +17,15 @@ void Request::root_page(epoll_event &event, string Pat)
     {
         Path_tmp.erase(0, 1);
         struct dirent* entre;
-        
+        tmp += "<html><head><title> Listed Folder </title> <link  rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\"> </head> <body>";
+        tmp += "<ul class=\"list-group list-group-flush\">";
         while ((entre = readdir(dire)) != NULL)
         {
             string name = entre->d_name;
             if (name[0] != '.')
             {
-                tmp += "<p> <a href= http://localhost:" + _port + Path_tmp;
-                tmp += "/" + name + ">" + name +"</a> </p>";
+                tmp += "<li class=\"list-group-item \"> <a href= http://localhost:" + _port + Path_tmp;
+                tmp += "/" + name + ">" + name +"</a> </li>";
             }
         }
         ss << tmp.length();
@@ -31,7 +33,7 @@ void Request::root_page(epoll_event &event, string Pat)
         head += "\r\n\r\n";
         head += "<h1> Files Existent on the " + Pat + "</h1>";
         head += tmp;
-        head += "</body></html>";
+        head += "</ul></body></html>";
         len = head.length();
         send(event.data.fd, head.c_str(), len, 0);
         fin_or_still = finish;

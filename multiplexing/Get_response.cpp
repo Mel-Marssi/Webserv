@@ -161,9 +161,12 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
 void Request::end_of_file(epoll_event &event, int epoll_fd)
 {
     (void)epoll_fd;
-    string str;
-    str += "0\r\n\r\n";
-    send(event.data.fd, str.c_str(), str.length(), 0);
+    if (!con_type.empty())
+    {
+        string str;
+        str += "0\r\n\r\n";
+        send(event.data.fd, str.c_str(), str.length(), 0);
+    }
     fin_or_still = finish;
     op.close();
     close_dir();

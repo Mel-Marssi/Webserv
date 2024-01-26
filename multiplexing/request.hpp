@@ -95,6 +95,7 @@ class Request
         Request(map<int, pair<string, string> > server_book, int fd_client);
         Request();
         Request(const Request& obj);
+        string resp_post();
         //==========GET==========================
         string Path;
         int size_body_get;
