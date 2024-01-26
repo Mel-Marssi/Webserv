@@ -12,9 +12,7 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
     this->parse_url_prot("DELETE", epoll_fd, event, config);
 
     string root = get_the_p(config, Path, file_get);
-    cout << root << "  ==  " << Path  << "  --  "<<file_get<< endl;
-    // string tmp;
-    // if ()
+    // cout << root << "  ==  " << Path  << "  --  "<<file_get<< endl;
 
 	if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
 		response_for_delete("409", event, epoll_fd);

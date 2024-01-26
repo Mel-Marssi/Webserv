@@ -61,7 +61,6 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
 
     if ((event.events & EPOLLOUT))
     {
-        cout << " ======|||||----"<< endl;
         if (buffer != "")
         {
             len = buffer.length();

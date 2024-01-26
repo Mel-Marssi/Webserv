@@ -158,4 +158,5 @@ class Request
         void read_buuf_for_get(epoll_event &event);
         int check_body_get(epoll_event &event);
         int flg_send;
+        void check_files_open(epoll_event &event, map<string, string> m, string str);
 };

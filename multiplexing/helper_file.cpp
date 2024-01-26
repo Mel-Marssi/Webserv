@@ -49,8 +49,6 @@ int Request::check_body_get(epoll_event &event)
                 read_request.append(buff,hh);
                 return 0;
             }
-            // cout << atol(header_request["Content-Length"].c_str()) << endl; 
-            // cout << size_body_get  << " ----- "<< endl;
             return 1;
         }
         if  (size_body_get < atol(header_request["Content-Length"].c_str()) && atol(header_request["Content-Length"].c_str()) > 0)
@@ -75,4 +73,13 @@ string Request::resp_post()
     tmp += "\">click here ... </a></span>";
     tmp += "</body></html>";
     return tmp;
+}
+
+void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
+{
+    op.open(str.c_str());
+    if (op.is_open())
+        read_for_send(event, m, 0);
+    else
+        status_pro = "404";
 }

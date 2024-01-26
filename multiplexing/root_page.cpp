@@ -3,7 +3,6 @@
 
 void Request::root_page(epoll_event &event, string Pat)
 {
-    cout <<"dgduduhduhduhduhduhduhduhd\n";
     string head;
     string tmp;
     stringstream ss;

@@ -7,8 +7,8 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
     size_t i;
 
     //=====================================
-    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-    string root = config[index].get_root();
+    index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    string root = config[index_serv].get_root();
     //=====================================
 
     this->Path = "";
@@ -36,7 +36,7 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
         else
         {
             string tmp = b;
-            string tmp2 = config[index].get_root();
+            string tmp2 = config[index_serv].get_root();
             b = realpath(tmp2.c_str(), buff);
             tmp2 = b;
             if (tmp.find(tmp2) == string::npos)
@@ -74,8 +74,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         return ;
     this->parse_url_prot("GET", epoll_fd, event, config);
 
-    index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-
     string root;
     if (!config[index_serv].get_loc_root(this->Path).empty())
         root = config[index_serv].get_loc_root(this->Path);
@@ -90,18 +88,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
     {
         if (!config[index_serv].get_index().empty())
         {
+            Path = config[index_serv].get_index();
             dire = opendir(config[index_serv].get_root().c_str());
             if (dire)
-            {
-                op.open((config[index_serv].get_root() + config[index_serv].get_index()).c_str());
-                if (op.is_open())
-                {
-                    Path = config[index_serv].get_index();
-                    read_for_send(event, m, 0);
-                }
-                else
-                    status_pro = "404";
-            }
+                check_files_open(event, m, config[index_serv].get_root() + config[index_serv].get_index());
             else
                 status_pro = "404";
         }
@@ -139,13 +129,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     if (this->Path.find("cgi") != string::npos)
                         find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
                     else
-                    {
-                        op.open((this->full_Path + config[index_serv].get_loc_index(this->Path)).c_str());
-                        if (op.is_open())
-                            read_for_send(event, m, 0);
-                        else
-                            status_pro = "404";
-                    }
+                        check_files_open(event, m, this->full_Path + config[index_serv].get_loc_index(this->Path));
                 }
                 else if ((file_get != ""))
                 {
@@ -153,20 +137,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                     if (this->Path.find("cgi") != string::npos)
                         find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
                     else
-                    {
-                        op.open((this->full_Path).c_str());
-                        if (op.is_open())
-                            read_for_send(event, m, 0);
-                        else
-                            status_pro = "404";
-                    }
+                        check_files_open(event, m, this->full_Path);
                 }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
-                {
-                cout << "============================\n";
-
                     root_page(event, this->full_Path);
-                }
                 else
                     status_pro = "403";
             }
@@ -182,13 +156,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
         if (this->Path.find("cgi") != string::npos)
             find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
         else
-        {
-            op.open((this->full_Path).c_str());
-            if (op.is_open())
-                read_for_send(event, m, 0);
-            else
-                status_pro = "404";
-        }
+            check_files_open(event, m, this->full_Path);
     }
     else
         status_pro = "404";
@@ -272,11 +240,8 @@ void Request::default_error(string key, int fd)
 
 void Request::error_page(epoll_event &event, int epoll_fd, string key, servers &config)
 {
-    (void)epoll_fd;
-    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-
     close_dir();
-    string str = config[index]._error_book[atoi(key.c_str())];
+    string str = config[index_serv]._error_book[atoi(key.c_str())];
 
     std::ifstream ovp(str.c_str());
     if ((ovp.is_open() && fin_or_still != finish))
