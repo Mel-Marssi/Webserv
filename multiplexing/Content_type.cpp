@@ -34,11 +34,11 @@ void multiplexing::fill_content_type()
     status_code["405"] = " Method Not Allowed";
     status_code["504"] = " Gateway Timeout";
     status_code["413"] = " Request Entity Too Large";
+    status_code["501"] = " Not Implemented";
     //=================== DELETE ==================
     status_code["409"] = " Conflict";
     status_code["204"] = " No Content";
     status_code["500"] = " Internal Server Error";
-    
 }
  
 

@@ -70,7 +70,7 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
 
 void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
 {
-    if (check_body_get(event) == 1)
+    if ((event.events & EPOLLIN) && check_body_get(event) == 1)
         return ;
     this->parse_url_prot("GET", epoll_fd, event, config);
 
