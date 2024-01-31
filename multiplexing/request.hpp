@@ -92,7 +92,6 @@ class Request
         int size_body_get;
         int check_read_get;
         string status_pro;
-        string Protocole;
         string file_get;
         string full_Path;
         string Query_String;
@@ -109,7 +108,7 @@ class Request
         int parse_url_prot(string meth, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, map<string, string> &m);
-        void Generate_req_second(epoll_event &event, int epoll_fd, map<string, string> &m);
+        void Generate_req_second(epoll_event &event, int epoll_fd);
         void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);

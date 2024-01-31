@@ -76,7 +76,7 @@ multiplexing::multiplexing(servers &config)
 						request[event_fd].size_read_request += request[event_fd].size;
 						request[event_fd].read_request.append(buff, request[event_fd].size);
 						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-			 	 	 
+
 					if (request[event_fd].check_left_header == 0)
 						continue;
 					else if (request[event_fd].check_left_header == 1)

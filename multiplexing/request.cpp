@@ -784,10 +784,12 @@ Request::Request(){
 }
 Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
-(void)server_book;
-(void)fd_client;
-size_chuked = 0;
-read_get = 0;
+    (void)server_book;
+    (void)fd_client;
+    size_chuked = 0;
+    read_get = 0;
+    Path = "";
+    file_get = "";
     get_to_cgi = false;
     size_read = 0;
     size_read_request = 0;
@@ -804,34 +806,36 @@ read_get = 0;
     read_request = "";
     ck = 0;
     event_fd = 0;
-        finir = 0;
-      size = 0;
-      total = 0;
-      next_chunked = 0;
-      acces_read_in_post = 0;
-      err = 0;
-      last = 0;
-       fake_bondary = "NULL";
-      wait = 0;
+    finir = 0;
+    size = 0;
+    total = 0;
+    next_chunked = 0;
+    acces_read_in_post = 0;
+    err = 0;
+    last = 0;
+    fake_bondary = "NULL";
+    wait = 0;
     status_pro = "NULL";
     size_body_get = 0;
     fd_request = 0;
     rest = 0;
-      fill_content_type();
+    fill_content_type();
 }
 
 Request::Request(const Request& obj)
 {
+    Path = "";
+    file_get = "";
     rest = 0;
-size_chuked = 0;
-read_get = 0;
+    size_chuked = 0;
+    read_get = 0;
     fd_request = 0;
     size_body_get = 0;
     check_read_get = 0;
     status_pro = "NULL";
-     fake_bondary = "NULL";
-      wait = 0;
-      last = 0;
+    fake_bondary = "NULL";
+    wait = 0;
+    last = 0;
     get_to_cgi = obj.get_to_cgi;
     event_fd = 0;
     ck = 0;
@@ -853,12 +857,12 @@ read_get = 0;
     check_req = 0;
     fir_body = "NULL";
     finir = 0;
-      size = 0;
-      total = 0;
-      next_chunked = 0;
-      acces_read_in_post = 0;
-      fill_content_type();
-      (void) obj;
+    size = 0;
+    total = 0;
+    next_chunked = 0;
+    acces_read_in_post = 0;
+    fill_content_type();
+    (void) obj;
 }
 
 

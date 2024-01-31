@@ -11,33 +11,25 @@ int Request::parse_url_prot(string meth, servers &config)
     string root = config[index_serv].get_root();
     //=====================================
 
-    this->Path = "";
-    this->Protocole = "";
-    this->file_get = "";
     it = header_request.find(meth);
     if (it->first == meth)
     {
         i = it->second.find("HTTP/1.1");
         if (i == string::npos)
         {
-            status_pro = "404";
+            status_pro = "400";
             return 1;
         }
-        this->Path.insert(0, it->second, 0, i-1);
-        // i++;
-        this->Protocole.insert(0, it->second, i, it->second.length());
+        this->Path.insert(0, it->second, 0, i - 1);
     }
     if (root[root.length() - 1] =='/' && Path[0] == '/')
         root.erase(root.length() - 1, root.length());
-    // cout << Path << " ----==" <<endl;
     if (Path.length() > 2048)
     {
         status_pro = "414";
         return 1;
     }
     check_url_encoding();
-
-        // cout << Path << "  =====--"<< endl;
     if (meth == "DELETE")
     {
         char buff[1024];
@@ -46,7 +38,6 @@ int Request::parse_url_prot(string meth, servers &config)
         {
             status_pro = "404";
             return 1;
-            // error_page(event, epoll_fd, "404", config);
         }
         else
         {
@@ -59,7 +50,6 @@ int Request::parse_url_prot(string meth, servers &config)
                 status_pro = "403";
                 return 1;
             }
-                // error_page(event, epoll_fd, "403", config);
         }
     }
     i = 1;
@@ -101,6 +91,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     else
         root = config[index_serv].get_root();
 
+    if (root[root.length() - 1] == '/' && full_Path[0] == '/')
+        root.erase(root.length() - 1, root.length());
+    this->full_Path.insert(0, root);
+
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
        status_pro = "404";
     else if ((config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
@@ -118,40 +112,40 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         }
         else
         {
-            if (config[index_serv].get_loc_auto_index(this->Path))
-            {
-                if (Path[0] != '/' && root[root.length() - 1] != '/')
-                    root_page(event, ((root + Path)));
-                else
-                    root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
-            }
-            else
-                status_pro = "403";
+            // if (config[index_serv].get_loc_auto_index(this->Path))
+            // {
+            //     if (Path[0] != '/' && root[root.length() - 1] != '/')
+            //         root_page(event, ((root + Path)));
+            //     else
+            //         root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
+            // }
+            // else
+            //     status_pro = "403";
         }
     }
     else if (!(config[index_serv].get_loc_path_location(this->Path).empty()))
     {
-        if ((root[root.length() - 1] == '/') && (this->full_Path[0] == '/'))
-            this->full_Path.erase(0, 1);
-        this->full_Path.insert(0, root);
-        // check__redirection :
         if (config[index_serv].get_loc_redirection(this->Path) == "")
         {
             string str = this->Path;
+            if (str[0] == '/' && root[root.length() - 1] == '/')
+                str.erase(root.length() - 1, root.length());
             close_dir();
-            dire = opendir((root + str.erase(0, 1)).c_str());
+            dire = opendir((root + str).c_str());
             if (dire)
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
                     redirection_content(event, config, "301", 1);
-                    // redirection_content_backSlash(event, 0);
                 else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty()))) // ===============
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
                         find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
                     else
-                        check_files_open(event, m, this->full_Path + config[index_serv].get_loc_index(this->Path));
+                    {
+                        this->Path = this->full_Path + config[index_serv].get_loc_index(this->Path);
+                        check_files_open(event, m, Path);
+                    }
                 }
                 else if ((file_get != ""))
                 {
@@ -171,11 +165,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         }
         else
             redirection_content(event, config, "301", 0);
-            // redirection_content(event, epoll_fd, config, index_serv);
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
     {
-        this->full_Path.insert(0, root);
         if (this->Path.find("cgi") != string::npos)
             find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
         else
@@ -186,9 +178,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     close_dir();
 }
 
-void Request::Generate_req_second(epoll_event &event, int epoll_fd, map<string, string> &m)
+void Request::Generate_req_second(epoll_event &event, int epoll_fd)
 {
-    (void)m;
     if (op.is_open() && event.events & EPOLLOUT)
     {
         char buf[1024];
@@ -207,21 +198,19 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd, map<string, 
         stringstream size;
         size_t len;
         string str;
-        if (con_type.find("text") != string::npos)
-        {
-            
-            len = line.length();
-            len = strlen(line.c_str());
-            size << std::hex << len;
-            str += size.str();
-            str += "\r\n";
-            str += line;
-            str += "\r\n";
-            len = strlen(str.c_str());
-            send(event.data.fd, str.c_str(), len, 0);
-        }
-        else
-        {
+        // if (con_type.find("text") != string::npos)
+        // {
+        //     len = strlen(line.c_str());
+        //     size << std::hex << len;
+        //     str += size.str();
+        //     str += "\r\n";
+        //     str += line;
+        //     str += "\r\n";
+        //     len = strlen(str.c_str());
+        //     send(event.data.fd, str.c_str(), len, 0);
+        // }
+        // else
+        // {
             len = line.length();
             size << std::hex << len;
             str += size.str();
@@ -230,8 +219,8 @@ void Request::Generate_req_second(epoll_event &event, int epoll_fd, map<string, 
             str += "\r\n";
             len = str.length();
             // cout << len << endl;
-            cout << send(event.data.fd, str.c_str(), len, 0) << endl;
-        }
+            send(event.data.fd, str.c_str(), len, 0);
+        // }
         line = "";
         if (op.eof())
             end_of_file(event, epoll_fd);

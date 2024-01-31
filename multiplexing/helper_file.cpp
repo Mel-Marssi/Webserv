@@ -93,7 +93,7 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
     }
     else if (check_req == 1)
     {
-        Generate_req_second(event, epoll_fd, m);
+        Generate_req_second(event, epoll_fd);
         flg_send = 1;
     }
 
