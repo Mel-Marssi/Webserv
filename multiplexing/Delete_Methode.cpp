@@ -7,20 +7,17 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 	(void)config;
 	(void)epoll_fd;
 	(void)m;
-	int indx = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-	
-    this->parse_url_prot("DELETE", epoll_fd, event, config);
 
-    string root = get_the_p(config, Path, file_get);
-    // cout << root << "  ==  " << Path  << "  --  "<<file_get<< endl;
+    if (this->parse_url_prot("DELETE", config) == 1)
+        return ; 
 
-	if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
-		response_for_delete("409", event, epoll_fd);
-	else if (this->Path == "/")
+    string root = get_the_p(config, Path);
+
+	if (this->Path == "/")
 	{
-		if (config[indx].get_loc_auto_index(this->Path))
+		if (config[index_serv].get_loc_auto_index(this->Path))
 		{
-			string str = config[indx].get_root();
+			string str = config[index_serv].get_root();
 			if (full_Path[0] != '/' && str[str.length() - 1] != '/')
 				root_page(event, ((str + this->full_Path)));
 			else
@@ -28,59 +25,14 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 		}
 		else//forbiden 
 			error_page(event, epoll_fd, "403", config);
-	}// //file
-	else if (is_open_diir("." + Path) == 0)
-	{
-		if (check_permission_F(root) == 1)
-            delete_content(root, "", event, epoll_fd);
-        else
-        	error_page(event, epoll_fd, "404", config);
-    }
-    else if (is_open_diir("." + Path) == 1)
-    {
-		if (file_get == "")
-		{
-			if (check_permission_F(root) == 1)
-				delete_content(root, "", event, epoll_fd);
-			else
-				error_page(event, epoll_fd, "404", config);
-		}
-		else if (file_get != "")
-		{
-			if (check_permission_F(root) == 1)
-				delete_content(root, file_get, event, epoll_fd);
-			else
-				error_page(event, epoll_fd, "404", config);
-		}
-    }
-    else //just add this -----------------------------
+	}
+	else if (check_permission_F(root) == 1)
+        delete_content(root, event);
+    else
         error_page(event, epoll_fd, "404", config);
-    //=========================================
-	// else if (!config[indx].get_loc_path_location(this->Path).empty())
-	// {
-	// 	if (Path[0] == '/' && root[root.length() - 1] == '/')
-	// 		root.erase(root.length() - 1, 1);
-	// 	root += Path;
-	// 	if (file_get == "")
-	// 	{
-	// 		if (check_permission(root) == 1)
-	// 			delete_content(root, "", event, epoll_fd);
-	// 		else
-	// 			error_page(event, epoll_fd, "403", config);
-	// 	}
-	// 	else if (file_get != "")
-	// 	{
-	// 		if (check_permission(root) == 1)
-	// 			delete_content(root, file_get, event, epoll_fd);
-	// 		else
-	// 			error_page(event, epoll_fd, "403", config);
-	// 	}
-	// }
-	// else
-	// 	error_page(event, epoll_fd, "403", config);
 }
 
-void Request::delete_content(string pat, string file, epoll_event& event, int epoll_fd)
+void Request::delete_content(string pat, epoll_event& event)
 {
     DIR* FOLDER;
     struct dirent* entre;
@@ -89,73 +41,44 @@ void Request::delete_content(string pat, string file, epoll_event& event, int ep
     FOLDER = opendir(pat.c_str());
     if (FOLDER)
     {
-        if (file == "")
+        while ((entre = readdir(FOLDER)) != NULL)
         {
-            while ((entre = readdir(FOLDER)) != NULL)
+            string name = entre->d_name;
+            if (name[0] != '.')
             {
-                string name = entre->d_name;
-                if (name[0] != '.')
+                string str = pat + "/" + name;
+                if (check_permission_X(str) == 1)
                 {
-                    string str = pat + "/" + name;
-                    if (check_permission_X(str) == 1)
+                    DIR* fold = opendir(str.c_str());
+                    if (fold)
                     {
-                        DIR* fold = opendir(str.c_str());
-                        if (fold)
-                        {
-                            if ((entre1 = readdir(fold)) != NULL)
-                                delete_content((str), "", event, epoll_fd);
-                            else
-                                std::remove((str).c_str());
-                            closedir(fold);
-                            fold = NULL;
-                        }
+                        if ((entre1 = readdir(fold)) != NULL)
+                            delete_content(str, event);
                         else
                             std::remove((str).c_str());
-                    }
-                }
-            }
-            if (std::remove((pat).c_str()) == 0)
-                response_for_delete("204", event, epoll_fd);
-            else
-                response_for_delete("403", event, epoll_fd);
-            closedir(FOLDER);
-            FOLDER = NULL;
-        }
-        else
-        {
-            string str;
-            if ((pat[pat.length() - 1] == '/') && (file[0] == '/'))
-                str = pat + file.erase(0,1);
-            else
-                str = pat + "/" + file;
-            if (check_permission_F(str) == 1)
-            {
-                if (is_open_diir(str) == 1 && check_permission_X(str))
-                    delete_content(str, "", event, epoll_fd);
-                else if (is_open_fil(str) == 1 && check_permission_X(str))
-                {
-                    if (std::remove(str.c_str()) == 0)
-                    {
-                        response_for_delete("204", event, epoll_fd);
+                        closedir(fold);
+                        fold = NULL;
                     }
                     else
-                        response_for_delete("403", event, epoll_fd);
+                        std::remove((str).c_str());
                 }
-                else
-                    response_for_delete("403", event, epoll_fd);
             }
-            else
-                response_for_delete("404", event, epoll_fd);
         }
+        if (std::remove((pat).c_str()) == 0)
+            status_pro = "204";
+        else
+            status_pro = "403";
+        closedir(FOLDER);
+        FOLDER = NULL;
     }
     else
     {
         if (is_open_fil(pat) == 1 && check_permission_X(pat) == 1)
         {
             std::remove(pat.c_str());
-            response_for_delete("204", event, epoll_fd);
+            status_pro = "204";
         }
         else
-            response_for_delete("404", event, epoll_fd);
+            status_pro = "403";
     }
 }

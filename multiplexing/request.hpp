@@ -46,6 +46,7 @@ class Request
         int size_read_request;
         int size ;
         int total;
+        int rest;
         long size_request;
         int check_left_header;
         int check_create_file;
@@ -105,9 +106,9 @@ class Request
         string Port;
         string Path_bef;
         
-        void parse_url_prot(string meth, int epoll_fd, epoll_event &event, servers &config);
+        int parse_url_prot(string meth, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
-        void Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
+        void Generate_req_first(epoll_event &event, servers &config, map<string, string> &m);
         void Generate_req_second(epoll_event &event, int epoll_fd, map<string, string> &m);
         void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
@@ -144,11 +145,11 @@ class Request
         void Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m);
         int check_permission_F(string str);
         int check_permission_X(string str);
-        void delete_content(string pat, string file, epoll_event& event, int epoll_fd);
+        void delete_content(string pat, epoll_event& event);
         int is_open_diir(string str);
         int is_open_fil(string str);
-        void response_for_delete(string status, epoll_event &event, int epoll_fd);
-        string get_the_p(servers &config, string Path, string file_get);
+        void response_for_delete(epoll_event &event);
+        string get_the_p(servers &config, string Path);
         //=============EPOLL IN OUT =====================
         string buffer;
         void cgi_handle_get(int epoll_fd, epoll_event &event, servers &config);
@@ -159,4 +160,6 @@ class Request
         int check_body_get(epoll_event &event);
         int flg_send;
         void check_files_open(epoll_event &event, map<string, string> m, string str);
+        void Get_methode(servers &config, epoll_event &event, map<string, string> &m, int epoll_fd);
+        void redirection_content(epoll_event &event, servers &config, string str, int flg);
 };

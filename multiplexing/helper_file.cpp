@@ -83,3 +83,19 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
     else
         status_pro = "404";
 }
+
+void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m, int epoll_fd)
+{
+    if (check_req == 0 && read_get == 1)
+    {
+        Generate_req_first(event, config, m);
+        cgi_handle_get(epoll_fd, event, config);
+    }
+    else if (check_req == 1)
+    {
+        Generate_req_second(event, epoll_fd, m);
+        flg_send = 1;
+    }
+
+    read_get = 1;
+}

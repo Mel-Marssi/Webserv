@@ -35,10 +35,12 @@ void multiplexing::fill_content_type()
     status_code["504"] = " Gateway Timeout";
     status_code["413"] = " Request Entity Too Large";
     status_code["501"] = " Not Implemented";
+    status_code["414"] = " Request-URI Too Long";
     //=================== DELETE ==================
     status_code["409"] = " Conflict";
     status_code["204"] = " No Content";
     status_code["500"] = " Internal Server Error";
+     
 }
  
 
@@ -73,53 +75,19 @@ string Request::get_content_type(map<string, string>& m)
     return ("text/plain");
 }
 
-void Request::redirection_content(epoll_event &event, int epoll_fd, servers &config , int index)
+void Request::redirection_content(epoll_event &event, servers &config, string str, int flg)
 {
     string head;
-    head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
-    head += config[index].get_loc_redirection(this->Path);
+    head += "HTTP/1.1 ";
+    head += str + get_status_code(str) + "\r\nLocation: ";
+
+    if (flg == 0)
+        head += config[index_serv].get_loc_redirection(this->Path);
+    else
+        head += this->Path + "/";
     head += "\r\n\r\n";
-    
     size_t len = head.length();
     send(event.data.fd, head.c_str(), len, 0);
     fin_or_still = finish;
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-    close(event.data.fd);
-    op.close();
-    closedir(dire);
-    dire = NULL;
-}
-
-void Request::redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg)
-{
-    if (flg == 0)
-    {
-        string head;
-        head += "HTTP/1.1 301 Moved Permanently\r\nLocation: ";
-        head += this->Path + "/";
-        head += "\r\n\r\n";
-        
-        size_t len = head.length();
-        send(event.data.fd, head.c_str(), len, 0);
-        fin_or_still = finish;
-        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-        close(event.data.fd);
-        op.close();
-        close_dir();
-    }
-    else
-    {
-        string head;
-        head += "HTTP/1.1 409 Conflict\r\nLocation: ";
-        head += this->Path + "/";
-        head += "\r\n\r\n";
-        
-        size_t len = head.length();
-        send(event.data.fd, head.c_str(), len, 0);
-        fin_or_still = finish;
-        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-        close(event.data.fd);
-        op.close();
-        close_dir();
-    }
+    close_dir();
 }

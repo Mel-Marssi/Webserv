@@ -1,7 +1,7 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, servers &config)
+int Request::parse_url_prot(string meth, servers &config)
 {
     map<string, string>::iterator it;
     size_t i;
@@ -17,7 +17,12 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
     it = header_request.find(meth);
     if (it->first == meth)
     {
-        i = it->second.find("HTTP");
+        i = it->second.find("HTTP/1.1");
+        if (i == string::npos)
+        {
+            status_pro = "404";
+            return 1;
+        }
         this->Path.insert(0, it->second, 0, i-1);
         // i++;
         this->Protocole.insert(0, it->second, i, it->second.length());
@@ -25,14 +30,24 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
     if (root[root.length() - 1] =='/' && Path[0] == '/')
         root.erase(root.length() - 1, root.length());
     // cout << Path << " ----==" <<endl;
+    if (Path.length() > 2048)
+    {
+        status_pro = "414";
+        return 1;
+    }
     check_url_encoding();
+
         // cout << Path << "  =====--"<< endl;
     if (meth == "DELETE")
     {
         char buff[1024];
         char *b = realpath((root + Path).c_str(), buff);
         if (b == NULL)
-            error_page(event, epoll_fd, "404", config);
+        {
+            status_pro = "404";
+            return 1;
+            // error_page(event, epoll_fd, "404", config);
+        }
         else
         {
             string tmp = b;
@@ -40,7 +55,11 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
             b = realpath(tmp2.c_str(), buff);
             tmp2 = b;
             if (tmp.find(tmp2) == string::npos)
-                error_page(event, epoll_fd, "403", config);
+            {
+                status_pro = "403";
+                return 1;
+            }
+                // error_page(event, epoll_fd, "403", config);
         }
     }
     i = 1;
@@ -65,14 +84,16 @@ void Request::parse_url_prot(string meth, int epoll_fd, epoll_event &event, serv
     }
     else
         this->full_Path = this->Path;
+    return (0);
 }
 
 
-void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
+void Request::Generate_req_first(epoll_event &event, servers &config, map<string, string> &m)
 {
     if ((event.events & EPOLLIN) && check_body_get(event) == 1)
         return ;
-    this->parse_url_prot("GET", epoll_fd, event, config);
+    if (this->parse_url_prot("GET", config) == 1)
+        return ;
 
     string root;
     if (!config[index_serv].get_loc_root(this->Path).empty())
@@ -122,7 +143,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
             if (dire)
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
-                    redirection_content_backSlash(event, epoll_fd, 0);
+                    redirection_content(event, config, "301", 1);
+                    // redirection_content_backSlash(event, 0);
                 else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty()))) // ===============
                 {
                     // update changes
@@ -148,7 +170,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, int epoll_
                 status_pro = "404";
         }
         else
-            redirection_content(event, epoll_fd, config, index_serv);
+            redirection_content(event, config, "301", 0);
+            // redirection_content(event, epoll_fd, config, index_serv);
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
     {

@@ -58,7 +58,6 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
         head = read_buff_cgi(m);
         buffer += head;
     }
-
     if ((event.events & EPOLLOUT))
     {
         if (buffer != "")
@@ -142,35 +141,36 @@ int Request::is_open_fil(string str)
     return 0;
 }
 
-void Request::response_for_delete(string status, epoll_event &event, int epoll_fd)
+void Request::response_for_delete(epoll_event &event)
 {
     string head;
     size_t len;
 
     head += "HTTP/1.1 ";
-    head += status;
-    head += get_status_code(status);
+    head += status_pro;
+    head += get_status_code(status_pro);
     head += "\r\n\r\n";
     len = head.length();
 
     send(event.data.fd, head.c_str(), len, 0);
-    fin_or_still = finish;
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event);
-    close(event.data.fd);
 }
 
-string Request::get_the_p(servers &config, string Path, string file_get)
+string Request::get_the_p(servers &config, string Path)
 {
-    (void)file_get;
-	int indx = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-
-	string root = config[indx].get_loc_root(this->Path);
+	string root = config[index_serv].get_loc_root(this->Path);
 	if (root == "")
-		root = config[indx].get_root();
+		root = config[index_serv].get_root();
     
     if (((Path[0] == '/') && (root[root.length() - 1] == '/')))
         root.erase(root.length() - 1, 1);
-
+    root += Path;
+    if (file_get != "")
+    {
+        if (root[root.length() - 1] != '/')
+            root += "/" + file_get;
+        else
+            root += file_get;
+    }
     return (root);
 }
 
