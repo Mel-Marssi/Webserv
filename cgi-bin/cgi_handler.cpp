@@ -12,6 +12,7 @@ string get_cgi_path(string extention, vector<string> cgi_exec_path)
 	}
 	return ("");
 }
+/*Change the config file to containe the extention of the choosen script and the script run*/
 void php_cgi(Request &req, server_config &config)
 {
 	//  cout << "CGI------------>" << endl;
@@ -40,6 +41,9 @@ void php_cgi(Request &req, server_config &config)
 	if(tmp == "")
 	{
 		req.status_pro = "500";
+		for(int i = 0; env[i]; i++)
+			delete[] env[i];
+		delete[] env;
 		return ;
 	}
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
@@ -68,16 +72,17 @@ void php_cgi(Request &req, server_config &config)
 }
 cgi_handler::cgi_handler(Request &req)
 {
-
 	CGI_BOOK["SCRIPT_FILENAME"] = "." + req.Path + "/" + req.file_get;
 	CGI_BOOK["REQUEST_METHOD"] = req.methode;
 	CGI_BOOK["QUERY_STRING"] = req.Query_String;
-	// CGI_BOOK["CONTENT_LENGTH"] = req.header_request["Content-Length"];
-	// CGI_BOOK["CONTENT_TYPE"] = req.header_request["Content-Type"];
+	CGI_BOOK["CONTENT_LENGTH"] = req.header_request["Content-Length"];
+	CGI_BOOK["CONTENT_TYPE"] = req.header_request["Content-Type"];
 	CGI_BOOK["SERVER_PROTOCOL"] = "HTTP/1.1";
 	CGI_BOOK["REDIRECT_STATUS"] = "200";
 	CGI_BOOK["FCGI_ROLE"] = "RESPONDER";
 	CGI_BOOK["REQUEST_SCHEME"] = "http";
+	if(!req.header_request["Cookie"].empty())
+		CGI_BOOK["Cookie"] = req.header_request["Cookie"];
 }
 
 cgi_handler::~cgi_handler()
