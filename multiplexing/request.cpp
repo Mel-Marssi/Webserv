@@ -944,7 +944,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     }
     std::string l = header_request["Content-Length"];
 	size_request = atol(l.c_str());
-    cout << methode << "-------"<< endl;
+    //cout << methode << "-------"<< endl;
       
         if (check_body + 3 < read_request.length())
         {
@@ -1012,7 +1012,7 @@ void Request::binary(servers &config, int index)
 		check_create_file = 1;
 		if (fir_body != "NULL")
 		{
-            cout << fir_body << endl;
+            //cout << fir_body << endl;
 			outputFile << fir_body;
 			fir_body = "NULLLL";
             fir_body.clear();
@@ -1032,15 +1032,15 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
     (void)fd;
     (void)event;
       std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
-    cout << "99999999\n";
+    //cout << "99999999\n";
     map<string, string>::iterator it0;
     it0 = header_request.find("Content-Length");//Content-Length
     this->parse_url_prot("POST", config);
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-        cout <<header_request[methode] <<"fffff\n";
+        //cout <<header_request[methode] <<"fffff\n";
     if (header_request[methode].find("HTTP/1.1") == string::npos)
     {
-        cout <<"papapapa\n";
+        //cout <<"papapapa\n";
         status_pro = "400";
         return 1;
     }
@@ -1059,7 +1059,7 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
     // cout << index << endl;
     if ((config[index].get_loc_post(this->Path) == 0)  && (is_open_diir(Path) == 0) ) // && (event.events & EPOLLOUT) && (is_open_diir(Path) == 0)
     {
-         cout << "AAAA";
+       //  cout << "AAAA";
  
         status_pro = "405";
  
@@ -1084,7 +1084,7 @@ void Request::chunked(servers &config, int index)
  
     if (check_create_file == 0)
 	{
-        cout << "***************************************************************\n";
+       // cout << "***************************************************************\n";
 		create_file(outputFile, header_request, config,  index);
 		check_create_file = 1;
 
@@ -1130,7 +1130,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     if (it != cont_type.end())
     {
         std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
-          cout << randomName << endl;
+         // cout << randomName << endl;
         path_post = randomName;
 
         outputFile.open(randomName.c_str());
@@ -1217,7 +1217,7 @@ void Request::boundar(servers &config, int index)
             // cout << fir_body.length() << " " << last_boundri.length() << endl;
             if (fir_body.length() - 2 == last_boundri.length())
             {
-                cout << "lplpl\n";
+                //cout << "lplpl\n";
                  finir = 1;
             }
             fir_body = "NULLLL";
@@ -1256,7 +1256,7 @@ void Request::boundaries(servers &config, int index, int fd)
             // cout << buff<<"\n";
             if (read_request.find(last_boundri) != string::npos)
             {
-                cout << "lplpl\n";
+                //cout << "lplpl\n";
                  finir = 1;
             }
             fake_bondary = read_request.substr(read_request.length() - boudri.length()); // , read_request.length()
@@ -1285,7 +1285,7 @@ void Request::boundaries(servers &config, int index, int fd)
                 if (read_request.find("Content-Disposition") != string::npos)
                 {
                     std::string boundary = read_request.substr(0, position_int);
-                   cout << boundary << endl;
+                   //cout << boundary << endl;
                     string filename_content = boundary.substr(boundary.find("name=\""));
                     string l = filename_content.substr(6, filename_content.length());
                     string filename = filename_content.substr(6,l.find("\""));
@@ -1370,7 +1370,7 @@ void Request::boundaries(servers &config, int index, int fd)
             }
             if (read_request.length() - 2 == last_boundri.length())
             {
-                cout << "lplpl\n";
+                //cout << "lplpl\n";
                  finir = 1;
             }
                 read_request.clear();
@@ -1474,7 +1474,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                         if (position_int == string::npos)
                         {
                             outputFile << read_request.find("10000") << endl;
-                          cout << "3333333333\n";
+                          //cout << "3333333333\n";
                             exit(4);
                         }
                         std::string num = read_request.substr(0, position_int);
@@ -1485,9 +1485,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
                         if (size_chunked == 0)
                         {
-                            cout << num.length() << endl;
+                            //cout << num.length() << endl;
                             finir = 1;
-                            cout << "78787\n";
+                            //cout << "78787\n";
                             // exit(1);
                         }
                          total = read_request.length();

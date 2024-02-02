@@ -1,113 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background:linear-gradient(90deg, rgba(26,26,27,1) 27%, rgba(91,91,94,0.7959558823529411) 66%, rgba(185,191,193,1) 100%);
-      background-size: 400% 400%;
-      animation: gradientAnimation 15s ease infinite;
-      /* display:inline-block; */
-      
-    }
-    h2{
-      text-align: center;
-      text-shadow: 1px 1px;
-      color: aliceblue;
-      background-size: 400% 400%;
-      /* animation: .5; */
-    }
-    h2:hover{
-      size: 3.5em;
-      color: beige;
-    }
-
-    ul {
-    list-style-type: none;
-    }
-    .myDiv1{
-      margin-bottom: 20px;
-      height: 100px;
-      display:inline-block;
-      padding: 0% 0% 0% 10%;
-    }
-    .navbar {
-      display: flex;
-      background-color: #343a40; /* Dark grey background for navbar */
-      border-radius: 5px;
-      overflow: hidden;
-      display:"inline-block";
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    a.button {
-      display: block;
-      padding: 15px 20px;
-      font-size: 18px;
-      color: #fff;
-      text-decoration: none;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    a.button:hover {
-      background-color: #495057; /* Darker grey on hover */
-    }
-
-    @keyframes gradientAnimation {
-      0% {
-        background-position: 0% 50%;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        display: flex;
+        margin-top: 11%;
+        margin-left: 31%;
+        background: linear-gradient(
+          90deg,
+          rgba(26, 26, 27, 1) 27%,
+          rgba(91, 91, 94, 0.7959558823529411) 66%,
+          rgba(185, 191, 193, 1) 100%
+        );
+        background-size: 400% 400%;
+        animation: gradientAnimation 15s ease infinite;
       }
-      50% {
-        background-position: 100% 50%;
+      @keyframes gradientAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
       }
-      100% {
-        background-position: 0% 50%;
+      h2 {
+        text-align: center;
+        text-shadow: 1px 1px;
+        color: aliceblue;
       }
-    }
-  </style>
-  <title>Webserv</title>
-</head>
-<body>
+      ul {
+        list-style-type: none;
+      }
+      .myDiv1 {
+        margin-bottom: 20px;
+        height: 100px;
+        display: inline-block;
+      }
+      .navbar {
+        display: flex;
+        background-color: #343a40;
+        border-radius: 5px;
+      }
 
-  <!-- <div class="navbar">
-    <figure class="text-center">
-      <blockquote class="blockquote">
-        <p>A well-known quote, contained in a blockquote element.</p>
-      </blockquote>
-      <figcaption class="blockquote-footer">
-        Someone famous in <cite title="Source Title">Source Title</cite>
-      </figcaption>
-    </figure>
-  </div> -->
-  <!-- <nav class="navbar bg-body-tertiary"> -->
-  <ul>
-    <li>
-      <div class="myDiv1">
+      a {
+        padding: 15px 20px;
+        font-size: 18px;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        background-color: #495057;
+        border-radius: 5px;
+      }
+    </style>
+    <title>Webserv</title>
+  </head>
+  <body>
+    <ul>
+      <li class="myDiv1">
         <h2>Welcome To Our Server</h2>
-      </div>
-    <li>
-      <div>
-        <div class="navbar">
-          <a href="http://localhost:8090/root.html" class="button">Folders</a>
-          <a href="http://localhost:8090/page_upload.html" class="button">Upload</a>
-          <a href="http://localhost:8090/cgi-bin/" class="button">CGI</a>
-        </div>
-      </div>
-    </li>  
-    </li>
-  </ul>
-  <!-- </nav> -->
+      </li>
 
-  <!-- <nav class="navbar bg-body-tertiary"> -->
-
-  <!-- </nav> -->
-
-</body>
+      <li class="navbar">
+        <a href="http://localhost:8090/root.html">Folders</a>
+        <a href="http://localhost:8090/page_upload.html">Upload</a>
+        <a href="http://localhost:8090/cgi-bin/">CGI</a>
+      </li>
+    </ul>
+  </body>
 </html>

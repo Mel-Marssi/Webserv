@@ -36,15 +36,7 @@
                     required
                   />
                 </div>
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  onclick="upload()"
-                >
-                  <span
-                    class="spinner-border spinner-border-sm"
-                    style="display: none"
-                  ></span>
+                <button type="submit" class="btn btn-primary btn-block">
                   Upload
                 </button>
               </form>
@@ -53,14 +45,5 @@
         </div>
       </div>
     </div>
-    <script>
-      function upload() {
-        document.getElementById("spinner").style.display = "inline-block";
-        setTimeout(function () {
-          document.getElementById("spinner").style.display = "none";
-          document.getElementById("uploadForm").submit();
-        }, 2000); 
-      }
-    </script>
   </body>
 </html>

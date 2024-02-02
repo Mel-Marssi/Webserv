@@ -12,7 +12,7 @@ int Request::parse_url_prot(string meth, servers &config)
     //=====================================
 
     it = header_request.find(meth);
-    cout << it->second << endl;
+   // cout << it->second << endl;
     if (it->first == meth)
     {
         string tmp;

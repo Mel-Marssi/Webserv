@@ -148,7 +148,7 @@ multiplexing::multiplexing(servers &config)
 					}
 					else if (request[event_fd].methode == "POST")
 					{
-						cout << event_fd << " " << request[event_fd].finir<< "******\n";
+					//	cout << event_fd << " " << request[event_fd].finir<< "******\n";
 					
 						send(event_fd, request[event_fd].resp_post().c_str(), 862, 0);
 						close(event_fd);
