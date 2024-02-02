@@ -84,18 +84,32 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
         status_pro = "404";
 }
 
-void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m, int epoll_fd)
+void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m)
 {
     if (check_req == 0 && read_get == 1)
     {
         Generate_req_first(event, config, m);
-        cgi_handle_get(epoll_fd, event, config);
+        cgi_handle_get(event, config);
     }
     else if (check_req == 1)
     {
-        Generate_req_second(event, epoll_fd);
+        Generate_req_second(event);
         flg_send = 1;
     }
 
     read_get = 1;
+}
+
+string Request::get_root(servers &config)
+{
+    string root;
+    if (!config[index_serv].get_loc_root(this->Path).empty())
+        root = config[index_serv].get_loc_root(this->Path);
+    else
+        root = config[index_serv].get_root();
+
+    if (root[root.length() - 1] == '/' && full_Path[0] == '/')
+        root.erase(root.length() - 1, root.length());
+    this->full_Path.insert(0, root);
+    return (root);
 }

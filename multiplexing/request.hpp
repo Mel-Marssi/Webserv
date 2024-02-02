@@ -108,8 +108,8 @@ class Request
         int parse_url_prot(string meth, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, map<string, string> &m);
-        void Generate_req_second(epoll_event &event, int epoll_fd);
-        void error_page(epoll_event &event, int epoll_fd, string key, servers &config);
+        void Generate_req_second(epoll_event &event);
+        void error_page(epoll_event &event, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config, int index);
@@ -119,7 +119,7 @@ class Request
         void fill_status_code();
         string get_status_code(string key);
         void read_for_send(epoll_event &event, map<string, string> &m, int flg);
-        void end_of_file(epoll_event &event, int epoll_fd);
+        void end_of_file(epoll_event &event);
         void close_dir();
         std::string read_buff_cgi(map<string, string> &m);
          clock_t startTime;
@@ -151,7 +151,7 @@ class Request
         string get_the_p(servers &config, string Path);
         //=============EPOLL IN OUT =====================
         string buffer;
-        void cgi_handle_get(int epoll_fd, epoll_event &event, servers &config);
+        void cgi_handle_get(epoll_event &event, servers &config);
         void find_cgi(servers &config, int index);
         void check_url_encoding();
         string enco_form_txt(string str);
@@ -159,6 +159,7 @@ class Request
         int check_body_get(epoll_event &event);
         int flg_send;
         void check_files_open(epoll_event &event, map<string, string> m, string str);
-        void Get_methode(servers &config, epoll_event &event, map<string, string> &m, int epoll_fd);
+        void Get_methode(servers &config, epoll_event &event, map<string, string> &m);
         void redirection_content(epoll_event &event, servers &config, string str, int flg);
+        string get_root(servers &config);
 };

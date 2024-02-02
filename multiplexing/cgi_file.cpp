@@ -1,7 +1,7 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-void Request::cgi_handle_get(int epoll_fd, epoll_event &event, servers &config)
+void Request::cgi_handle_get(epoll_event &event, servers &config)
 {
 	if (Path.find("cgi") != std::string::npos)
 	{
@@ -15,7 +15,7 @@ void Request::cgi_handle_get(int epoll_fd, epoll_event &event, servers &config)
 			{
 				cout << "kill : " << tmp << endl;
 				kill(pid, SIGKILL);
-				error_page(event, epoll_fd, "504", config);
+				error_page(event, "504", config);
 			}
 		}
 		else
@@ -26,7 +26,7 @@ void Request::cgi_handle_get(int epoll_fd, epoll_event &event, servers &config)
 
 				read_for_send(event, cont_type, 1);
 				if (op_cgi.eof())
-					end_of_file(event, epoll_fd);
+					end_of_file(event);
 			}
 		}
 	}

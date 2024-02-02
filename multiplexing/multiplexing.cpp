@@ -60,8 +60,6 @@ multiplexing::multiplexing(servers &config)
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 				request[fd_client].startTime = clock();
 				request[fd_client].fd_request = fd_client;
-				//   cout << fd_client <<endl;
-
 			}
 			else
 			{
@@ -81,14 +79,11 @@ multiplexing::multiplexing(servers &config)
 						continue;
 					else if (request[event_fd].check_left_header == 1)
 					{
-						if(request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1 )
-						{
-
-						}
+						if(request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
+						{}
 						else if (  request[event_fd].methode == "POST" && request[event_fd].size_request == 0  && request[event_fd].fir_body != "NULL")
 				 		{
-						 
-							request[event_fd].error_page(event_wait[i], epoll_fd, "400", config);
+							request[event_fd].error_page(event_wait[i], "400", config);
 							close(event_fd);
 							epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 
@@ -100,7 +95,7 @@ multiplexing::multiplexing(servers &config)
 				else if (request[event_fd].check_left_header == 0 && !(event_wait[i].events & EPOLLIN) && !(request[event_fd].size_request <= request[event_fd].size_read_request || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
 					
-        			request[event_fd].error_page(event_wait[i], epoll_fd, "400", config);
+        			request[event_fd].error_page(event_wait[i], "400", config);
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 	 
@@ -118,28 +113,28 @@ multiplexing::multiplexing(servers &config)
 					request[event_fd].check_read_get = 1;
 					// request[event_fd].read_request.clear();
 				}
-				else if ((request[event_wait[i].data.fd].methode == "GET") && (request[event_wait[i].data.fd].fin_or_still == Still))
+				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still))
 				{
 					request[fd_client].startTime = clock();
 
-					request[event_wait[i].data.fd]._port = server_book[event_wait[i].data.fd].first;
-					request[event_wait[i].data.fd]._host = server_book[event_wait[i].data.fd].second;
-					request[event_wait[i].data.fd].event_fd = event_wait[i].data.fd;
+					request[event_fd]._port = server_book[event_fd].first;
+					request[event_fd]._host = server_book[event_fd].second;
+					request[event_fd].event_fd = event_fd;
 
-					request[event_wait[i].data.fd].Get_methode(config, event_wait[i], cont_type, epoll_fd);
-					if (request[event_wait[i].data.fd].fin_or_still == finish)
+					request[event_fd].Get_methode(config, event_wait[i], cont_type);
+					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;
 				}
-				else if (request[event_wait[i].data.fd].methode == "DELETE")
+				else if (request[event_fd].methode == "DELETE")
 				{
-					request[event_wait[i].data.fd].epoll_fd_tmp = epoll_fd;
-					request[event_wait[i].data.fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
-					request[event_wait[i].data.fd].response_for_delete(event_wait[i]);
+					request[event_fd].epoll_fd_tmp = epoll_fd;
+					request[event_fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
+					request[event_fd].response_for_delete(event_wait[i]);
 					flg_remv = 1;
 				}
-				if (request[event_wait[i].data.fd].methode == "NONE")
+				if (request[event_fd].methode == "NONE")
 				{
-					request[event_wait[i].data.fd].error_page(event_wait[i], epoll_fd, "400", config);
+					request[event_fd].error_page(event_wait[i], "400", config);
 					flg_remv = 1;
 				}
 
@@ -149,7 +144,7 @@ multiplexing::multiplexing(servers &config)
 					if (request[event_fd].status_pro != "NULL")
 					{
 						flg_remv = 1;
-						request[event_fd].error_page(event, event_fd, request[event_fd].status_pro , config);
+						request[event_fd].error_page(event, request[event_fd].status_pro , config);
 					}
 					else if (request[event_fd].methode == "POST")
 					{

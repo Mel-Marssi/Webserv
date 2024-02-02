@@ -24,12 +24,13 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 				root_page(event, ((str.erase((str.length() - 1), 1) + this->full_Path)));
 		}
 		else//forbiden 
-			error_page(event, epoll_fd, "403", config);
+			status_pro = "403";
 	}
 	else if (check_permission_F(root) == 1)
         delete_content(root, event);
     else
-        error_page(event, epoll_fd, "404", config);
+        status_pro = "404";
+        // error_page(event, epoll_fd, "404", config);
 }
 
 void Request::delete_content(string pat, epoll_event& event)

@@ -69,7 +69,6 @@ string Request::get_content_type(map<string, string>& m)
         s++;
         exten.insert(0, this->Path, s, this->Path.length());
     }
-    cout << exten << "-----------" << Path << endl;
     it = m.find(exten);
     if (it != m.end())
         return (it->second);
