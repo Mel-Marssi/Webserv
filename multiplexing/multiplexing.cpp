@@ -127,6 +127,7 @@ multiplexing::multiplexing(servers &config)
 				}
 				else if (request[event_fd].methode == "DELETE")
 				{
+					request[fd_client].startTime = clock();
 					request[event_fd].epoll_fd_tmp = epoll_fd;
 					request[event_fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
 					request[event_fd].response_for_delete(event_wait[i]);
@@ -176,30 +177,31 @@ multiplexing::multiplexing(servers &config)
 		}
 	}
 
-		// int y = server_socket[config.size() - 1]+1;
-		// std::map<int, Request>::iterator it = request.find(y);
-		// if (it != request.end())
-		// {
-		// 	for (size_t i = 0; i < request.size(); i++)
-		// 	{
-		// 		if (event_wait[i].data.fd > server_socket[config.size() - 1] && !(event_wait[i].events & EPOLLIN ))
-		// 		{
-		// 			clock_t endTime = clock();
-		// 				double resultInSeconds = static_cast<double>(endTime - request[event_wait[i].data.fd].startTime) / CLOCKS_PER_SEC;
-		// 				if (resultInSeconds >= 2 && request[event_wait[i].data.fd].status_pro != "504")
-		// 				{
-		// 					cout << "frefrerefe\n";
-		// 			  		cout << fd_client <<endl;
-		// 					const char n[170] = "HTTP/1.1 504 created\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>timeout</title></head><body><h1>Hello, client!</h1></body></html>";
-		// 				send(event_wait[i].data.fd, n, 170, 0);
-		// 				 close(event_wait[i].data.fd);
-		// 				std::map<int, Request>::iterator it = request.find((const int)event_wait[i].data.fd);
-		// 				if (it != request.end())
-		// 					request.erase((const int)event_wait[i].data.fd);
-		// 				}
-		// 		}
-		// 	}
-		// }
+		int y = server_socket[config.size() - 1]+1;
+		std::map<int, Request>::iterator it = request.find(y);
+		if (it != request.end())
+		{
+			for (size_t i = 0; i < request.size(); i++)
+			{
+				cout << request.size() << endl;
+				if (event_wait[i].data.fd > server_socket[config.size() - 1] && !(event_wait[i].events & EPOLLIN ))
+				{
+					clock_t endTime = clock();
+						double resultInSeconds = static_cast<double>(endTime - request[event_wait[i].data.fd].startTime) / CLOCKS_PER_SEC;
+						if (resultInSeconds >= 2 && request[event_wait[i].data.fd].status_pro != "504")
+						{
+							cout << "frefrerefe\n";
+					  		cout << fd_client <<endl;
+							const char n[170] = "HTTP/1.1 504 created\r\nContent-Type:  text/html\r\nContent-Lenght:19\r\n\r\n <html><head><title>timeout</title></head><body><h1>Hello, client!</h1></body></html>";
+						send(event_wait[i].data.fd, n, 170, 0);
+						 close(event_wait[i].data.fd);
+						std::map<int, Request>::iterator it = request.find((const int)event_wait[i].data.fd);
+						if (it != request.end())
+							request.erase((const int)event_wait[i].data.fd);
+						}
+				}
+			}
+		}
 			
 }
 
