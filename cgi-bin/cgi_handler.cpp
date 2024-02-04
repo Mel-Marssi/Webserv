@@ -1,6 +1,5 @@
 #include "cgi_handler.hpp"
 
-
 int cgi_handler::i = 0;
 
 string get_cgi_path(string extention, vector<string> cgi_exec_path)
@@ -19,7 +18,7 @@ void php_cgi(Request &req, server_config &config)
 	(void)config;
 	cgi_handler cgi(req);
 	string file = req.full_Path;
-	
+
 	time_t t = time(NULL);
 	stringstream to_s;
 	to_s << t;
@@ -38,13 +37,13 @@ void php_cgi(Request &req, server_config &config)
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
 	string tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".") + 1), config.get_loc_cgi_exec_path(req.Path));
-	if(tmp == "")
+	if (tmp == "")
 	{
 		req.status_pro = "500";
-		for(int i = 0; env[i]; i++)
+		for (int i = 0; env[i]; i++)
 			delete[] env[i];
 		delete[] env;
-		return ;
+		return;
 	}
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
 	fd[0] = open(file.c_str(), O_RDONLY);
@@ -59,14 +58,14 @@ void php_cgi(Request &req, server_config &config)
 		close(fd[1]);
 		execve(argv[0], argv, env);
 		cerr << "error execve" << endl;
-		for(int i = 0; env[i]; i++)
+		for (int i = 0; env[i]; i++)
 			delete[] env[i];
 		delete[] env;
 		exit(1);
 	}
 	close(fd[0]);
 	close(fd[1]);
-	for(int i = 0; env[i]; i++)
+	for (int i = 0; env[i]; i++)
 		delete[] env[i];
 	delete[] env;
 }
@@ -81,8 +80,14 @@ cgi_handler::cgi_handler(Request &req)
 	CGI_BOOK["REDIRECT_STATUS"] = "200";
 	CGI_BOOK["FCGI_ROLE"] = "RESPONDER";
 	CGI_BOOK["REQUEST_SCHEME"] = "http";
-	if(!req.header_request["Cookie"].empty())
+	CGI_BOOK["GATEWAY_INTERFACE"] = "CGI/1.1";
+	CGI_BOOK["SERVER_SOFTWARE"] = "webserv";
+	CGI_BOOK["REQUEST_URI"] = req.Path +"/"+ req.file_get;
+	if (!req.header_request["Cookie"].empty())
+	{
 		CGI_BOOK["HTTP-COOKIE"] = req.header_request["Cookie"];
+		cout << "COOKIE: " << CGI_BOOK["HTTP-COOKIE"] << endl;
+	}
 }
 
 cgi_handler::~cgi_handler()
