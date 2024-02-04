@@ -82,7 +82,7 @@ cgi_handler::cgi_handler(Request &req)
 	CGI_BOOK["FCGI_ROLE"] = "RESPONDER";
 	CGI_BOOK["REQUEST_SCHEME"] = "http";
 	if(!req.header_request["Cookie"].empty())
-		CGI_BOOK["Cookie"] = req.header_request["Cookie"];
+		CGI_BOOK["HTTP-COOKIE"] = req.header_request["Cookie"];
 }
 
 cgi_handler::~cgi_handler()
