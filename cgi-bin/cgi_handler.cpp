@@ -85,8 +85,8 @@ cgi_handler::cgi_handler(Request &req)
 	CGI_BOOK["REQUEST_URI"] = req.Path +"/"+ req.file_get;
 	if (!req.header_request["Cookie"].empty())
 	{
-		CGI_BOOK["HTTP-COOKIE"] = req.header_request["Cookie"];
-		cout << "COOKIE: " << CGI_BOOK["HTTP-COOKIE"] << endl;
+		CGI_BOOK["HTTP_COOKIE"] = req.header_request["Cookie"];
+		cout << "COOKIE: " <<CGI_BOOK["HTTP_COOKIE"]<< endl;
 	}
 }
 
