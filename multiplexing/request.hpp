@@ -42,6 +42,7 @@ class Request
         std::string fir_body;
         std::string URL;
         std::string read_request;
+        string first_line_reque;
         int size_read;
         int size_read_request;
         int size ;
@@ -65,6 +66,7 @@ class Request
         long size_chuked;
         void boundaries(servers &config, int index,int fd);
         void boundar(servers &config, int index);
+        int check_space_first_line();
 
         // string filename;
         void create_file_bondar(ofstream& outputFile,   map<string, string>& map, servers &config, int index,string name,  string content);

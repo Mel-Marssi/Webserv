@@ -1,11 +1,42 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
+int Request::check_space_first_line()
+{
+    size_t j = 0;
+    int cout = 0;
+    while (j < first_line_reque.length())
+    {
+        if (cout > 2)
+        {
+            status_pro = "400";
+            return 1;
+        }  
+        if (first_line_reque[j] == ' ')
+        {
+            if (first_line_reque[j + 1] == ' ')
+            {
+                status_pro = "400";
+                return 1;
+            }  
+            cout++;
+        }
+        
+        j++;
+    }
+    return 0;
+}
+
 int Request::parse_url_prot(string meth, servers &config)
 {
     map<string, string>::iterator it;
     size_t i;
 
+    if (status_pro != "NULL")
+        return 1;
+    // tcheck spaces in reques
+    if (check_space_first_line() == 1)
+        return 1;
     //=====================================
     index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     string root = config[index_serv].get_root();
@@ -18,7 +49,7 @@ int Request::parse_url_prot(string meth, servers &config)
         string tmp;
         tmp = it->second;
         i = it->second.find("HTTP/1.1");
-        if (i == string::npos || tmp[0] != '/' || tmp[i - 2] == ' ')
+        if (i == string::npos)
         {
             status_pro = "400";
             return 1;
@@ -83,8 +114,9 @@ int Request::parse_url_prot(string meth, servers &config)
 
 void Request::Generate_req_first(epoll_event &event, servers &config, map<string, string> &m)
 {
-    if ((event.events & EPOLLIN) && check_body_get(event) == 1)
+    if (check_body_get(event) == 1)
         return ;
+
     if (this->parse_url_prot("GET", config) == 1)
         return ;
 
@@ -232,14 +264,19 @@ void Request::default_error(string key, int fd)
     head = "HTTP/1.1 ";
     head += key;
     head += status;
-    head += "\r\n";
-    head += "Content-Type: text/html\r\nContent-Lenght:";
-    head += oss.str();
+    if (methode != "HEAD")
+    {
+        head += "\r\n";
+        head += "Content-Type: text/html\r\nContent-Lenght:";
+        head += oss.str();
+    }
     head += "\r\n\r\n";
-    head += "<html><head><title>" + status + "</title></head><body><h1>" + key + " " + status + "</h1></body></html>";
-
-    len = head.length();
-    line = "";
+    if (methode != "HEAD")
+    {
+        head += "<html><head><title>" + status + "</title></head><body><h1>" + key + " " + status + "</h1></body></html>";
+    }
+        len = head.length();
+        line = "";
     this->fin_or_still = finish;
     send(fd, head.c_str(), len, 0);
 }
@@ -248,7 +285,6 @@ void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
-
     std::ifstream ovp(str.c_str());
     if ((ovp.is_open() && fin_or_still != finish))
     {
