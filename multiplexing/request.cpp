@@ -915,7 +915,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     (void)event;
     (void)epoll_fd;
     (void)config;
-
+    cout << "read_request" << read_request << endl;
     size_t i = 0;
     if (check_left_header == 1)
     {

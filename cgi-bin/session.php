@@ -1,4 +1,5 @@
 <?php
+session_id('mySessionID');
   session_start();
 
   // echo session_id();
@@ -9,3 +10,4 @@
 
   echo '<a href="session2.php">Count views</a>';
 ?>
+

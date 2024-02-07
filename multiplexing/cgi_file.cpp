@@ -11,9 +11,8 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 		{
 			get_to_cgi = true;
 			double tmp = (clock() - start) / CLOCKS_PER_SEC;
-			if (tmp >= 5)
+			if (tmp >= 30)
 			{
-				cout << "kill : " << tmp << endl;
 				kill(pid, SIGKILL);
 				error_page(event, "504", config);
 			}
@@ -26,7 +25,10 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 
 				read_for_send(event, cont_type, 1);
 				if (op_cgi.eof())
+				{
 					end_of_file(event);
+					kill(pid, SIGKILL);
+				}
 			}
 		}
 	}

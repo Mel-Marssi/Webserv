@@ -61,7 +61,10 @@ int Request::check_body_get(epoll_event &event)
 
 string Request::resp_post()
 {
-    string tmp= "HTTP/1.1 201 created\r\nContent-Type:  text/html\r\nContent-Lenght: 790\r\n\r\n";
+    string tmp= "HTTP/1.1 201 created\r\nContent-Type:  text/html\r\nContent-Lenght: 790\r\n";
+    tmp += "Connection: keep-alive\r\n";
+    tmp += "Set-Cookie: " + header_request["Cookie"] + "\r\n\r\n";
+    cout << "------> " << header_request["Cookie"] << endl;
     tmp +=  "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>201 Created</title></head><style>";
     tmp += "body{background-color: rgb(247, 253, 247);overflow: hidden;}";
     tmp += "span{display: flex;height:100vh;justify-content: center;align-items: center;}";
