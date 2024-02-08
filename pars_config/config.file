@@ -41,8 +41,6 @@ server {
         uploads_folder uploads ;
     }
 
- 
-
     location /cgi-bin {
         root ./ ;
         autoindex on ;

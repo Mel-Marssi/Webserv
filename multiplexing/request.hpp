@@ -164,4 +164,6 @@ class Request
         void Get_methode(servers &config, epoll_event &event, map<string, string> &m);
         void redirection_content(epoll_event &event, servers &config, string str, int flg);
         string get_root(servers &config);
+        int delete_checker(servers &config);
+        void handle_Path(size_t i);
 };

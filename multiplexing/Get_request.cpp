@@ -34,16 +34,13 @@ int Request::parse_url_prot(string meth, servers &config)
 
     if (status_pro != "NULL")
         return 1;
-    // tcheck spaces in reques
+    //===== tcheck spaces in reques =======
     if (check_space_first_line() == 1)
         return 1;
-    //=====================================
+
     index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-    string root = config[index_serv].get_root();
-    //=====================================
 
     it = header_request.find(meth);
-   // cout << it->second << endl;
     if (it->first == meth)
     {
         string tmp;
@@ -56,56 +53,18 @@ int Request::parse_url_prot(string meth, servers &config)
         }
         this->Path.insert(0, it->second, 0, i - 1);
     }
-    if (root[root.length() - 1] =='/' && Path[0] == '/')
-        root.erase(root.length() - 1, root.length());
     if (Path.length() > 2048)
     {
         status_pro = "414";
         return 1;
     }
     check_url_encoding();
-    if (meth == "DELETE")
-    {
-        char buff[1024];
-        char *b = realpath((root + Path).c_str(), buff);
-        if (b == NULL)
-        {
-            status_pro = "404";
-            return 1;
-        }
-        else
-        {
-            string tmp = b;
-            string tmp2 = config[index_serv].get_root();
-            b = realpath(tmp2.c_str(), buff);
-            tmp2 = b;
-            if (tmp.find(tmp2) == string::npos)
-            {
-                status_pro = "403";
-                return 1;
-            }
-        }
-    }
+    if (meth == "DELETE" && delete_checker(config) == 1)
+        return 1;
     i = 1;
     i = this->Path.find("/", i);
     if (i != string::npos)
-    {
-        this->file_get.insert(0, this->Path, i + 1, this->Path.length());
-        this->Path_bef = this->Path;
-        this->Path.erase(i, this->Path.length());
-        this->full_Path = this->Path_bef;
-        if (this->file_get.find("?") != string::npos)
-        {
-            size_t o;
-
-            o = this->file_get.find("?");
-            this->Query_String.insert(0, file_get, o + 1, file_get.length());
-            full_Path[full_Path.find("?")] = '\0';
-            file_get.erase(o, file_get.length());
-        }
-        else
-            Query_String = "";
-    }
+        handle_Path(i);
     else
         this->full_Path = this->Path;
     return (0);

@@ -572,18 +572,15 @@ void Request::boundaries(servers &config, int index, int fd)
                     }
                     else
                     {
-                         
                         read_request = read_request.substr(0, found_last - 4);
                         outputFile << read_request ;
                         last = 1;
                         finir = 1;
-
                         return;
                     }
                 }
                 else
                 {
-                   
                     string te;
                     position_int = read_request.find(boudri);
                     te = read_request.substr(0,position_int - 2);
@@ -622,8 +619,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
     // if ((it == header_request.end()) && (it0->second.empty()))
     // {
     //     error_page(event, fd, "400", config);
-    // }
-     
+    // } 
     if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0) && status_pro != "NULL" )
     {   
          size_read_request = -9;
@@ -644,18 +640,16 @@ void Request::post(int fd, servers &config, epoll_event &event)
      
             return;
         }
-     if (it != header_request.end() && header_request["Transfer-Encoding"] != "chunked\r")
-     {
-        status_pro = "501";
-        return;
-     }
-
+    if (it != header_request.end() && header_request["Transfer-Encoding"] != "chunked\r")
+    {
+    status_pro = "501";
+    return;
+    }
     this->parse_url_prot("POST", config);
     int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
 
-
-      if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
-     {
+    if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
+    {
         // if ((config[index].get_loc_max_client_size(this->Path) < (size_t)size_chuked))
         //     {
         //         cout << "fffffffffff\n";
@@ -723,15 +717,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
                         size = 0;
                    }
                    return;
- 
             }
-            
-     
         else
         {
-            
-
-         
             if (size_chunked - total >= 1024) 
             {
                 size = read(fd, buff, 1024);
@@ -852,6 +840,4 @@ void Request::post(int fd, servers &config, epoll_event &event)
      
      else if (itC != header_request.end())
 		create_file(outputFile, header_request, config,  index);
-
-     
 }
