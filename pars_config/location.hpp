@@ -16,7 +16,6 @@ private:
 	string index;
 	string redirection;
 	string extention;
-	vector<string> cgi_exec_path;
 	map<string, string> cgi_script;
 	// string path_location;
 	string uploads_folder;
