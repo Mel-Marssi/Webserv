@@ -35,7 +35,9 @@
 class Request
 {
     public:
+        bool cgi_post;
         int kk;
+        int zompie;
         string _host, _port;
         bool get_to_cgi;
         std::string methode;

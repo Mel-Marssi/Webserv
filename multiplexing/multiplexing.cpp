@@ -72,8 +72,11 @@ multiplexing::multiplexing(servers &config)
 						request[event_fd].size = read(event_fd, buff, 1024);
 						request[event_fd].startTime = clock();
 						request[event_fd].size_read_request += request[event_fd].size;
-						request[event_fd].read_request.append(buff, request[event_fd].size);
-						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
+						if (request[event_fd].size != -1)
+						{
+							request[event_fd].read_request.append(buff, request[event_fd].size);
+							request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
+						}
 						//cout << request[event_fd].read_request << endl;
 					if (request[event_fd].check_left_header == 0)
 					{
@@ -89,12 +92,14 @@ multiplexing::multiplexing(servers &config)
 
 				if (request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN))
 				{
+
 					request[fd_client].startTime = clock();
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd]._host = server_book[event_fd].second;
 
 					request[event_fd].post(event_fd, config, event_wait[i]);
 					request[event_fd].check_read_get = 1;
+					
 					// request[event_fd].read_request.clear();
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
@@ -124,6 +129,21 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
+				if (request[fd_client].cgi_post == true)
+				{
+					cout << request[event_fd].path_post << endl;
+					
+					send(event_fd, request[event_fd].resp_post().c_str(), 862, 0);
+					close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+			
+						std::map<int, Request>::iterator it = request.find(event_fd);
+						if (it != request.end())
+							request.erase(it);
+						request[event_fd].outputFile.close();
+						flg_remv = 0;
+				}
+
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET" ) &&  (event_wait[i].events & EPOLLOUT ) && request[event_fd].check_left_header == 1 && ((request[event_fd].size_request <= request[event_fd].size_read_request ) || request[event_fd].finir == 1 || request[event_fd].err == 1))// ||request[event_fd].size_request < request[event_fd].size_read_request || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
 					// if (request[event_fd].size_chuked == )
@@ -138,7 +158,16 @@ multiplexing::multiplexing(servers &config)
 						if (request[event_fd].path_post == "NULL")
 							request[event_fd].error_page(event_wait[i], "400", config);
 						else
+						{
+							if (request[event_fd].Path == "/cgi-bin")
+							{
+								request[event_fd].finir = 0;
+								request[event_fd].size_read_request = -1;
+								request[event_fd].cgi_post = true;
+								continue;
+							}
 							send(event_fd, request[event_fd].resp_post().c_str(), 862, 0);
+						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 			
@@ -156,6 +185,7 @@ multiplexing::multiplexing(servers &config)
 			}
 			else if (flg_remv == 1)
 			{
+				cout << request[event_fd].zompie << endl;
 				close(event_fd);
 				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 				std::map<int, Request>::iterator it = request.find(event_fd);

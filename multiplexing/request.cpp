@@ -41,12 +41,13 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     fd_request = 0;
     rest = 0;
     path_post = "NULL";
-
+    cgi_post = false;
     fill_content_type();
 }
 
 Request::Request(const Request& obj)
 {
+    cgi_post = false;
     Path = "";
     startTime = 0;
     file_get = "";
@@ -214,7 +215,6 @@ void Request::create_file(std::ofstream& outputFile,   std::map<std::string, std
 {
  
    std::string type_file = map["Content-Type"];
-   
      std::map<std::string, std::string>::iterator it = header_request.find(type_file);
     srand (time(NULL));
     std::ostringstream str;

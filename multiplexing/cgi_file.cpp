@@ -14,7 +14,6 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			if (tmp >= 5)
 			{
 				kill(pid, SIGKILL);
-				cout << "Time out" << endl;
 				error_page(event, "504", config);
 			}
 		}
