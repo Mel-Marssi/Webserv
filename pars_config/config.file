@@ -1,95 +1,98 @@
 server {
-    listen 8090 ;
-    server_name localhost ;
-    host 127.0.0.1 ;
-    root ./ ;
-    index index.html ;
-    error_pages 400 index.ml ;
-    error_pages 405 prblm/405.html ;
+    listen 8090;
+    server_name localhost;
+    host 127.0.0.1;
+    root ./;
+    index index.html;
+    error_pages 400 index.ml;
+    error_pages 405 prblm/405.html;
 
     location / {
-        allow_methods  DELETE POST GET ;
-        autoindex on ;
-        allow_upload on ;
-        uploads_folder pars_config ;
+        allow_methods  DELETE POST GET;
+        autoindex on;
+        allow_upload on;
+        uploads_folder pars_config;
  
     }
 
     location /test {
-        autoindex on ;
-        root ./ ;
-        allow_methods GET POST ;
-        max_client_size 123212 ;
+        autoindex on;
+        root ./;
+        allow_methods GET POST;
+        max_client_size 123212;
     }
 
     location /multiplexing {
-        autoindex on ;
-        root ./ ;
-        allow_methods GET POST ;
-        max_client_size 230188989 ;
-        allow_upload on ;
-        uploads_folder pars_config ;
+        autoindex on;
+        root ./;
+        allow_methods GET POST;
+        max_client_size 230188989;
+        allow_upload on;
+        uploads_folder pars_config;
     }
 
     location /root_page {
-        autoindex on ;
-        root ./ ;
-        index root.html ;
-        allow_methods GET POST ;
-        return /test/fich.pdf ;
-        allow_upload on ;
-        uploads_folder uploads ;
+        autoindex on;
+        root ./;
+        index root.html;
+        allow_methods GET POST;
+        return /test/fich.pdf;
+        allow_upload on;
+        uploads_folder uploads;
     }
 
     location /cgi-bin {
-        root ./ ;
-        autoindex on ;
-        allow_methods GET POST DELETE ;
-        cgi_path /usr/bin/php-cgi /usr/bin/python3 ;
-        allow_upload on ;
-        uploads_folder uploads ;
-        max_client_size 123212000 ;
+        root ./;
+        autoindex on;
+        allow_methods GET POST DELETE;
+        cgi_path .py /usr/bin/python3;
+        cgi_path .php /usr/bin/php-cgi;
+        cgi_path .sh /usr/bin/bash;
+        allow_upload on;
+        uploads_folder uploads;
+        max_client_size 123212000;
     }
 
     location /uploads {
-    root ./ ;
-    autoindex on ;
-    allow_methods GET POST DELETE ;
-    max_client_size 123212000 ;
+    root ./;
+    autoindex on;
+    allow_methods GET POST DELETE;
+    max_client_size 123212000;
     }
 }
 server {
-    listen 8081 ;
-    server_name test ;
-    host 127.0.0.1 ;
-    root ./ ;
-	autoindex on ;
+    listen 8081;
+    server_name test;
+    host 127.0.0.1;
+    root ./;
+	autoindex on;
 
     location / {
-        allow_methods  DELETE POST GET ;
-        autoindex on ;
-        allow_upload on ;
-        uploads_folder pars_config ;
+        allow_methods  DELETE POST GET;
+        autoindex on;
+        allow_upload on;
+        uploads_folder pars_config;
  
     }
 
      location /test1 {
-        autoindex on ;
-        allow_methods DELETE GET POST ;
-        return /test ;
+        autoindex on;
+        allow_methods DELETE GET POST;
+        return /test;
     }
 
     location /cgi-bin {
-        root ./ ;
-        allow_methods GET POST DELETE ;
-        index index.php ;
-        cgi_path /usr/bin/python3 /usr/bin/php-cgi ;
+        root ./;
+        allow_methods GET POST DELETE;
+        index index.php;
+        cgi_path .py /usr/bin/python3;
+        cgi_path .php /usr/bin/php-cgi;
     }
 
     location /test9 {
-        autoindex on ;
-        root ./ ;
-        index ved.mp4 ;
-        allow_methods GET POST ;
+        autoindex on;
+        root ./;
+        index ved.mp4;
+        allow_methods GET POST;
     }
 }

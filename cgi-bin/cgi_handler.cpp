@@ -2,14 +2,9 @@
 
 int cgi_handler::i = 0;
 
-string get_cgi_path(string extention, vector<string> cgi_exec_path)
+string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 {
-	for (size_t i = 0; i < cgi_exec_path.size(); i++)
-	{
-		if (cgi_exec_path[i].find(extention) != string::npos)
-			return (cgi_exec_path[i]);
-	}
-	return ("");
+	return (cgi_exec_path[extention]);
 }
 /*Change the config file to containe the extention of the choosen script and the script run*/
 void php_cgi(Request &req, server_config &config)
@@ -36,7 +31,7 @@ void php_cgi(Request &req, server_config &config)
 		strcpy(env[i], tmp.c_str());
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
-	string tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".") + 1), config.get_loc_cgi_exec_path(req.Path));
+	string tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
 	if (tmp == "")
 	{
 		req.status_pro = "500";
@@ -82,11 +77,11 @@ cgi_handler::cgi_handler(Request &req)
 	CGI_BOOK["REQUEST_SCHEME"] = "http";
 	CGI_BOOK["GATEWAY_INTERFACE"] = "CGI/1.1";
 	CGI_BOOK["SERVER_SOFTWARE"] = "webserv";
-	CGI_BOOK["REQUEST_URI"] = req.Path +"/"+ req.file_get;
+	CGI_BOOK["REQUEST_URI"] = req.Path + "/" + req.file_get;
 	if (!req.header_request["Cookie"].empty())
 	{
 		CGI_BOOK["HTTP_COOKIE"] = req.header_request["Cookie"];
-		cout << "COOKIE: " <<CGI_BOOK["HTTP_COOKIE"]<< endl;
+		cout << "COOKIE: " << CGI_BOOK["HTTP_COOKIE"] << endl;
 	}
 }
 

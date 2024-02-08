@@ -22,17 +22,14 @@
 int check_error_code(const char *av, const char *message)
 {
 	long long tmp;
-	for(int i = 0; i < (int)strlen(av);i++)
+	for (int i = 0; i < (int)strlen(av); i++)
 	{
-		if(av[i] < '0' || av[i] > '9')
-			throw(runtime_error(message)); 
+		if (av[i] < '0' || av[i] > '9')
+			throw(runtime_error(message));
 	}
-	tmp =  atol(av);
+	tmp = atol(av);
 
-	if(tmp != 503 && tmp != 500 && tmp != 100 && tmp != 101
-		&& tmp != 501 && tmp != 404 &&tmp != 403 && tmp != 401
-		&& tmp != 400 &&tmp != 304 && tmp != 302 && tmp !=  301 && tmp != 300
-		&& tmp !=  200 && tmp != 201 && tmp !=  204 && tmp !=  405)
+	if (tmp != 503 && tmp != 500 && tmp != 100 && tmp != 101 && tmp != 501 && tmp != 404 && tmp != 403 && tmp != 401 && tmp != 400 && tmp != 304 && tmp != 302 && tmp != 301 && tmp != 300 && tmp != 200 && tmp != 201 && tmp != 204 && tmp != 405)
 		throw(runtime_error(message));
 	return (static_cast<int>(tmp));
 }
@@ -45,22 +42,28 @@ server_config::server_config(ifstream &config_fd)
 	this->port = -1;
 	host = "";
 	root = "";
-	server_name= "";
+	server_name = "";
 	index = "";
 	server_auto_index = false;
 	// error_book();
 	while (getline(config_fd, file))
 	{
+		if (file.find(";") != string::npos)
+		{
+			file.insert(file.find(";"), " ");
+			if (file.find(";") != file.size() - 1)
+				throw(runtime_error("Character after \";\""));
+		}
 		istringstream cscan(file);
 		cscan >> word;
-		if(word == "}")
+		if (word == "}")
 			break;
 		if (word == "server" && flag == 0)
 		{
 			flag = 1;
 			continue;
 		}
-		else if (flag == 0 || (flag ==1 && word == "server"))
+		else if (flag == 0 || (flag == 1 && word == "server"))
 			throw(runtime_error("Invalid configue file!"));
 		if (word.empty() || file.empty())
 			continue;
@@ -86,7 +89,7 @@ server_config::server_config(ifstream &config_fd)
 		}
 		else if (word == "host")
 		{
-			cscan >>word;
+			cscan >> word;
 			if (get_host().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
 			host = word;
@@ -94,7 +97,7 @@ server_config::server_config(ifstream &config_fd)
 			if (word != ";")
 				throw runtime_error("Invalid configue file!");
 		}
-		else if(word == "root")
+		else if (word == "root")
 		{
 			cscan >> word;
 			if (get_root().empty() == false)
@@ -163,7 +166,7 @@ server_config::server_config(ifstream &config_fd)
 	// cout << "Port : " <<  port << "\n";
 	// cout << "server name: " << server_name << "\n" <<host << "\n";
 	// cout << "root: " << root << "\n";
-	// cout << "auto index : " << server_auto_index << "\n"; 
+	// cout << "auto index : " << server_auto_index << "\n";
 	// cout << "index: " << index <<endl;
 	// for(int i = 0; i < (int)serv_locations.size();i++)
 	// {
@@ -173,96 +176,93 @@ server_config::server_config(ifstream &config_fd)
 	// cout << "-----------------------------------------------------------" <<endl;
 }
 
-
 bool server_config::get_loc_delete(const string &name)
 {
 	if (serv_locations.find(name) != serv_locations.end())
-		return serv_locations[name].get_delete();	
+		return serv_locations[name].get_delete();
 	return (false);
 }
 
 bool server_config::get_loc_post(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_post();
 	return (false);
 }
 
 bool server_config::get_loc_get(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get();
 	return (false);
 }
 
 bool server_config::get_loc_auto_index(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_auto_index();
 	return (false);
 }
 
 bool server_config::get_loc_upload(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_upload();
 	return (false);
-
 }
 string server_config::get_loc_root(string const &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_root();
 	return ("");
 }
 
 size_t server_config::get_loc_max_client_size(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_max_client_size();
 	return (0);
 }
 
 string server_config::get_loc_up_folder(string const &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_upload_folder();
 	return ("");
 }
 
-string server_config::get_loc_index(const string  &name)
+string server_config::get_loc_index(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_index();
 	return ("");
 }
 
-string server_config::get_loc_redirection(const string  &name)
+string server_config::get_loc_redirection(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_redirection();
 	return ("");
 }
 
-string server_config::get_loc_cgi_path(const string  &name)
-{
-	if(serv_locations.find(name) != serv_locations.end())
-		return serv_locations[name].get_cgi_path();
-	return ("");
-}
+// string server_config::get_loc_cgi_path(const string &name)
+// {
+// 	if (serv_locations.find(name) != serv_locations.end())
+// 		return serv_locations[name].get_cgi_path();
+// 	return ("");
+// }
 
-vector<string> server_config::get_loc_cgi_exec_path(const string  &name)
+map<string, string> server_config::get_loc_cgi_exec_path(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return serv_locations[name].get_cgi_exec_path();
-	return (vector<string>());
+	return (map<string, string>());
 }
-string server_config::get_loc_path_location(const string  &name)
+string server_config::get_loc_path_location(const string &name)
 {
-	if(serv_locations.find(name) != serv_locations.end())
+	if (serv_locations.find(name) != serv_locations.end())
 		return name;
 	return ("");
-
 }
 
 int server_config::get_port()

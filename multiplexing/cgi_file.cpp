@@ -11,9 +11,10 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 		{
 			get_to_cgi = true;
 			double tmp = (clock() - start) / CLOCKS_PER_SEC;
-			if (tmp >= 30)
+			if (tmp >= 5)
 			{
 				kill(pid, SIGKILL);
+				cout << "Time out" << endl;
 				error_page(event, "504", config);
 			}
 		}
@@ -27,7 +28,6 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 				if (op_cgi.eof())
 				{
 					end_of_file(event);
-					kill(pid, SIGKILL);
 				}
 			}
 		}

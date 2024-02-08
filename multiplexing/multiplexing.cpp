@@ -158,7 +158,6 @@ multiplexing::multiplexing(servers &config)
 			{
 				close(event_fd);
 				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-				cout << "00000000000000000000000000000\n";
 				std::map<int, Request>::iterator it = request.find(event_fd);
 				if (it != request.end())
 					request.erase(it);
