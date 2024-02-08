@@ -31,7 +31,7 @@ multiplexing::multiplexing(servers &config)
 		if (listen(server_socket[i], 0) < 0)
 			throw(runtime_error("listen() call failed!"));
 		event.data.fd = server_socket[i];
-		event.events = EPOLLIN | EPOLLOUT;
+		event.events = EPOLLIN | EPOLLOUT | EPOLLERR;
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket[i], &event) < 0)
 			throw(runtime_error("epoll_ctl() call failed!"));
 	}
@@ -54,7 +54,7 @@ multiplexing::multiplexing(servers &config)
 					continue;
 				}
 				event.data.fd = fd_client;
-				event.events = EPOLLIN | EPOLLOUT;
+				event.events = EPOLLIN | EPOLLOUT | EPOLLERR;
 				server_book[fd_client] = server_book[event_fd];
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
@@ -150,11 +150,15 @@ multiplexing::multiplexing(servers &config)
 					}
 				}
 			}
-			if (flg_remv == 1)
+			if (event_wait[i].events & EPOLLERR)
+			{
+				exit(1);
+			}
+			else if (flg_remv == 1)
 			{
 				close(event_fd);
 				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-			
+				cout << "00000000000000000000000000000\n";
 				std::map<int, Request>::iterator it = request.find(event_fd);
 				if (it != request.end())
 					request.erase(it);
