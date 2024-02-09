@@ -4,10 +4,10 @@
 int Request::check_space_first_line()
 {
     size_t j = 0;
-    int cout = 0;
+    int sp = 0;
     while (j < first_line_reque.length())
     {
-        if (cout > 2)
+        if (sp > 2)
         {
             status_pro = "400";
             return 1;
@@ -19,9 +19,8 @@ int Request::check_space_first_line()
                 status_pro = "400";
                 return 1;
             }  
-            cout++;
+            sp++;
         }
-        
         j++;
     }
     return 0;
@@ -121,11 +120,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
                     redirection_content(event, config, "301", 1);
-                else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty()))) // ===============
+                else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty())))
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
-                        find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
+                        find_cgi(config, index_serv);
                     else
                     {
                         this->Path = this->full_Path + config[index_serv].get_loc_index(this->Path);
@@ -136,7 +135,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
-                        find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
+                        find_cgi(config, index_serv);
                     else
                         check_files_open(event, m, this->full_Path);
                 }
@@ -152,12 +151,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             redirection_content(event, config, "301", 0);
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
-    {
-        if (this->Path.find("cgi") != string::npos)
-            find_cgi(config, index_serv); // ila f location dyal cgi kan index file -------------------------
-        else
             check_files_open(event, m, this->full_Path);
-    }
     else
         status_pro = "404";
     close_dir();

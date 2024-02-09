@@ -30,13 +30,10 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     line.append(buffer, bytesRead);
     //------------------------------------
     head += "HTTP/1.1 200 ok\r\n";
-    // con_type = get_content_type(m);
-    // head += con_type;
     head += "Content-Lenght:";
     size << fileS; // check this
     head += size.str();
     head += "\r\n";
-    // head += "\r\n\r\n";
     head += line;
     line = "";
     return (head);
