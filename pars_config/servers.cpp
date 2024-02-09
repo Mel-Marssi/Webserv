@@ -19,10 +19,10 @@ servers::servers(const string &av)
 		for(server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
 			// cout << it2->get_port() <<endl;
-			if (it2->get_port() == port)
-				throw (runtime_error("Duplicate Port!"));
+			if ((it2->get_host() == host && it2->get_port() == port) && it2->get_server_name() == server_name)
+				throw (runtime_error("Invalid configue file!"));
 			if (it2->get_host().empty() || it2->get_port() == -1 || it2->get_server_name().empty())
-				throw (runtime_error("Missing Server Name or Host or Port!"));
+				throw (runtime_error("Invalid configue file!"));
 		}
 	}
 	

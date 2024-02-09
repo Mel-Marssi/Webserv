@@ -13,7 +13,7 @@ class cgi_handler
 };
 
 void php_cgi(Request &req, server_config &config);
-
+void cgi_post(Request &req, server_config &config);
 
 	// env.push_back("HTTP_COOKIE=");
 

@@ -179,11 +179,7 @@ multiplexing::multiplexing(servers &config)
 					}
 				}
 			}
-			if (event_wait[i].events & EPOLLERR)
-			{
-				exit(1);
-			}
-			else if (flg_remv == 1)
+			if (flg_remv == 1)
 			{
 				cout << request[event_fd].zompie << endl;
 				close(event_fd);

@@ -61,7 +61,7 @@ server {
     }
 }
 server {
-    listen 8081;
+    listen 8090;
     server_name test;
     host 127.0.0.1;
     root ./;
