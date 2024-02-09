@@ -225,7 +225,7 @@ location::location(ifstream &config_fd, string word_serv)
 		else
 			throw runtime_error("Invalid location!1");
 	}
-	if (word != "}" || (uploads_folder.empty() && _allow_upload == true) || (!uploads_folder.empty() && _allow_upload == false))
+	if (word != "}" || (uploads_folder.empty() && _allow_upload == true))
 		throw runtime_error("Invalid location!");
 }
 void check_size_t(const char *av, const char *message)

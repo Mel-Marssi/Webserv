@@ -140,7 +140,6 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     (void)epoll_fd;
     (void)config;
 
-
     size_t i = 0;
     if (check_left_header == 1)
     {
@@ -208,6 +207,8 @@ void Request::fill_content_type()
     cont_type["application/pdf\r"] = ".pdf";
     cont_type["video/webm\r"] = ".webm";
     cont_type["application/zip\r"] = ".zip";
+    cont_type["application/x-php\r"] = ".php";
+    
 }
 
 

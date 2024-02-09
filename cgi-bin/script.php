@@ -11,6 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if ($image_error > 0) {
 		echo "Error: " . $image_error . "<br />";
 	}
-	move_uploaded_file($image_tmp, "uploads/$image_name");
+	move_uploaded_file($image_tmp, "cgi-bin/$image_name");
 }
 ?>
