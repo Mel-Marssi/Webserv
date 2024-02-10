@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		move_uploaded_file($image_tmp, "cgi-bin/$image_name");
 	}
  	else {
-		echo "No file uploaded 0";
+		echo "No file uploaded ";
 	}
 }
 ?>

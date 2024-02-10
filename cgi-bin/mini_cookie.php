@@ -9,11 +9,13 @@
 <body>
 
 <?php
-// Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-	setcookie("username",$_GET["username"], time() + (3000));
-    echo "Cookie set successfully!";
-}
+    if ($_SERVER["REQUEST_METHOD"] == "GET") 
+    {
+        if (isset($_GET["username"])) 
+        {
+            setcookie("username",$_GET["username"], time() + (3000));
+        }
+    }
 ?>
 
 <h2>Set Cookie Form</h2>

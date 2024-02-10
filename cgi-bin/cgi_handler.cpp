@@ -9,11 +9,10 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void php_cgi(Request &req, server_config &config)
 {
-	//  cout << "CGI------------>" << endl;
 	(void)config;
 	cgi_handler cgi(req);
 	string file, tmp;
-	
+
 	try
 	{
 		if (req.methode == "GET")
@@ -22,19 +21,19 @@ void php_cgi(Request &req, server_config &config)
 			tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
 			if (tmp == "")
 			{
-				req.status_pro = "500";
+				req.cgi_file = req.file_get;
 				return;
 			}
 		}
 		else if (req.methode == "POST")
 		{
 			file = req.path_post;
-			cout << file <<endl;
+			cout << file << endl;
 			tmp = get_cgi_path(file.substr(req.path_post.find_last_of(".")), config.get_loc_cgi_exec_path(req.Path));
 			cout << tmp << endl;
 			if (tmp == "")
 			{
-				req.status_pro = "500";
+				req.cgi_file = req.file_get;
 				return;
 			}
 		}
