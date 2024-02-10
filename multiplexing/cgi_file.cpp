@@ -12,7 +12,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 		{
 			get_to_cgi = true;
 			double tmp = (clock() - start) / CLOCKS_PER_SEC;
-			if (tmp >= 5)
+			if (tmp >= 30)
 			{
 				kill(pid, SIGKILL);
 				error_page(event, "504", config);
@@ -20,9 +20,9 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 		}
 		else if ( WEXITSTATUS(status) != 0 && pid != 0)
 		{
-			cout << "CGI ERROR" << endl;
-			cout << pid << endl;
-			cout << WEXITSTATUS(status) << endl;
+			// cout << "CGI ERROR" << endl;
+			// cout << pid << endl;
+			// cout << WEXITSTATUS(status) << endl;
 			error_page(event, "500", config);
 		}
 		else

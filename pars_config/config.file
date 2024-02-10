@@ -49,7 +49,7 @@ server {
         cgi_path .php /usr/bin/php-cgi;
         cgi_path .sh /usr/bin/bash;
         allow_upload on;
-        uploads_folder uploads;
+        uploads_folder cgi-bin;
         max_client_size 123212000;
     }
 

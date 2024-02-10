@@ -36,6 +36,7 @@ class Request
 {
     public:
         bool cgi_post;
+        int fd_cgi;
         int kk;
         int zompie;
         string _host, _port;
@@ -100,6 +101,7 @@ class Request
         string full_Path;
         string Query_String;
         string cgi_file;
+        size_t size_cgi;
         int read_get;
         clock_t start;
         int fd[2];

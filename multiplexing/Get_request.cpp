@@ -204,6 +204,53 @@ void Request::Generate_req_second(epoll_event &event)
         if (op.eof())
             end_of_file(event);
     }
+     if (op_cgi.is_open() && event.events & EPOLLOUT)
+    {
+        char buf[1024];
+        memset(buf, 0, 1024);
+        op_cgi.read(buf, 1024);
+        cout << buf << endl;
+        std::streamsize bytesRead = op_cgi.gcount();
+        line.append(buf, bytesRead);
+
+        if (buffer != "")
+        {
+            buffer += line;
+            line = buffer;
+        }
+
+        stringstream size;
+        size_t len;
+        string str;
+        // if (con_type.find("text") != string::npos)
+        // {
+        //     len = strlen(line.c_str());
+        //     size << std::hex << len;
+        //     str += size.str();
+        //     str += "\r\n";
+        //     str += line;
+        //     str += "\r\n";
+        //     len = strlen(str.c_str());
+        //     send(event.data.fd, str.c_str(), len, 0);
+        // }
+        // else
+        // {
+            len = line.length();
+            size << std::hex << len;
+            str += size.str();
+            str += "\r\n";
+            str += line;
+            str += "\r\n";
+            len = str.length();
+            // cout << len << endl;
+            cout << endl;
+            cout << str;
+            send(event.data.fd, str.c_str(), len, 0);
+        // }
+        line = "";
+        if (op_cgi.eof())
+            end_of_file(event);
+    }
 }
 
 void Request::default_error(string key, int fd)
