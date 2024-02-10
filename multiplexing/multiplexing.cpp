@@ -61,9 +61,13 @@ multiplexing::multiplexing(servers &config)
 				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
 				request[fd_client].startTime = clock();
 				request[fd_client].fd_request = fd_client;
+				//find what server in working with
+				// request[event_fd]._port = server_book[event_fd].first;
+				// request[event_fd]._host = server_book[event_fd].second;
 			}
 			else
 			{
+				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
@@ -196,7 +200,9 @@ multiplexing::multiplexing(servers &config)
 
 				if ((endTime - request[event_fd].startTime) / CLOCKS_PER_SEC >= 8)
 				{
+				cout << "sss\n";
 					request[event_fd].error_page(event_wait[i], "504", config);
+				cout << "888\n";
 					close(request[event_fd].fd_request);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					request.erase(event_fd);

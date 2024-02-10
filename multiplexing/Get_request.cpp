@@ -37,8 +37,7 @@ int Request::parse_url_prot(string meth, servers &config)
     if (check_space_first_line() == 1)
         return 1;
 
-    index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
-
+    // index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     it = header_request.find(meth);
     if (it->first == meth)
     {
@@ -284,8 +283,10 @@ void Request::default_error(string key, int fd)
 void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
+    cout << key << " " << index_serv <<endl;
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
+    cout << str << endl;
     if ((ovp.is_open() && fin_or_still != finish))
     {
         string head;
