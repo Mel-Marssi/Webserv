@@ -140,7 +140,15 @@ multiplexing::multiplexing(servers &config)
 					string head;
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
-					head += request[fd_client].path_post;
+					// head += request[fd_client].path_post;
+					size_t i = 0;
+					i = request[fd_client].path_post.find("/", 1);
+					string ff;
+					if (i != string::npos)
+					{
+						ff.insert(0, request[fd_client].path_post, i + 1, request[fd_client].path_post.length());
+					}
+					head += ff;
 					head += "\r\n\r\n";
 					size_t len = head.length();
 					send(event.data.fd, head.c_str(), len, 0);

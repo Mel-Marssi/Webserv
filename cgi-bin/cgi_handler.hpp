@@ -2,6 +2,8 @@
 
 #include "../pars_config/servers.hpp"
 #include "../multiplexing/multiplexing.hpp"
+#include <stdio.h>
+#include <sys/time.h>
 class Request;
 class cgi_handler
 {

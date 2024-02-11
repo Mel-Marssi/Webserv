@@ -17,23 +17,21 @@ void php_cgi(Request &req, server_config &config)
 	{
 		if (req.methode == "GET")
 		{
-			file = req.file_get;
+			file = req.full_Path ;//"./cgi-bin/" +req.file_get;
 			tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
 			if (tmp == "")
 			{
-				req.cgi_file = req.file_get;
+				req.cgi_file = req.full_Path;
 				return;
 			}
 		}
 		else if (req.methode == "POST")
 		{
 			file = req.path_post;
-			cout << file << endl;
 			tmp = get_cgi_path(file.substr(req.path_post.find_last_of(".")), config.get_loc_cgi_exec_path(req.Path));
-			cout << tmp << endl;
 			if (tmp == "")
 			{
-				req.cgi_file = req.file_get;
+				req.cgi_file = req.path_post;
 				return;
 			}
 		}
@@ -48,7 +46,6 @@ void php_cgi(Request &req, server_config &config)
 	to_s << t;
 
 	string tmp_file = "/tmp/_" + to_s.str();
-	cout << tmp_file << endl;
 	req.cgi_file = tmp_file;
 	int fd[2];
 
@@ -61,20 +58,19 @@ void php_cgi(Request &req, server_config &config)
 		strcpy(env[i], tmp.c_str());
 	}
 	env[cgi.CGI_BOOK.size()] = NULL;
+
 	req.size_cgi = atol(cgi.CGI_BOOK["CONTENT_LENGTH"].c_str());
-	// string tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
-	// if (tmp == "")
-	// {
-	// 	req.status_pro = "500";
-	// 	for (int i = 0; env[i]; i++)
-	// 		delete[] env[i];
-	// 	delete[] env;
-	// 	return;
-	// }
+
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
+
 	fd[0] = open(file.c_str(), O_RDONLY);
+	if (fd[0] == -1)
+	{
+		cout << "error open" << endl;
+		exit(1);
+	}
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
-	req.start = clock();
+	gettimeofday(&req.start_cgi, NULL);
 	req.pid = fork();
 	if (req.pid == 0)
 	{

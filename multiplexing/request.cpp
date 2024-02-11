@@ -129,7 +129,10 @@ int Request::parse_line(std::string line, int check_first)
         size_t found_POINT = line.find(":");
         // cout << found_POINT << " " << line.length() << " ---\n";
         if (found_POINT != string::npos)
-            header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length() - 1).c_str())));
+        {
+                        header_request.insert(std::make_pair(line.substr(0,found_POINT),   (line.substr(found_POINT + 2,line.length() - 1).c_str())));
+
+        }
     }
     return 0;
 }
@@ -139,7 +142,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     (void)event;
     (void)epoll_fd;
     (void)config;
-
+ 
     size_t i = 0;
     if (check_left_header == 1)
     {
@@ -167,7 +170,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     check_body++;
     std::string line;
     int check_first_line = 0;
-    while (read_request[i])// && i <= check_body)//&& i <= check_body
+    while (read_request[i] && i <= check_body)// && i <= check_body)//&& i <= check_body
     {
         if (read_request[i] != '\n')
             line += read_request[i];
@@ -208,6 +211,8 @@ void Request::fill_content_type()
     cont_type["video/webm\r"] = ".webm";
     cont_type["application/zip\r"] = ".zip";
     cont_type["application/x-php\r"] = ".php";
+    cont_type["text/x-python\r"] = ".py";
+     
     
 }
 
@@ -345,6 +350,24 @@ void Request::chunked(servers &config, int index)
 
 }
 
+string Request::generat_name(string name, servers &config, int index,string content)
+{
+    int i = 1;
+    string generat = config[index].get_loc_up_folder(Path) + "/" + name + cont_type[content];
+    if (access(generat.c_str(), F_OK) == -1)
+        return generat;
+    while (1)
+    {
+        std::stringstream ss;
+        ss << i;
+        std::string str = ss.str();
+         generat = config[index].get_loc_up_folder(Path) + "/" + name + "(" + str + ")"+ cont_type[content];
+        if (access(generat.c_str(), F_OK) == -1)
+            return generat;
+        i++;
+    }
+}
+
 void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::string, std::string>& map, servers &config, int index, string name, string content)
 {
  (void)map;
@@ -358,7 +381,8 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
 
     if (it != cont_type.end())
     {
-        std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
+        // name  = generat_name(name, config, index, content);
+        std::string randomName =     generat_name(name, config, index, content);//config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
          // cout << randomName << endl;
         path_post = randomName;
 
@@ -368,7 +392,7 @@ void Request::create_file_bondar(std::ofstream& outputFile,   std::map<std::stri
     else 
     {
         // std::string randomName = str.str() + ".x";
-        std::string randomName =     config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
+        std::string randomName =    generat_name(name, config, index, "text/plain\r");// config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
     //  cout << randomName<<"\n";
         path_post = randomName;
 
@@ -391,9 +415,9 @@ void Request::boundar(servers &config, int index)
         if (fir_body != "NULL")
 		{
             size_t position_int = fir_body.find("\r\n\r\n"); 
-            while(position_int != string::npos)
-            {
+           
                 std::string boundary = fir_body.substr(0, position_int);
+                cout << boundary << endl;
                 string filename_content = boundary.substr(boundary.find("name=\""));
                 string l = filename_content.substr(6, filename_content.length());
                 string filename = filename_content.substr(6,l.find("\""));
@@ -405,50 +429,26 @@ void Request::boundar(servers &config, int index)
                 check_create_file = 1;
                 fir_body = fir_body.substr(position_int + 4 , fir_body.length());
                 // exit(1);
-                size_t found_last = fir_body.find(last_boundri);
-                if (found_last != string::npos )
+                size_t found= fir_body.find(boudri);
+                if (found != string::npos)
                 {
-                     string te;
-                    position_int = fir_body.find(boudri);
-                    if (position_int != string::npos)
+                    string push = fir_body.substr(0,found - 2);
+                    // cout << push << endl;
+                    fir_body = fir_body.substr(found);
+                    if (fir_body.substr(0, fir_body.length() - 2) == last_boundri)
                     {
-                        te = fir_body.substr(0,position_int - 2);                        
-                        fir_body = fir_body.substr(position_int, fir_body.length());
-                        position_int = fir_body.find("\r\n\r\n"); 
-                        outputFile << te;
+                        cout << "NONO\n";
+                        finir = 1;
                     }
                     else
                     {
-                         
-                        fir_body = fir_body.substr(0, found_last - 4);
-                        outputFile << fir_body ;
-                        last = 1;
-                        finir = 1;
-
-                        return;
+                        fake_bondary = fir_body;
+                        size_read_request = -5;
                     }
+                    outputFile << push;
                 }
-                else
-                {
-                    string te;
-                    position_int = fir_body.find(boudri);
-                    te = fir_body.substr(0,position_int - 2);
-                    outputFile << te;
-                 
-                      if (position_int != string::npos)
-                       fir_body = fir_body.substr(position_int, fir_body.length());
-                        // cout <<fir_body << " dddd " << endl;
-                                        position_int = fir_body.find("\r\n\r\n"); 
-
-                }
-                size_read_request = -99;
-            }
-            // cout << fir_body.length() << " " << last_boundri.length() << endl;
-            if (fir_body.length() - 2 == last_boundri.length())
-            {
-                //cout << "lplpl\n";
-                 finir = 1;
-            }
+                else 
+                    fake_bondary = fir_body;
             fir_body = "NULLLL";
 		}
 		else
@@ -464,141 +464,83 @@ void Request::boundar(servers &config, int index)
 }
 
 
-void Request::boundaries(servers &config, int index, int fd)
+void Request::boundaries(servers &config, int index, int fd,epoll_event &event)
 {
     char buff[1024];
     memset(buff, 0, 1024);
     if (acces_read_in_post == 1)
     {
-        size_t a = read(fd, buff, 1024);
+         size_t a = 0;
+        if ((event.events & EPOLLIN))
+             a = read(fd, buff, 1024);
         read_request.clear();
         if (fake_bondary != "NULL")
         {
             read_request = fake_bondary;
             fake_bondary = "NULL";
         }
-        read_request.append(buff,a);
+        if (a > 0)
+            read_request.append(buff,a);
         size_t found_bondary = read_request.find(boudri);
         if (found_bondary == string::npos) // mochkil kayn akhir boundri kaydkhol hna
         {
-            // cout << "98989898898989\n";
-            // cout << buff<<"\n";
-            if (read_request.find(last_boundri) != string::npos)
-            {
-                //cout << "lplpl\n";
-                 finir = 1;
-            }
             fake_bondary = read_request.substr(read_request.length() - boudri.length()); // , read_request.length()
             read_request = read_request.substr(0, read_request.length() - boudri.length());
             outputFile << read_request;
         }
         else
         {
-            
                  fake_bondary = "NULL";
-               size_t position_int = read_request.find("\r\n\r\n");
-                // if ((position_int + 4) < read_request.length() && last != 1)
-                //     fake_bondary = read_request.substr(position_int + 4, read_request.length());              
-                // std::string boundary = read_request.substr(found_bondary, position_int);
-                // string filename_content = boundary.substr(boundary.find("name=\""));
-                // string filename = filename_content.substr(6, filename_content.find("\";")  - 6);
-                // string Content = filename_content.substr(filename_content.find("\r\n") + 16, filename_content.find("\r\n\r\n") - (filename_content.find("\r\n") + 16) ) ;
-                //  outputFile.close();
-                // read_request = read_request.substr(0, found_bondary -2 );
-                // outputFile << read_request ;
-		        // create_file_bondar(outputFile, header_request, config,  index, filename, Content);
-             while(position_int != string::npos ||( read_request.find(last_boundri) != string::npos && position_int == string::npos) )
-            {
-                if ( read_request.find(last_boundri) != string::npos && position_int == string::npos)
-                    position_int = read_request.find(last_boundri);
-                if (read_request.find("Content-Disposition") != string::npos)
+                size_t _last_found_bondary = read_request.find(last_boundri);
+                if (_last_found_bondary == found_bondary)
                 {
+                    outputFile << read_request.substr(0, _last_found_bondary - 2);
+                    finir = 1;
+                }
+                else
+                {
+                    size_t position_int = read_request.find("\r\n\r\n");
+                    if (position_int == string::npos)
+                    {
+                        fake_bondary = read_request;
+                        return;
+                    }
                     std::string boundary = read_request.substr(0, position_int);
-                   //cout << boundary << endl;
+                    cout << "/////////////////////////////////////////////\n";
+                    cout << read_request<<"\n";
+                    if (boundary.find("name=\"") == string::npos)
+                     {
+                        fake_bondary = read_request.substr(position_int + 4);
+                        return;
+                    }   
                     string filename_content = boundary.substr(boundary.find("name=\""));
+                    cout << "ANA\n";
                     string l = filename_content.substr(6, filename_content.length());
                     string filename = filename_content.substr(6,l.find("\""));
                     string Content= "NULL";
                     if (filename_content.find("Content-Type") != string::npos)
                         Content = filename_content.substr(filename_content.find("\r\n") + 16);
-                    if (found_bondary > 0 && found_bondary != string::npos)
+                    if (found_bondary)
                     {
-                    // exit(4);
-                        // cout << "---------------------------------------------\n\n\n";
-                        //   cout <<read_request << endl;
-                        string tmp = read_request.substr(0, found_bondary - 2);
-                      
-                        //   cout << tmp<<"\n";
-                        //  exit(1);
-                        outputFile << tmp;
-                        //  read_request = read_request.substr(found_bondary, read_request.length() -found_bondary  );
-                        // cout << read_request << endl;
-                        // exit(1);
-                        found_bondary = 0;
+                        string push = read_request.substr(0, found_bondary -2 );
+                        outputFile << push ;
+
                     }
                     outputFile.close();
                     create_file_bondar(outputFile, header_request, config,  index, filename, Content);
-                    read_request = read_request.substr(position_int + 4 , read_request.length());
-
-                }
- 
-                size_t found_last = read_request.find(last_boundri);
-                if (read_request.find(boudri) == string::npos && found_last == string::npos)
-                {
-                    fake_bondary = read_request;
-                    return;
-                }
-                if (found_last != string::npos )
-                {
-                      
-                     string te;
-                    position_int = read_request.find(boudri);
-                    
-                    if (position_int != string::npos)
-                    {
-                        te = read_request.substr(0,position_int - 2);
-                        string rest =   read_request.substr(position_int) ; 
-                //    cout << rest << endl;
-                        read_request = read_request.substr(position_int, read_request.length());
-                        position_int = read_request.find("\r\n\r\n"); 
-                        outputFile << te;
-                    //     cout << rest.length() << " " << last_boundri.length() << endl;
-                    // exit(4);
-                        if (rest.length() - 2 == last_boundri.length())
-                        {
+                    // if (found_bondary < read_request.length())
+                    //     fake_bondary = read_request.substr(found_bondary);
+                    read_request = read_request.substr(position_int + 4 );
+                        if (read_request.substr(0, read_request.length() - 2) == last_boundri)
                             finir = 1;
-                            return;
-                        }                    
-                    // cout << "dkhol\n";
-                    }
-                    else
-                    {
-                        read_request = read_request.substr(0, found_last - 4);
-                        outputFile << read_request ;
-                        last = 1;
-                        finir = 1;
-                        return;
-                    }
-                }
-                else
-                {
-                    string te;
-                    position_int = read_request.find(boudri);
-                    te = read_request.substr(0,position_int - 2);
-                    outputFile << te;
-                 
-                      if (position_int != string::npos)
-                        read_request = read_request.substr(position_int, read_request.length());
-                    position_int = read_request.find("\r\n\r\n"); 
+                        else
+                        {
+                            fake_bondary = read_request;
+                            // size_read_request = -5;
+                        }
 
                 }
-                size_read_request = -99;
-            }
-            if (read_request.length() - 2 == last_boundri.length())
-            {
-                //cout << "lplpl\n";
-                 finir = 1;
-            }
+                // cout << fake_bondary<<"\n";
                 read_request.clear();
         }
     
@@ -802,8 +744,8 @@ void Request::post(int fd, servers &config, epoll_event &event)
         // exit(1);
         if (si != string::npos)
         {
-            //  cout << "boundaries\n";
-            boundaries(config, index, fd);
+            //   cout << "-*-*-*-*-*boundaries\n";
+            boundaries(config, index, fd, event);
         }
         else if (fir_body != "NULL")
         {

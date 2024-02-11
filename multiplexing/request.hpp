@@ -27,6 +27,8 @@
 
 #include <cstdio>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <sys/time.h>
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -39,6 +41,7 @@ class Request
         int fd_cgi;
         int kk;
         int zompie;
+        struct timeval start_cgi;
         string _host, _port;
         bool get_to_cgi;
         std::string methode;
@@ -67,9 +70,10 @@ class Request
         string last_boundri;
         string path_post;
         long size_chuked;
-        void boundaries(servers &config, int index,int fd);
+        void boundaries(servers &config, int index,int fd,epoll_event &event);
         void boundar(servers &config, int index);
         int check_space_first_line();
+        string generat_name(string name, servers &config, int index, string content);
 
         // string filename;
         void create_file_bondar(ofstream& outputFile,   map<string, string>& map, servers &config, int index,string name,  string content);
@@ -93,6 +97,7 @@ class Request
         Request(const Request& obj);
         string resp_post();
         //==========GET==========================
+        
         string Path;
         int size_body_get;
         int check_read_get;

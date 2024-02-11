@@ -134,7 +134,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
+                    {
                         find_cgi(config, index_serv);
+                    }
                     else
                         check_files_open(event, m, this->full_Path);
                 }
@@ -208,7 +210,6 @@ void Request::Generate_req_second(epoll_event &event)
         char buf[1024];
         memset(buf, 0, 1024);
         op_cgi.read(buf, 1024);
-        cout << buf << endl;
         std::streamsize bytesRead = op_cgi.gcount();
         line.append(buf, bytesRead);
 
@@ -242,8 +243,7 @@ void Request::Generate_req_second(epoll_event &event)
             str += "\r\n";
             len = str.length();
             // cout << len << endl;
-            cout << endl;
-            cout << str;
+
             send(event.data.fd, str.c_str(), len, 0);
         // }
         line = "";

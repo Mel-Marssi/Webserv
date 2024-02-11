@@ -7,13 +7,17 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 	if (Path.find("cgi") != std::string::npos)
 	{
 		int out;
+		struct timeval end;
 		//  start = clock();
 		if ((out = waitpid(pid, &status, WNOHANG)) == 0)
 		{
 			get_to_cgi = true;
-			double tmp = (clock() - start) / CLOCKS_PER_SEC;
-			if (tmp >= 30)
+			gettimeofday(&end, NULL);
+			double timeOut = static_cast<double>(((end.tv_sec) - (start_cgi.tv_sec)));
+			// cout << fixed  << timeOut << endl;
+			if (timeOut >= 30)
 			{
+				cout << fixed << timeOut << endl;
 				kill(pid, SIGKILL);
 				error_page(event, "504", config);
 			}
@@ -35,6 +39,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 				if (op_cgi.eof())
 				{
 					end_of_file(event);
+					cout << "CGI END" << endl;
 				}
 			}
 		}
