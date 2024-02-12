@@ -56,9 +56,11 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
     {
         Generate_req_first(event, config, m);
         cgi_handle_get(event, config);
+        // cout << "------------------------\n";
     }
     else if (check_req == 1)
     {
+        // cout << "===================\n";
         Generate_req_second(event);
         flg_send = 1;
     }

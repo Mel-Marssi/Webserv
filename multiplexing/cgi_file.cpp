@@ -4,6 +4,7 @@
 void Request::cgi_handle_get(epoll_event &event, servers &config)
 {
 	int status;
+
 	if (Path.find("cgi") != std::string::npos)
 	{
 		int out;
@@ -17,7 +18,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			// cout << fixed  << timeOut << endl;
 			if (timeOut >= 30)
 			{
-				cout << fixed << timeOut << endl;
+				// cout << fixed << timeOut << endl;
 				kill(pid, SIGKILL);
 				error_page(event, "504", config);
 			}
@@ -39,7 +40,6 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 				if (op_cgi.eof())
 				{
 					end_of_file(event);
-					cout << "CGI END" << endl;
 				}
 			}
 		}

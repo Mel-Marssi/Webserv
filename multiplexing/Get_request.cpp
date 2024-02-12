@@ -205,7 +205,7 @@ void Request::Generate_req_second(epoll_event &event)
         if (op.eof())
             end_of_file(event);
     }
-     if (op_cgi.is_open() && event.events & EPOLLOUT)
+    if (op_cgi.is_open() && event.events & EPOLLOUT)
     {
         char buf[1024];
         memset(buf, 0, 1024);
@@ -283,10 +283,10 @@ void Request::default_error(string key, int fd)
 void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
-    cout << key << " " << index_serv <<endl;
+    // cout << key << " " << index_serv <<endl;
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
-    cout << str << endl;
+    // cout << str << endl;
     if ((ovp.is_open() && fin_or_still != finish))
     {
         string head;

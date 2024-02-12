@@ -12,7 +12,7 @@ void php_cgi(Request &req, server_config &config)
 	(void)config;
 	cgi_handler cgi(req);
 	string file, tmp;
-
+	// cout << "CGI START" << endl;
 	try
 	{
 		if (req.methode == "GET")
@@ -64,11 +64,6 @@ void php_cgi(Request &req, server_config &config)
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
 
 	fd[0] = open(file.c_str(), O_RDONLY);
-	if (fd[0] == -1)
-	{
-		cout << "error open" << endl;
-		exit(1);
-	}
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
 	gettimeofday(&req.start_cgi, NULL);
 	req.pid = fork();

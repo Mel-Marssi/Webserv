@@ -24,6 +24,6 @@
     <input type="text" id="username" name="username" required>
     <button type="submit">Set Cookie</button>
 </form>
-
+<a href=mini_cookie2.php>Link   to mini_cookie2.php</a>
 </body>
 </html>

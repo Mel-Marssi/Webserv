@@ -216,7 +216,6 @@ void Request::fill_content_type()
     
 }
 
-
 void Request::create_file(std::ofstream& outputFile,   std::map<std::string, std::string>& map, servers &config, int index)
 {
  
@@ -417,7 +416,7 @@ void Request::boundar(servers &config, int index)
             size_t position_int = fir_body.find("\r\n\r\n"); 
            
                 std::string boundary = fir_body.substr(0, position_int);
-                cout << boundary << endl;
+                // cout << boundary << endl;
                 string filename_content = boundary.substr(boundary.find("name=\""));
                 string l = filename_content.substr(6, filename_content.length());
                 string filename = filename_content.substr(6,l.find("\""));
@@ -437,7 +436,7 @@ void Request::boundar(servers &config, int index)
                     fir_body = fir_body.substr(found);
                     if (fir_body.substr(0, fir_body.length() - 2) == last_boundri)
                     {
-                        cout << "NONO\n";
+                        // cout << "NONO\n";
                         finir = 1;
                     }
                     else
@@ -506,15 +505,15 @@ void Request::boundaries(servers &config, int index, int fd,epoll_event &event)
                         return;
                     }
                     std::string boundary = read_request.substr(0, position_int);
-                    cout << "/////////////////////////////////////////////\n";
-                    cout << read_request<<"\n";
+                    // cout << "/////////////////////////////////////////////\n";
+                    // cout << read_request<<"\n";
                     if (boundary.find("name=\"") == string::npos)
                      {
                         fake_bondary = read_request.substr(position_int + 4);
                         return;
                     }   
                     string filename_content = boundary.substr(boundary.find("name=\""));
-                    cout << "ANA\n";
+                    // cout << "ANA\n";
                     string l = filename_content.substr(6, filename_content.length());
                     string filename = filename_content.substr(6,l.find("\""));
                     string Content= "NULL";

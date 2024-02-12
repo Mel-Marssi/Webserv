@@ -3,13 +3,46 @@
 #include "request.hpp"
 #include "../cgi-bin/cgi_handler.hpp"
 
+unsigned long ft_inet_addr(const char *str)
+{
+	unsigned long addr = 0;
+	int i = 0;
+	unsigned long byteValue[4];
+	int shift = 24;
+	int byteCount = 0;
+	stringstream ss(str);
+	string byteStr;
+
+	while (getline(ss, byteStr, '.'))
+	{
+		byteValue[i] = atoi(byteStr.c_str());
+		if (byteValue[i] < 0 || byteValue[i] > 255)
+		{
+			throw(runtime_error("Invalid IP address format"));
+		}
+		byteCount++;
+		i++;
+	}
+	if (byteCount != 4)
+	{
+		throw(runtime_error("Invalid IP address format not IPv4 format"));
+	}
+	i = 3;
+	while (shift >= 0)
+	{
+		addr += byteValue[i] << shift;
+		shift -= 8;
+		i--;
+	}
+	return addr;
+}
 multiplexing::multiplexing(servers &config)
 {
 	int server_socket[config.size()];
 	struct sockaddr_in adress;
 	int wait_fd, set_socket = 1;
 	int fd_client;
-	int epoll_fd = epoll_create(1);
+	int epoll_fd = epoll_create(1024);
 	if (epoll_fd < 0)
 		throw(runtime_error("epoll_create() call failed!"));
 	struct epoll_event event, event_wait[1024];
@@ -19,7 +52,7 @@ multiplexing::multiplexing(servers &config)
 		stringstream int_to_string;
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw(runtime_error("socket() call failed!"));
-		adress.sin_addr.s_addr = inet_addr(config[i].get_host().c_str());
+		adress.sin_addr.s_addr = ft_inet_addr(config[i].get_host().c_str());
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
 		int_to_string << config[i].get_port();
@@ -32,7 +65,7 @@ multiplexing::multiplexing(servers &config)
 		if (listen(server_socket[i], 0) < 0)
 			throw(runtime_error("listen() call failed!"));
 		event.data.fd = server_socket[i];
-		event.events = EPOLLIN | EPOLLOUT | EPOLLERR;
+		event.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket[i], &event) < 0)
 			throw(runtime_error("epoll_ctl() call failed!"));
 	}
@@ -55,21 +88,36 @@ multiplexing::multiplexing(servers &config)
 					continue;
 				}
 				event.data.fd = fd_client;
-				event.events = EPOLLIN | EPOLLOUT | EPOLLERR;
+				event.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
 				server_book[fd_client] = server_book[event_fd];
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
-				request.insert(std::make_pair(fd_client, Request(server_book, fd_client)));
+				request.insert(make_pair(fd_client, Request(server_book, fd_client)));
 				request[fd_client].startTime = clock();
 				request[fd_client].fd_request = fd_client;
-				//find what server in working with
-				// request[event_fd]._port = server_book[event_fd].first;
-				// request[event_fd]._host = server_book[event_fd].second;
+				// find what server in working with
+				//  request[event_fd]._port = server_book[event_fd].first;
+				//  request[event_fd]._host = server_book[event_fd].second;
 			}
 			else
 			{
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
+				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR ||event_wait[i].events & EPOLLHUP)
+				{
+					// request[event_fd].error_page(event_wait[i], "500", config);
+					cout << "error\n";
+					cout << request[event_fd].pid <<endl;
+					kill(request[event_fd].pid, SIGKILL);
+					close(event_fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+					map<int, Request>::iterator it = request.find(event_fd);
+					if (it != request.end())
+						request.erase(it);
+					request[event_fd].outputFile.close();
+					continue;
+				}
+
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
 					char buff[1024];
@@ -83,7 +131,6 @@ multiplexing::multiplexing(servers &config)
 						request[event_fd].read_request.append(buff, request[event_fd].size);
 						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
 					}
-					// cout << request[event_fd].read_request << endl;
 					if (request[event_fd].check_left_header == 0)
 					{
 						continue;
@@ -96,7 +143,7 @@ multiplexing::multiplexing(servers &config)
 					}
 				}
 
-				if (request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN))
+				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{
 
 					request[fd_client].startTime = clock();
@@ -111,15 +158,11 @@ multiplexing::multiplexing(servers &config)
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
 					request[fd_client].startTime = clock();
-					request[event_fd]._port = server_book[event_fd].first;
-					request[event_fd]._host = server_book[event_fd].second;
-					request[event_fd].event_fd = event_fd;
 
+					
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
-					{
 						flg_remv = 1;
-					}
 				}
 				else if (request[event_fd].methode == "DELETE")
 				{
@@ -129,6 +172,7 @@ multiplexing::multiplexing(servers &config)
 					request[event_fd].response_for_delete(event_wait[i]);
 					flg_remv = 1;
 				}
+
 				if (request[event_fd].methode == "NONE" || request[event_fd].methode == "HEAD")
 				{
 					request[event_fd].error_page(event_wait[i], "501", config);
@@ -182,7 +226,7 @@ multiplexing::multiplexing(servers &config)
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 
-						std::map<int, Request>::iterator it = request.find(event_fd);
+						map<int, Request>::iterator it = request.find(event_fd);
 						if (it != request.end())
 							request.erase(it);
 						request[event_fd].outputFile.close();
@@ -195,7 +239,7 @@ multiplexing::multiplexing(servers &config)
 				// cout << request[event_fd].zompie << endl;
 				close(event_fd);
 				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-				std::map<int, Request>::iterator it = request.find(event_fd);
+				map<int, Request>::iterator it = request.find(event_fd);
 				if (it != request.end())
 					request.erase(it);
 				request[event_fd].outputFile.close();
@@ -208,9 +252,9 @@ multiplexing::multiplexing(servers &config)
 
 				if ((endTime - request[event_fd].startTime) / CLOCKS_PER_SEC >= 8)
 				{
-				cout << "sss\n";
+					// cout << "sss\n";
 					request[event_fd].error_page(event_wait[i], "504", config);
-				cout << "888\n";
+					// cout << "888\n";
 					close(request[event_fd].fd_request);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					request.erase(event_fd);
