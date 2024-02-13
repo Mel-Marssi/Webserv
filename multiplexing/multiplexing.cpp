@@ -103,11 +103,8 @@ multiplexing::multiplexing(servers &config)
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
-				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR ||event_wait[i].events & EPOLLHUP)
+				if (event_wait[i].events & EPOLLRDHUP)
 				{
-					// request[event_fd].error_page(event_wait[i], "500", config);
-					cout << "error\n";
-					cout << request[event_fd].pid <<endl;
 					kill(request[event_fd].pid, SIGKILL);
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -152,13 +149,12 @@ multiplexing::multiplexing(servers &config)
 
 					request[event_fd].post(event_fd, config, event_wait[i]);
 					request[event_fd].check_read_get = 1;
-
-					// request[event_fd].read_request.clear();
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
 					request[fd_client].startTime = clock();
-
+					request[event_fd]._port = server_book[event_fd].first;
+					request[event_fd]._host = server_book[event_fd].second;
 					
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
@@ -179,18 +175,18 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
-				if (request[fd_client].cgi_post == true)
+				if (request[event_fd].cgi_post == true)
 				{
 					string head;
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
 					// head += request[fd_client].path_post;
 					size_t i = 0;
-					i = request[fd_client].path_post.find("/", 1);
+					i = request[event_fd].path_post.find("/", 1);
 					string ff;
 					if (i != string::npos)
 					{
-						ff.insert(0, request[fd_client].path_post, i + 1, request[fd_client].path_post.length());
+						ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
 					}
 					head += ff;
 					head += "\r\n\r\n";

@@ -19,6 +19,12 @@ void php_cgi(Request &req, server_config &config)
 		{
 			file = req.full_Path ;//"./cgi-bin/" +req.file_get;
 			tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
+			// cout << "----------------------\n";
+			// cout << req.file_get << endl;
+			// cout << req.Path << endl;
+			// cout << req.full_Path << endl;
+			// cout << tmp << endl;
+			// cout << "----------------------\n";
 			if (tmp == "")
 			{
 				req.cgi_file = req.full_Path;

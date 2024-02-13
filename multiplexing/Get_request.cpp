@@ -74,8 +74,12 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     if (check_body_get(event) == 1)
         return ;
 
-    if (this->parse_url_prot("GET", config) == 1)
-        return ;
+    if (flg_pars_url == 0)
+    {
+        cout << "-------------------\n";
+        if (this->parse_url_prot("GET", config) == 1)
+            return ;
+    }
 
     string root = get_root(config);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
@@ -112,8 +116,12 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         {
             string str = this->Path;
             if (str[0] == '/' && root[root.length() - 1] == '/')
-                str.erase(root.length() - 1, root.length());
+                root.erase(root.length() - 1, root.length());
             close_dir();
+            cout << "==========\n";
+            cout << root  << endl;
+            cout << str << endl;
+            cout << "==========\n";
             dire = opendir((root + str).c_str());
             if (dire)
             {
@@ -135,6 +143,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     // update changes
                     if (this->Path.find("cgi") != string::npos)
                     {
+                        // cout << file_get << endl;
+                        // cout << Path << endl;
+                        cout << full_Path << endl;
                         find_cgi(config, index_serv);
                     }
                     else
@@ -156,6 +167,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     else
         status_pro = "404";
     close_dir();
+    check_req = 1;
 }
 
 void Request::Generate_req_second(epoll_event &event)
@@ -222,30 +234,15 @@ void Request::Generate_req_second(epoll_event &event)
         stringstream size;
         size_t len;
         string str;
-        // if (con_type.find("text") != string::npos)
-        // {
-        //     len = strlen(line.c_str());
-        //     size << std::hex << len;
-        //     str += size.str();
-        //     str += "\r\n";
-        //     str += line;
-        //     str += "\r\n";
-        //     len = strlen(str.c_str());
-        //     send(event.data.fd, str.c_str(), len, 0);
-        // }
-        // else
-        // {
-            len = line.length();
-            size << std::hex << len;
-            str += size.str();
-            str += "\r\n";
-            str += line;
-            str += "\r\n";
-            len = str.length();
-            // cout << len << endl;
+        len = line.length();
+        size << std::hex << len;
+        str += size.str();
+        str += "\r\n";
+        str += line;
+        str += "\r\n";
+        len = str.length();
 
-            send(event.data.fd, str.c_str(), len, 0);
-        // }
+        send(event.data.fd, str.c_str(), len, 0);
         line = "";
         if (op_cgi.eof())
             end_of_file(event);

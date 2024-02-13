@@ -6,6 +6,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
     (void)server_book;
     (void)fd_client;
+    flg_pars_url = 0;
     startTime = 0;
     size_chuked = 0;
     read_get = 0;
@@ -49,6 +50,7 @@ Request::Request(const Request& obj)
 {
     cgi_post = false;
     Path = "";
+    flg_pars_url = 0;
     startTime = 0;
     file_get = "";
     rest = 0;
@@ -637,7 +639,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                         {
                             outputFile << read_request.find("10000") << endl;
                           //cout << "3333333333\n";
-                            exit(4);
+                            // exit(4);
                         }
                         std::string num = read_request.substr(0, position_int);
                         read_request = read_request.substr(position_int + 2, size);

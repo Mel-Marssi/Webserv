@@ -55,16 +55,12 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
     if (check_req == 0 && read_get == 1)
     {
         Generate_req_first(event, config, m);
-        cgi_handle_get(event, config);
-        // cout << "------------------------\n";
+        flg_pars_url = 1;
     }
-    else if (check_req == 1)
-    {
-        // cout << "===================\n";
+    else if (check_req == 1 && Path != "/cgi-bin")
         Generate_req_second(event);
-        flg_send = 1;
-    }
-
+    else if (Path == "/cgi-bin")
+        cgi_handle_get(event, config);
     read_get = 1;
 }
 

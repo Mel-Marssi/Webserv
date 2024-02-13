@@ -168,11 +168,11 @@ class Request
         string enco_form_txt(string str);
         void read_buuf_for_get(epoll_event &event);
         int check_body_get(epoll_event &event);
-        int flg_send;
         void check_files_open(epoll_event &event, map<string, string> m, string str);
         void Get_methode(servers &config, epoll_event &event, map<string, string> &m);
         void redirection_content(epoll_event &event, servers &config, string str, int flg);
         string get_root(servers &config);
         int delete_checker(servers &config);
         void handle_Path(size_t i);
+        int flg_pars_url;
 };

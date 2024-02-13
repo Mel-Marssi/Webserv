@@ -35,15 +35,16 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			get_to_cgi = false;
 			if (op_cgi.is_open())
 			{
-
 				read_for_send(event, cont_type, 1);
 				if (op_cgi.eof())
 				{
 					end_of_file(event);
+					return ;
 				}
-			}
+			}//check if the file not open
 		}
 	}
+	check_req = 1;
 }
 
 void Request::find_cgi(servers &config, int index)
@@ -51,6 +52,9 @@ void Request::find_cgi(servers &config, int index)
 	if (cgi_file.empty() == true && get_to_cgi == false)
 	{
 		php_cgi(*this, config[index]);
+		// cout << "----------------------\n";
+		// cout << cgi_file << endl;
+		// cout << "----------------------\n";
 		op_cgi.open(cgi_file.c_str());
 	}
 }
