@@ -105,6 +105,8 @@ multiplexing::multiplexing(servers &config)
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP)
 				{
+					cout << "EPOLLRDHUP\n";
+					cout << request[event_fd].pid << endl;
 					kill(request[event_fd].pid, SIGKILL);
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -155,7 +157,7 @@ multiplexing::multiplexing(servers &config)
 					request[fd_client].startTime = clock();
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd]._host = server_book[event_fd].second;
-					
+					cout << "GET\n";
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;

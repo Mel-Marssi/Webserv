@@ -173,9 +173,13 @@ location::location(ifstream &config_fd, string word_serv)
 			cscan >> word;
 			check_size_t(word.c_str(), "Invalid location!");
 			stringstream convert(word);
+			ostringstream checks;
 			convert >> max_client_size;
+			checks << max_client_size;
+			if (word != checks.str())
+				throw(runtime_error("Invalid location!"));
 			cscan >> word;
-			if (max_client_size == 0 || word != ";")
+			if (max_client_size == 0 || word != ";" )
 				throw(runtime_error("Invalid configue file!"));
 		}
 		else if (word == "allow_upload")
@@ -228,6 +232,7 @@ location::location(ifstream &config_fd, string word_serv)
 	if (word != "}" || (uploads_folder.empty() && _allow_upload == true))
 		throw runtime_error("Invalid location!");
 }
+
 void check_size_t(const char *av, const char *message)
 {
 	for (int i = 0; i < (int)strlen(av); i++)

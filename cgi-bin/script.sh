@@ -1,6 +1,5 @@
 #!/bin/bash
 
-while(true) do "" ; done ;
 echo -e "HTTP/1.1 200 ok\r\nContent-Length: 146\r\nContent-Type: text/html\r\n\r\n"
 echo "<!DOCTYPE html>" ;
 echo "<html>";

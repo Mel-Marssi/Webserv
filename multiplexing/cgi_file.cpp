@@ -9,13 +9,11 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 	{
 		int out;
 		struct timeval end;
-		//  start = clock();
 		if ((out = waitpid(pid, &status, WNOHANG)) == 0)
 		{
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec) - (start_cgi.tv_sec)));
-			// cout << fixed  << timeOut << endl;
 			if (timeOut >= 30)
 			{
 				// cout << fixed << timeOut << endl;
@@ -23,13 +21,13 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 				error_page(event, "504", config);
 			}
 		}
-		// else if ( WEXITSTATUS(status) != 0 && pid != 0)
-		// {
-		// 	// cout << "CGI ERROR" << endl;
-		// 	// cout << pid << endl;
-		// 	// cout << WEXITSTATUS(status) << endl;
-		// 	error_page(event, "500", config);
-		// }
+		else if (WEXITSTATUS(status) != 0 && pid != 0)
+		{
+			cout << "CGI ERROR" << endl;
+			cout << pid << endl;
+			cout << WEXITSTATUS(status) << endl;
+			error_page(event, "500", config);
+		}
 		else
 		{
 			get_to_cgi = false;

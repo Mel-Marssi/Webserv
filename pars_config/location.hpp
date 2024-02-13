@@ -1,6 +1,9 @@
 #pragma once
 #include "server_config.hpp"
 #include <sstream>
+#include <limits>
+#include <cstddef>
+
 
 using namespace std;
 class location

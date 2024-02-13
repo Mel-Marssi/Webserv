@@ -76,7 +76,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
 
     if (flg_pars_url == 0)
     {
-        cout << "-------------------\n";
         if (this->parse_url_prot("GET", config) == 1)
             return ;
     }
@@ -118,10 +117,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             if (str[0] == '/' && root[root.length() - 1] == '/')
                 root.erase(root.length() - 1, root.length());
             close_dir();
-            cout << "==========\n";
-            cout << root  << endl;
-            cout << str << endl;
-            cout << "==========\n";
             dire = opendir((root + str).c_str());
             if (dire)
             {
@@ -140,12 +135,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 }
                 else if ((file_get != ""))
                 {
-                    // update changes
                     if (this->Path.find("cgi") != string::npos)
                     {
-                        // cout << file_get << endl;
-                        // cout << Path << endl;
-                        cout << full_Path << endl;
                         find_cgi(config, index_serv);
                     }
                     else

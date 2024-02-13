@@ -3,12 +3,18 @@
 
 int main(int ac , char **av)
 {
-	(void)av;(void)ac;
-	string tmp;
-	tmp = "pars_config/config.file";
+	string config_file;
+	if (ac == 2)
+	{
+		config_file = (av[1]);
+	}
+	else
+	{
+		config_file = ("pars_config/config.file");
+	}
 	try
 	{
-		servers configs(tmp);
+		servers configs(config_file);
 		multiplexing tmp(configs);
 	}
 	catch(const std::exception& e)
