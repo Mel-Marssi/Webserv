@@ -53,7 +53,7 @@ void Request::find_cgi(servers &config, int index)
 {
 	if (cgi_file.empty() == true && get_to_cgi == false)
 	{
-		php_cgi(*this, config[index]);
+		execute_cgi(*this, config[index]);
 		// cout << "----------------------\n";
 		// cout << cgi_file << endl;
 		// cout << "----------------------\n";

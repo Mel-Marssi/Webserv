@@ -7,9 +7,8 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 	return (cgi_exec_path[extention]);
 }
 
-void php_cgi(Request &req, server_config &config)
+void execute_cgi(Request &req, server_config &config)
 {
-	cout << "php_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	try
