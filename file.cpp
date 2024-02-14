@@ -18,11 +18,19 @@ using namespace std;
 
 int main()
 {
-	ifstream file("./fich.pdf");
-	if (file.is_open())
+	sockaddr_in server;
+	try
 	{
-		cout << "open" << endl;
+		int fd_socket = socket(AF_INET, SOCK_STREAM, 0);
+		if (fd_socket < 0)
+			perror("socket() call failed");
+		server.sin_family = AF_INET;
+		
+		int binf_fd = bind()
+
 	}
-	else
-		cout << "not open" << endl;
+	catch (...)
+	{
+		// cerr << e.what() << endl;
+	}
 }

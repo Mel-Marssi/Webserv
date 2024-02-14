@@ -165,6 +165,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     {
         if ((read_request[check_body] != '\r' || read_request[check_body + 1] != '\n' || read_request[check_body + 2] != '\r' || read_request[check_body + 3] != '\n'))
         {
+
             status_pro = "400";
         }
         check_left_header = 1;
@@ -586,8 +587,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
 {
     std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
     std::map<std::string, std::string>::iterator itC = header_request.find("Content-Type");
-
-    if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0) && status_pro != "NULL")
+// cout << atol(header_request["Content-Length"].c_str()) << endl;
+  
+    if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0 || (event.events & EPOLLIN)) && status_pro != "NULL")
     {
         size_read_request = 0;
         err = 0;
@@ -606,8 +608,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             finir = 1;
         }
-        else if (it == header_request.end() && header_request["Content-Type"].find("multipart/form-data") == string::npos && size_body_get >= (size_t)atol(header_request["Content-Length"].c_str()))
+        else if (header_request["Transfer-Encoding"] != "chunked\r"  && header_request["Content-Type"].find("multipart/form-data") == string::npos && size_body_get >= (size_t)atol(header_request["Content-Length"].c_str()))
         {
+            cout << "ahaaaaaaaaaaaa\n";
             finir = 1;
         }
         else if (header_request["Content-Type"].find("multipart/form-data") != string::npos && read_request.find(last_boundri) != string::npos) // chof test lia kayn f postman boundries
@@ -625,30 +628,26 @@ void Request::post(int fd, servers &config, epoll_event &event)
     if (check_read_get == 0)
     {
         this->parse_url_prot("POST", config);
+        string content = header_request["Content-Type"];
+        size_t si = content.find("multipart/form-data");
         if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
         {
             type = "chunked";
-            return;
+            // return;
         }
-        string content = header_request["Content-Type"];
-        size_t si = content.find("multipart/form-data");
-
-        // exit(1);
-        if (si != string::npos)
+        else if (si != string::npos)
         {
             type = "boundri";
-            return;
+            // return;
         }
-
-        type = "binary";
+        else
+         type = "binary";
     }
 
     if (type == "chunked")
     {
-        // cout << "lll\n";
         if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked))
         {
-            // cout << "papapapapapdpa\n";
             outputFile.close();
             size_read_request = 0;
             finir = 0;
@@ -793,6 +792,8 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request))
             {
+            cout << "kddk\n";
+
                 outputFile.close();
                 size_read_request = 0;
                 finir = 0;
