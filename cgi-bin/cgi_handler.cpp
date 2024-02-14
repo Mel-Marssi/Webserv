@@ -9,6 +9,7 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void php_cgi(Request &req, server_config &config)
 {
+	cout << "php_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	try
@@ -45,7 +46,7 @@ void php_cgi(Request &req, server_config &config)
 
 	string tmp_file = "/tmp/_" + to_s.str();
 	req.cgi_file = tmp_file;
-	int fd[2];
+	int fd[2], fd_error;
 
 	char **env = new char *[cgi.CGI_BOOK.size() + 1];
 	map<string, string>::iterator it = cgi.CGI_BOOK.begin();
@@ -63,14 +64,17 @@ void php_cgi(Request &req, server_config &config)
 
 	fd[0] = open(file.c_str(), O_RDONLY);
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
+	fd_error = open("./errors/error.log", O_CREAT | O_RDWR | O_TRUNC, 0777);
 	gettimeofday(&req.start_cgi, NULL);
 	req.pid = fork();
 	if (req.pid == 0)
 	{
 		dup2(fd[0], 0);
 		dup2(fd[1], 1);
+		dup2(fd_error, 2);
 		close(fd[0]);
 		close(fd[1]);
+		close(fd_error);
 		execve(argv[0], argv, env);
 		cerr << "error execve" << endl;
 		for (int i = 0; env[i]; i++)
@@ -80,6 +84,7 @@ void php_cgi(Request &req, server_config &config)
 	}
 	close(fd[0]);
 	close(fd[1]);
+	close(fd_error);
 	for (int i = 0; env[i]; i++)
 		delete[] env[i];
 	delete[] env;

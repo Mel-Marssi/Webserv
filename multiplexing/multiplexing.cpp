@@ -107,7 +107,8 @@ multiplexing::multiplexing(servers &config)
 				{
 					cout << "EPOLLRDHUP\n";
 					cout << request[event_fd].pid << endl;
-					kill(request[event_fd].pid, SIGKILL);
+					if (request[event_fd].pid != 0)
+						kill(request[event_fd].pid, SIGKILL);
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					map<int, Request>::iterator it = request.find(event_fd);
@@ -157,7 +158,9 @@ multiplexing::multiplexing(servers &config)
 					request[fd_client].startTime = clock();
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd]._host = server_book[event_fd].second;
-					cout << "GET\n";
+					// cout << "GET\n";
+					cout << request[event_fd].check_req << endl;
+					cout << request[event_fd].Path << endl;
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;
@@ -235,6 +238,7 @@ multiplexing::multiplexing(servers &config)
 			if (flg_remv == 1)
 			{
 				// cout << request[event_fd].zompie << endl;
+				cout << "================\n";
 				close(event_fd);
 				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 				map<int, Request>::iterator it = request.find(event_fd);
@@ -250,7 +254,7 @@ multiplexing::multiplexing(servers &config)
 
 				if ((endTime - request[event_fd].startTime) / CLOCKS_PER_SEC >= 8)
 				{
-					// cout << "sss\n";
+					cout << "sss\n";
 					request[event_fd].error_page(event_wait[i], "504", config);
 					// cout << "888\n";
 					close(request[event_fd].fd_request);

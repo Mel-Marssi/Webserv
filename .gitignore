@@ -2,3 +2,4 @@
 .vscode
 ./hamza
 *.x
+*.log

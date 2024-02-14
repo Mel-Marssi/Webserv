@@ -4,6 +4,7 @@
 void Request::cgi_handle_get(epoll_event &event, servers &config)
 {
 	int status;
+	(void)config;
 
 	if (Path.find("cgi") != std::string::npos)
 	{
@@ -14,11 +15,13 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec) - (start_cgi.tv_sec)));
-			if (timeOut >= 30)
+			if (timeOut >= 5)
 			{
 				// cout << fixed << timeOut << endl;
-				kill(pid, SIGKILL);
-				error_page(event, "504", config);
+				if (pid != 0)
+					kill(pid, SIGKILL);
+				// error_page(event, "504", config);
+				status_pro = "504";
 			}
 		}
 		else if (WEXITSTATUS(status) != 0 && pid != 0)
@@ -26,7 +29,8 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			cout << "CGI ERROR" << endl;
 			cout << pid << endl;
 			cout << WEXITSTATUS(status) << endl;
-			error_page(event, "500", config);
+			// error_page(event, "500", config);
+			status_pro = "500";
 		}
 		else
 		{
