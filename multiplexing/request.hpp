@@ -39,9 +39,12 @@ class Request
     public:
         bool cgi_post;
         int fd_cgi;
+        int flg_pars_url ;
         int kk;
         int zompie;
         struct timeval start_cgi;
+         struct timeval startTime;
+
         string _host, _port;
         bool get_to_cgi;
         std::string methode;
@@ -50,11 +53,11 @@ class Request
         std::string read_request;
         string first_line_reque;
         int size_read;
-        int size_read_request;
+        size_t size_read_request;
         int size ;
         int total;
         int rest;
-        long size_request;
+        size_t size_request;
         int check_left_header;
         int check_create_file;
         int size_chunked;
@@ -64,6 +67,9 @@ class Request
         int err;
         int wait;
         int last;
+        std::vector<string> files;
+        size_t size_File_boundri;
+        string type;
         string file_name_post;
         string fake_bondary;
         string boudri;
@@ -99,7 +105,7 @@ class Request
         //==========GET==========================
         
         string Path;
-        int size_body_get;
+        size_t size_body_get;
         int check_read_get;
         string status_pro;
         string file_get;
@@ -133,7 +139,6 @@ class Request
         void end_of_file(epoll_event &event);
         void close_dir();
         std::string read_buff_cgi(map<string, string> &m);
-         clock_t startTime;
         string fin_or_still;
         size_t check_first_time;
         int check_req;
@@ -168,11 +173,11 @@ class Request
         string enco_form_txt(string str);
         void read_buuf_for_get(epoll_event &event);
         int check_body_get(epoll_event &event);
+        int flg_send;
         void check_files_open(epoll_event &event, map<string, string> m, string str);
         void Get_methode(servers &config, epoll_event &event, map<string, string> &m);
         void redirection_content(epoll_event &event, servers &config, string str, int flg);
         string get_root(servers &config);
         int delete_checker(servers &config);
         void handle_Path(size_t i);
-        int flg_pars_url;
 };

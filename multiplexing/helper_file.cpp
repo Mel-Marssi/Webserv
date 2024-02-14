@@ -3,7 +3,7 @@
 
 int Request::check_body_get(epoll_event &event)
 {
-    if (((atol(header_request["Content-Length"].c_str()) > 0) && size_body_get < atol(header_request["Content-Length"].c_str())))
+    if (((atol(header_request["Content-Length"].c_str()) > 0) && size_body_get < (size_t)atol(header_request["Content-Length"].c_str())))
     {
         size_read_request = -9;
         err = 0;

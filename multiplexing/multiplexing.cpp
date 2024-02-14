@@ -92,7 +92,7 @@ multiplexing::multiplexing(servers &config)
 				server_book[fd_client] = server_book[event_fd];
 				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
 				request.insert(make_pair(fd_client, Request(server_book, fd_client)));
-				request[fd_client].startTime = clock();
+				gettimeofday(&request[fd_client].startTime, NULL);
 				request[fd_client].fd_request = fd_client;
 				// find what server in working with
 				//  request[event_fd]._port = server_book[event_fd].first;
@@ -123,7 +123,7 @@ multiplexing::multiplexing(servers &config)
 					char buff[1024];
 					request[event_fd].size = 0;
 					request[event_fd].size = read(event_fd, buff, 1024);
-					request[event_fd].startTime = clock();
+					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd].size_read_request += request[event_fd].size;
 
 					if (request[event_fd].size != -1)
@@ -146,7 +146,7 @@ multiplexing::multiplexing(servers &config)
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{
 
-					request[fd_client].startTime = clock();
+					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd]._host = server_book[event_fd].second;
 
@@ -155,19 +155,19 @@ multiplexing::multiplexing(servers &config)
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
-					request[fd_client].startTime = clock();
+					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd]._host = server_book[event_fd].second;
 					// cout << "GET\n";
-					cout << request[event_fd].check_req << endl;
-					cout << request[event_fd].Path << endl;
+					// cout << request[event_fd].check_req << endl;
+					// cout << request[event_fd].Path << endl;
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;
 				}
 				else if (request[event_fd].methode == "DELETE")
 				{
-					request[fd_client].startTime = clock();
+					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd].epoll_fd_tmp = epoll_fd;
 					request[event_fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
 					request[event_fd].response_for_delete(event_wait[i]);
@@ -200,14 +200,18 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
-				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].size_request <= request[event_fd].size_read_request) || request[event_fd].finir == 1 || request[event_fd].err == 1)) // ||request[event_fd].size_request < request[event_fd].size_read_request || request[event_fd].finir == 1 || request[event_fd].err == 1))
+				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) // ||request[event_fd].size_request < request[event_fd].size_read_request || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
+
 					// if (request[event_fd].size_chuked == )
-					request[fd_client].startTime = clock();
+					// cout << request[event_fd].err  << " " << request[event_fd].finir << " " << request[event_fd].size_read_request<<" kakakak\n";
+					// request[fd_client].startTime = clock();
+					gettimeofday(&request[event_fd].startTime, NULL);
+
 					if (request[event_fd].status_pro != "NULL")
 					{
 						flg_remv = 1;
-						request[event_fd].error_page(event, request[event_fd].status_pro, config);
+						request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 					}
 					else if (request[event_fd].methode == "POST")
 					{
@@ -227,45 +231,44 @@ multiplexing::multiplexing(servers &config)
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 
-						map<int, Request>::iterator it = request.find(event_fd);
+						std::map<int, Request>::iterator it = request.find(event_fd);
 						if (it != request.end())
 							request.erase(it);
 						request[event_fd].outputFile.close();
 						flg_remv = 0;
+						continue;
 					}
 				}
-			}
-			if (flg_remv == 1)
-			{
-				// cout << request[event_fd].zompie << endl;
-				cout << "================\n";
-				close(event_fd);
-				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-				map<int, Request>::iterator it = request.find(event_fd);
-				if (it != request.end())
-					request.erase(it);
-				request[event_fd].outputFile.close();
-				flg_remv = 0;
-			}
-			else if (request[event_fd].startTime > 0)
-			{
-				// cout <<request[event_fd].startTime  << " " << event_fd << " " << event_wait[i].data.fd << endl;
-				clock_t endTime = clock();
-
-				if ((endTime - request[event_fd].startTime) / CLOCKS_PER_SEC >= 8)
+				if (flg_remv == 1)
 				{
-					cout << "sss\n";
-					request[event_fd].error_page(event_wait[i], "504", config);
-					// cout << "888\n";
-					close(request[event_fd].fd_request);
+					// cout << request[event_fd].zompie << endl;
+					// cout << "================\n";
+					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					request.erase(event_fd);
+					map<int, Request>::iterator it = request.find(event_fd);
+					if (it != request.end())
+						request.erase(it);
+					request[event_fd].outputFile.close();
+					flg_remv = 0;
 				}
 			}
+				if (event_fd > server_socket[config.size() - 1])
+				{
+					struct timeval end;
+					gettimeofday(&end, NULL);
+					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
+					if ((timeOut >= 8))
+					{
+						cout << event_fd << " " << request[event_fd].startTime.tv_sec << endl;
+						request[event_fd].error_page(event_wait[i], "504", config);
+						close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+						request.erase(event_fd);
+					}
+				}
 		}
 	}
 }
-
-multiplexing::~multiplexing()
-{
-}
+	multiplexing::~multiplexing()
+	{
+	}
