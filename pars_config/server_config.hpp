@@ -37,6 +37,7 @@ class server_config
 	public:
 		map<int, string> _error_book;
 		server_config(ifstream &config_fd);
+		void setup_server_info(ifstream &config_fd);
 		// void error_book();
 		int get_port();
 		bool get_server_auto_index();

@@ -82,16 +82,20 @@ location::~location()
 
 location::location(ifstream &config_fd, string word_serv)
 {
-	string file, word;
-	_get = _post = _auto_index = _delete = _allow_upload = false;
 	if (word_serv == "location" || word_serv == "{")
 		throw(runtime_error("Invalide configue file!"));
-	// path_location = word_serv;
+	_get = _post = _auto_index = _delete = _allow_upload = false;
 	index = "";
 	root = "";
 	redirection = "";
 	uploads_folder = "";
 	max_client_size = 0;
+	this->setup_location(config_fd);
+}
+
+void location::setup_location(ifstream &config_fd)
+{
+	string file, word;
 	while (getline(config_fd, file))
 	{
 		if (file.find(";") != string::npos)
@@ -179,7 +183,7 @@ location::location(ifstream &config_fd, string word_serv)
 			if (word != checks.str())
 				throw(runtime_error("Invalid location!"));
 			cscan >> word;
-			if (max_client_size == 0 || word != ";" )
+			if (max_client_size == 0 || word != ";")
 				throw(runtime_error("Invalid configue file!"));
 		}
 		else if (word == "allow_upload")

@@ -36,16 +36,19 @@ int check_error_code(const char *av, const char *message)
 
 server_config::server_config(ifstream &config_fd)
 {
-	string file, word;
-	// int fd_tmp;
-	int flag = 0;
 	this->port = -1;
 	host = "";
 	root = "";
 	server_name = "";
 	index = "";
 	server_auto_index = false;
-	// error_book();
+	this->setup_server_info(config_fd);
+}
+
+void server_config::setup_server_info(ifstream &config_fd)
+{
+	string file, word;
+	int flag = 0;
 	while (getline(config_fd, file))
 	{
 		if (file.find(";") != string::npos)
@@ -125,7 +128,6 @@ server_config::server_config(ifstream &config_fd)
 			if (serv_locations.find(word) != serv_locations.end())
 				throw(runtime_error("Invalid configue file!"));
 			serv_locations.insert(std::make_pair(word, location(config_fd, word)));
-			// this->serv_locations.push_back(_locations[word]);
 			word.erase();
 			file.erase();
 		}
@@ -159,23 +161,7 @@ server_config::server_config(ifstream &config_fd)
 		else if (!word.empty())
 			throw runtime_error("Invalid configue file!");
 	}
-	// error_book_iterator it =  _error_book.begin();
-	// for(; it != _error_book.end(); it++)
-	// 	cout << it->first <<" "<<it->second<<endl;
-	// cout << "-----------------------------------------------------------" <<endl;
-	// cout << "Port : " <<  port << "\n";
-	// cout << "server name: " << server_name << "\n" <<host << "\n";
-	// cout << "root: " << root << "\n";
-	// cout << "auto index : " << server_auto_index << "\n";
-	// cout << "index: " << index <<endl;
-	// for(int i = 0; i < (int)serv_locations.size();i++)
-	// {
-	// 	cout << serv_locations[i] <<endl;
-	// }
-
-	// cout << "-----------------------------------------------------------" <<endl;
 }
-
 bool server_config::get_loc_delete(const string &name)
 {
 	if (serv_locations.find(name) != serv_locations.end())

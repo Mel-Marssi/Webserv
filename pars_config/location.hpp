@@ -26,6 +26,7 @@ private:
 public:
 	location();
 	location(ifstream &config_fd, string word_serv);
+	void setup_location(ifstream &config_fd);
 	size_t get_max_client_size() const;
 	bool get_delete() const;
 	bool get_post() const;
