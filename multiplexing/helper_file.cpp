@@ -54,7 +54,6 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
 {
     if (check_req == 0 && read_get == 1)
     {
-        cout << "-----------------------\n";
         Generate_req_first(event, config, m);
         flg_pars_url = 1;
     }

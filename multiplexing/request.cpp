@@ -473,7 +473,6 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
             std::remove((*itt).c_str());
         status_pro = "413";
         fake_bondary = "NULL";
-        cout << "AA\n";
         return;
     }
     if (acces_read_in_post == 1)
@@ -561,7 +560,6 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
                 std::remove((*itt).c_str());
             status_pro = "413";
             fake_bondary = "NULL";
-            cout << "55\n";
             return;
         }
         return;
@@ -580,7 +578,6 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
             std::remove((*itt).c_str());
         status_pro = "413";
         fake_bondary = "NULL";
-        cout << "9898\n";
         return;
     }
 }
@@ -607,17 +604,14 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         if (header_request["Transfer-Encoding"] == "chunked\r" && read_request.find("\r\n0\r\n\r\n") != string::npos)
         {
-            cout << "89898\n";
             finir = 1;
         }
         else if (it == header_request.end() && header_request["Content-Type"].find("multipart/form-data") == string::npos && size_body_get >= (size_t)atol(header_request["Content-Length"].c_str()))
         {
-            cout << "lplp\n";
             finir = 1;
         }
         else if (header_request["Content-Type"].find("multipart/form-data") != string::npos && read_request.find(last_boundri) != string::npos) // chof test lia kayn f postman boundries
         {
-            cout << "PAPA\n";
             finir = 1;
         }
 
@@ -647,7 +641,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
 
         type = "binary";
-        cout << type << endl;
     }
 
     if (type == "chunked")
@@ -800,7 +793,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request))
             {
-                cout << "palpal\n";
                 outputFile.close();
                 size_read_request = 0;
                 finir = 0;

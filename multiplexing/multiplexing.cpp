@@ -105,8 +105,7 @@ multiplexing::multiplexing(servers &config)
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP)
 				{
-					cout << "EPOLLRDHUP\n";
-					cout << request[event_fd].pid << endl;
+
 					if (request[event_fd].pid != 0)
 						kill(request[event_fd].pid, SIGKILL);
 					close(event_fd);
@@ -259,7 +258,6 @@ multiplexing::multiplexing(servers &config)
 					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
 					if ((timeOut >= 8))
 					{
-						cout << event_fd << " " << request[event_fd].startTime.tv_sec << endl;
 						request[event_fd].error_page(event_wait[i], "504", config);
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
