@@ -103,9 +103,8 @@ multiplexing::multiplexing(servers &config)
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
-				if (event_wait[i].events & EPOLLRDHUP)
+				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP )
 				{
-
 					if (request[event_fd].pid != 0)
 						kill(request[event_fd].pid, SIGKILL);
 					close(event_fd);
