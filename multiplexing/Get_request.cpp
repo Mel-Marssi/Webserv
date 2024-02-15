@@ -271,7 +271,8 @@ void Request::default_error(string key, int fd)
 void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
-    // cout << key << " " << index_serv <<endl;
+    cout << key << " " << index_serv <<endl;
+    cout << "=================================\n";
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
     // cout << str << endl;
