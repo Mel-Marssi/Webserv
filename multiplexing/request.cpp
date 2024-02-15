@@ -784,8 +784,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
             acces_read_in_post = 1;
          if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked))
         {
-            cout << "akaka\n";
-            cout << (size_t)size_chuked << endl;
+
             outputFile.close();
             // size_read_request = 0;
             finir = 0;

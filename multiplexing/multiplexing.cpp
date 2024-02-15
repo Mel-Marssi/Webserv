@@ -244,7 +244,6 @@ multiplexing::multiplexing(servers &config)
 					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
 					if ((timeOut >= 8))
 					{
-						cout <<" end.tv_sec << " " << request[event_fd].startTime.tv_sec "<<"\n";
 						request[event_fd].error_page(event_wait[i], "504", config);
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
