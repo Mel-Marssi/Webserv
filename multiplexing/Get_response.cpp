@@ -82,26 +82,16 @@ void Request::end_of_file(epoll_event &event)
     (void)event;
     if (op.is_open())
     {
-        if (!con_type.empty())
-        {
-            string str;
-            str += "0\r\n\r\n";
-            if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
-                status_pro = "500";
-        }
+        string str;
+        str += "0\r\n\r\n";
+        if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+            status_pro = "500";
         fin_or_still = finish;
         op.close();
         close_dir();
     }
     else if (op_cgi.is_open())
     {
-        if (!con_type.empty())
-        {
-            string str;
-            str += "0\r\n\r\n";
-            if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
-                status_pro = "500";
-        }
         fin_or_still = finish;
         op_cgi.close();
         close_dir();
