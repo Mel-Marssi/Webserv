@@ -4,3 +4,7 @@
 *.x
 *.log
 *.zip
+tester
+ubuntu_cgi_tester
+ubuntu_tester
+cgi_tester
