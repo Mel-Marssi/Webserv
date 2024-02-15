@@ -15,7 +15,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec/1000000) - (start_cgi.tv_sec + start_cgi.tv_usec/1000000)));
-			if (timeOut >= 30)
+			if (timeOut >= 8)
 			{
 				if (pid != 0)
 					kill(pid, SIGKILL);
@@ -48,9 +48,6 @@ void Request::find_cgi(servers &config, int index)
 	if (cgi_file.empty() == true && get_to_cgi == false)
 	{
 		execute_cgi(*this, config[index]);
-		// cout << "----------------------\n";
-		// cout << cgi_file << endl;
-		// cout << "----------------------\n";
 		op_cgi.open(cgi_file.c_str());
 	}
 }

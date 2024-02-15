@@ -60,13 +60,15 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
         if (buffer != "")
         {
             len = buffer.length();
-            send(event.data.fd, buffer.c_str(), len, 0);
+            if (send(event.data.fd, buffer.c_str(), len, 0) < 0)
+                status_pro = "500";
             buffer = "";
         }
         else
         {
             len = head.length();
-            send(event.data.fd, head.c_str(), len, 0);
+            if (send(event.data.fd, head.c_str(), len, 0) < 0)
+                status_pro = "500";
             buffer = "";
         }
     }
@@ -84,7 +86,8 @@ void Request::end_of_file(epoll_event &event)
         {
             string str;
             str += "0\r\n\r\n";
-            send(event.data.fd, str.c_str(), str.length(), 0);
+            if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+                status_pro = "500";
         }
         fin_or_still = finish;
         op.close();
@@ -96,7 +99,8 @@ void Request::end_of_file(epoll_event &event)
         {
             string str;
             str += "0\r\n\r\n";
-            send(event.data.fd, str.c_str(), str.length(), 0);
+            if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+                status_pro = "500";
         }
         fin_or_still = finish;
         op_cgi.close();
@@ -163,7 +167,8 @@ void Request::response_for_delete(epoll_event &event)
     head += "\r\n\r\n";
     len = head.length();
 
-    send(event.data.fd, head.c_str(), len, 0);
+    if (send(event.data.fd, head.c_str(), len, 0) < 0)
+        status_pro = "500";
 }
 
 string Request::get_the_p(servers &config, string Path)
@@ -188,6 +193,7 @@ string Request::get_the_p(servers &config, string Path)
 void Request::check_url_encoding()
 {
     size_t i = 0;
+
     for (;;)
     {
         i = Path.find("%");
@@ -206,40 +212,42 @@ void Request::check_url_encoding()
 
 string Request::enco_form_txt(string str)
 {
-    map<string, string> map;
-    map["%21"] = "!";
-    map["%23"] = "#";
-    map["%24"] = "$";
-    map["%26"] = "&";
-    map["%27"] = "'";
-    map["%28"] = "(";
-    map["%29"] = ")";
-    map["%2A"] = "*";
-    map["%2B"] = "+";
-    map["%2C"] = ",";
-    map["%2F"] = "/";
-    map["%3A"] = ":";
-    map["%3B"] = ";";
-    map["%3D"] = "=";
-    map["%3F"] = "?";
-    map["%40"] = "@";
-    map["%5B"] = "[";
-    map["%5D"] = "]";
-    map["%20"] = " ";
-    map["%22"] = "\"";
-    map["%25"] = "%";
-    map["%2D"] = "-";
-    map["%2E"] = ".";
-    map["%3C"] = "<";
-    map["%3E"] = ">";
-    map["%5C"] = "\\";
-    map["%5E"] = "^";
-    map["%5F"] = "_";
-    map["%60"] = "`";
-    map["%7B"] = "{";
-    map["%7C"] = "|";
-    map["%7D"] = "}";
-    map["%7E"] = "~";
+    map<string, string> map_m;
+    map_m["%21"] = "!";
+    map_m["%23"] = "#";
+    map_m["%24"] = "$";
+    map_m["%26"] = "&";
+    map_m["%27"] = "'";
+    map_m["%28"] = "(";
+    map_m["%29"] = ")";
+    map_m["%2A"] = "*";
+    map_m["%2B"] = "+";
+    map_m["%2C"] = ",";
+    map_m["%2F"] = "/";
+    map_m["%3A"] = ":";
+    map_m["%3B"] = ";";
+    map_m["%3D"] = "=";
+    map_m["%3F"] = "?";
+    map_m["%40"] = "@";
+    map_m["%5B"] = "[";
+    map_m["%5D"] = "]";
+    map_m["%20"] = " ";
+    map_m["%22"] = "\"";
+    map_m["%25"] = "%";
+    map_m["%2D"] = "-";
+    map_m["%2E"] = ".";
+    map_m["%3C"] = "<";
+    map_m["%3E"] = ">";
+    map_m["%5C"] = "\\";
+    map_m["%5E"] = "^";
+    map_m["%5F"] = "_";
+    map_m["%60"] = "`";
+    map_m["%7B"] = "{";
+    map_m["%7C"] = "|";
+    map_m["%7D"] = "}";
+    map_m["%7E"] = "~";
 
-    return (map[str]);
+    if (map_m.find(str) == map_m.end())
+        return (str);
+    return (map_m[str]);
 }

@@ -11,7 +11,7 @@ void Request::root_page(epoll_event &event, string Pat)
     head += "HTTP/1.1 200 ok\r\nContent-Type: ";
     head += "text/html";
     head += "\r\nContent-Lenght: ";
-    dire = opendir((Path_tmp.erase(Path_tmp.length() - 1, Path_tmp.length())).c_str());
+    dire = opendir((Path_tmp.erase(Path_tmp.length() - 1, Path_tmp.length())).c_str());   
     if (dire)
     {
         Path_tmp.erase(0, 1);
@@ -34,7 +34,8 @@ void Request::root_page(epoll_event &event, string Pat)
         head += tmp;
         head += "</ul></body></html>";
         len = head.length();
-        send(event.data.fd, head.c_str(), len, 0);
+        if (send(event.data.fd, head.c_str(), len, 0) < 0)
+            status_pro = "500";
         fin_or_still = finish;
     }
     else

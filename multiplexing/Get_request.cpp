@@ -37,7 +37,6 @@ int Request::parse_url_prot(string meth, servers &config)
     if (check_space_first_line() == 1)
         return 1;
 
-    // index_serv = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
     it = header_request.find(meth);
     if (it->first == meth)
     {
@@ -82,8 +81,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
 
     string root = get_root(config);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
-       status_pro = "403";
-    else if ((config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
+       status_pro = "404";
+    else if ( (!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
     else if (this->Path == "/")
     {
@@ -124,7 +123,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     redirection_content(event, config, "301", 1);
                 else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty())))
                 {
-                    // update changes
                     if (this->Path.find("cgi") != string::npos)
                         find_cgi(config, index_serv);
                     else
@@ -136,9 +134,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 else if ((file_get != ""))
                 {
                     if (this->Path.find("cgi") != string::npos)
-                    {
                         find_cgi(config, index_serv);
-                    }
                     else
                         check_files_open(event, m, this->full_Path);
                 }
@@ -181,29 +177,14 @@ void Request::Generate_req_second(epoll_event &event)
         stringstream size;
         size_t len;
         string str;
-        // if (con_type.find("text") != string::npos)
-        // {
-        //     len = strlen(line.c_str());
-        //     size << std::hex << len;
-        //     str += size.str();
-        //     str += "\r\n";
-        //     str += line;
-        //     str += "\r\n";
-        //     len = strlen(str.c_str());
-        //     send(event.data.fd, str.c_str(), len, 0);
-        // }
-        // else
-        // {
-            len = line.length();
-            size << std::hex << len;
-            str += size.str();
-            str += "\r\n";
-            str += line;
-            str += "\r\n";
-            len = str.length();
-            // cout << len << endl;
-            send(event.data.fd, str.c_str(), len, 0);
-        // }
+        len = line.length();
+        size << std::hex << len;
+        str += size.str();
+        str += "\r\n";
+        str += line;
+        str += "\r\n";
+        len = str.length();
+        send(event.data.fd, str.c_str(), len, 0);
         line = "";
         if (op.eof())
             end_of_file(event);
@@ -244,7 +225,6 @@ void Request::default_error(string key, int fd)
 {
     string head;
     string status = get_status_code(key);
-    // int size = (status.length() * 3) + (key.length() * 2) + 119;
     int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
     std::ostringstream oss;
     oss << size;
@@ -265,17 +245,15 @@ void Request::default_error(string key, int fd)
         len = head.length();
         line = "";
     this->fin_or_still = finish;
-    send(fd, head.c_str(), len, 0);
+    if (send(fd, head.c_str(), len, 0) < 0)
+        status_pro = "500";
 }
 
 void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
-    cout << key << " " << index_serv <<endl;
-    cout << "=================================\n";
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
-    // cout << str << endl;
     if ((ovp.is_open() && fin_or_still != finish))
     {
         string head;
@@ -293,7 +271,8 @@ void Request::error_page(epoll_event &event, string key, servers &config)
         head += line;
         len = head.length();
         line = "";
-        send(event.data.fd, head.c_str(), len, 0);
+        if (send(event.data.fd, head.c_str(), len, 0) < 0)
+            status_pro = "500";
         end_of_file(event);
         ovp.close();
     }

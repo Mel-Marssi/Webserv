@@ -190,8 +190,8 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
-				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) // ||request[event_fd].size_request < request[event_fd].size_read_request || request[event_fd].finir == 1 || request[event_fd].err == 1))
-				{
+					if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) 
+					{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					if (request[event_fd].status_pro != "NULL")
 					{

@@ -236,6 +236,7 @@ void Request::create_file(std::ofstream &outputFile, std::map<std::string, std::
     {
         std::string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str() + str.str() + ".txt";
         path_post = randomName;
+        file_name_post = randomName;
         outputFile.open(randomName.c_str());
     }
 }
@@ -312,12 +313,16 @@ void Request::chunked(servers &config, int index)
     if (check_create_file == 0)
     {
         std::map<std::string, std::string>::iterator itC = header_request.find("Content-Type");
-        if (itC != header_request.end())
+        if (itC != header_request.end()&& !header_request["Content-Type"].empty())
             create_file(outputFile, header_request, config, index);
         check_create_file = 1;
 
         if (fir_body != "NULL")
         {
+            if (fir_body == "0\r\n\r\n")
+            {
+                finir = 1;
+            }
             int position_int = fir_body.find("\r\n");
             std::string num = fir_body.substr(0, position_int);
             char *endptr;
@@ -325,11 +330,13 @@ void Request::chunked(servers &config, int index)
             size_chunked = strtol(num.c_str(), &endptr, 16);
 
             fir_body = fir_body.substr(position_int + 2, fir_body.length());
-            size_t check_last = fir_body.find("\r\n0\r\n");
+            size_t check_last = fir_body.find("\r\n0\r\n\r\n");
             if (check_last != string::npos)
+            {
+                finir = 1;
                 fir_body = fir_body.substr(0, check_last);
+            }
             outputFile << fir_body;
-            //   total += (size - position_int + 2);
             size_chuked += fir_body.length();
             size_chunked -= fir_body.length();
             fir_body = "NULL";
@@ -337,10 +344,7 @@ void Request::chunked(servers &config, int index)
 
         read_request.clear();
     }
-    // else
-    // {
-    // 	outputFile << read_request;
-    // }
+
 }
 
 string Request::generat_name(string name, servers &config, int index, string content)
@@ -610,7 +614,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         else if (header_request["Transfer-Encoding"] != "chunked\r"  && header_request["Content-Type"].find("multipart/form-data") == string::npos && size_body_get >= (size_t)atol(header_request["Content-Length"].c_str()))
         {
-            cout << "ahaaaaaaaaaaaa\n";
             finir = 1;
         }
         else if (header_request["Content-Type"].find("multipart/form-data") != string::npos && read_request.find(last_boundri) != string::npos) // chof test lia kayn f postman boundries
@@ -633,7 +636,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
         {
             type = "chunked";
-            // return;
         }
         else if (si != string::npos)
         {
@@ -688,12 +690,12 @@ void Request::post(int fd, servers &config, epoll_event &event)
                     read_request.append(buff, a);
                     read_request = read_request.substr(2, size);
                     size_t position_int = read_request.find("\r\n");
-                    if (position_int == string::npos)
-                    {
-                        outputFile << read_request.find("10000") << endl;
-                        // cout << "3333333333\n";
-                        exit(4);
-                    }
+                    // if (position_int == string::npos)
+                    // {
+                    //     outputFile << read_request.find("10000") << endl;
+                    //     // cout << "3333333333\n";
+                    //     exit(4);
+                    // }
                     std::string num = read_request.substr(0, position_int);
                     read_request = read_request.substr(position_int + 2, size);
                     // outputFile << read_request;
@@ -777,9 +779,20 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 return;
             }
         }
+        chunked(config, index_serv);
         if (check_left_header == 1)
             acces_read_in_post = 1;
-        chunked(config, index_serv);
+         if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked))
+        {
+            cout << "akaka\n";
+            cout << (size_t)size_chuked << endl;
+            outputFile.close();
+            // size_read_request = 0;
+            finir = 0;
+            std::remove(file_name_post.c_str());
+            status_pro = "413";
+            return;
+        }
     }
 
     else if (fir_body != "NULL")
@@ -792,10 +805,10 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request))
             {
-            cout << "kddk\n";
+                // cout << "kddk\n";
 
                 outputFile.close();
-                size_read_request = 0;
+                // size_read_request = 0;
                 finir = 0;
                 std::remove(file_name_post.c_str());
                 status_pro = "413";

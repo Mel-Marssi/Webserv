@@ -7,12 +7,12 @@ int Request::check_body_get(epoll_event &event)
     {
         size_read_request = -9;
         err = 0;
-        int hh = 0;
+        int siz = 0;
         char buff[1024];
         if ((event.events & EPOLLIN) && read_get == 1)
         {
-            hh = read(event.data.fd, buff, 1024);
-            size_body_get += hh;
+            siz = read(event.data.fd, buff, 1024);
+            size_body_get += siz;
         }
         return 1;
     }
