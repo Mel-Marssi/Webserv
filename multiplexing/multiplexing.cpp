@@ -148,7 +148,7 @@ multiplexing::multiplexing(servers &config)
 							if (f != string::npos)
 							{
 								request[event_fd]._host.erase(f, request[event_fd]._host.length());
-								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(request[event_fd]._host.c_str())));
+								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
 							}
 						}
 						else
@@ -208,11 +208,7 @@ multiplexing::multiplexing(servers &config)
 					// {
 						// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
 					// }
-					string ff = "/" + request[event_fd].path_post;
-					// if (i != string::npos)
-					// {
-						// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
-					// }
+					
 					head += ff;
 					head += "\r\n\r\n";
 					size_t len = head.length();
@@ -283,6 +279,7 @@ multiplexing::multiplexing(servers &config)
 			}
 		}
 	}
+}
 }
 multiplexing::~multiplexing()
 {
