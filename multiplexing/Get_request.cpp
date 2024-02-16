@@ -94,6 +94,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 check_files_open(event, m, config[index_serv].get_root() + config[index_serv].get_index());
             else
                 status_pro = "404";
+            close_dir();
         }
         else
         {
@@ -145,6 +146,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             }
             else
                 status_pro = "404";
+            close_dir();
         }
         else
             redirection_content(event, config, "301", 0);

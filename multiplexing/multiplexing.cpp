@@ -95,7 +95,8 @@ multiplexing::multiplexing(servers &config)
 			}
 			else
 			{
-				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
+				// request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
+				// cout << "index_serv: " << request[event_fd].index_serv << endl;
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP )
@@ -123,6 +124,7 @@ multiplexing::multiplexing(servers &config)
 					{
 						request[event_fd].read_request.append(buff, request[event_fd].size);
 						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
+						//   cout << request[event_fd].read_request << endl;
 					}
 					if (request[event_fd].check_left_header == 0)
 					{
@@ -130,6 +132,21 @@ multiplexing::multiplexing(servers &config)
 					}
 					else if (request[event_fd].check_left_header == 1)
 					{
+						map<string, string>::iterator it = request[event_fd].header_request.find("Host");
+						if (it != request[event_fd].header_request.end())
+						{
+							request[event_fd]._host = request[event_fd].header_request["Host"];
+							size_t f = 0;
+							f = request[event_fd]._host.find(":");
+							if (f != string::npos)
+							{
+								request[event_fd]._host.erase(f, request[event_fd]._host.length());
+								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(request[event_fd]._host.c_str())));
+							}
+						}
+						else
+							request[event_fd].status_pro = "400";
+
 						if (request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
 						{
 						}
@@ -190,8 +207,8 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
-					if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) 
-					{
+				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) 
+				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					if (request[event_fd].status_pro != "NULL")
 					{
@@ -226,8 +243,7 @@ multiplexing::multiplexing(servers &config)
 				}
 				if (flg_remv == 1)
 				{
-					// cout << request[event_fd].zompie << endl;
-					// cout << "================\n";
+					request[event_fd].close_dir();
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					map<int, Request>::iterator it = request.find(event_fd);
@@ -237,22 +253,23 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 0;
 				}
 			}
-				if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0 )
+			if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0 )
+			{
+				struct timeval end;
+				gettimeofday(&end, NULL);
+				size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
+				if ((timeOut >= 8))
 				{
-					struct timeval end;
-					gettimeofday(&end, NULL);
-					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
-					if ((timeOut >= 8))
-					{
-						request[event_fd].error_page(event_wait[i], "504", config);
-						close(event_fd);
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-						request.erase(event_fd);
-					}
+					request[event_fd].error_page(event_wait[i], "504", config);
+					close(event_fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+					request.erase(event_fd);
 				}
+			}
 		}
 	}
 }
-	multiplexing::~multiplexing()
-	{
-	}
+
+multiplexing::~multiplexing()
+{
+}

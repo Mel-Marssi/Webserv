@@ -1,6 +1,6 @@
 server {
     listen 8090;
-    server_name localhost;
+    server_name lala;
     host 127.0.0.1;
     root ./;
     index index.html;
@@ -63,7 +63,7 @@ server {
 server {
     listen 8090;
     server_name test;
-    host 127.0.0.2;
+    host 10.14.4.1;
     root ./;
 	autoindex on;
 
@@ -75,10 +75,9 @@ server {
  
     }
 
-     location /test1 {
+     location /test {
         autoindex on;
         allow_methods DELETE GET POST;
-        return /test;
     }
 
     location /cgi-bin {

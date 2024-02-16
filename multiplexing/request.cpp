@@ -132,10 +132,12 @@ int Request::parse_line(std::string line, int check_first)
     else
     {
         size_t found_POINT = line.find(":");
-        // cout << found_POINT << " " << line.length() << " ---\n";
         if (found_POINT != string::npos)
         {
-            header_request.insert(std::make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 2, line.length() - 1).c_str())));
+            if (line[found_POINT + 1] == ' ')
+                header_request.insert(std::make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 2, line.length() - 1).c_str())));
+            else
+                header_request.insert(std::make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 1, line.length() - 1).c_str())));
         }
     }
     return 0;

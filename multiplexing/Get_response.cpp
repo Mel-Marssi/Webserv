@@ -102,6 +102,7 @@ void Request::close_dir()
 {
     if (dire)
     {
+    cout << "---------------------\n";
         closedir(dire);
         dire = NULL;
     }
