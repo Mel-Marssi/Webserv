@@ -210,6 +210,7 @@ multiplexing::multiplexing(servers &config)
 					size_t len = head.length();
 					send(event.data.fd, head.c_str(), len, 0);
 					flg_remv = 1;
+					request[event_fd].cgi_post = false;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
@@ -248,6 +249,11 @@ multiplexing::multiplexing(servers &config)
 
 					if (flg_remv == 1)
 					{
+						if (!request[event_fd].cgi_file.empty() )
+						{
+							cout << "remove: " << request[event_fd].cgi_file << endl;
+							remove(request[event_fd].cgi_file.c_str());
+						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 						map<int, Request>::iterator it = request.find(event_fd);
