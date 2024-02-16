@@ -36,7 +36,6 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			get_to_cgi = false;
 			if (op_cgi.is_open())
 			{
-				cout << "op_cgi is open" << endl;
 				read_for_send(event, cont_type, flag_read_cgi);
 				if (op_cgi.eof())
 				{
@@ -55,10 +54,5 @@ void Request::find_cgi(servers &config, int index)
 	{
 		execute_cgi(*this, config[index]);
 		op_cgi.open(cgi_file.c_str());
-		if (op_cgi.is_open())
-		{
-			cout << "op_cgi is open" << endl;
-		}
-
 	}
 }

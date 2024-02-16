@@ -212,7 +212,6 @@ multiplexing::multiplexing(servers &config)
 					head += ff;
 					head += "\r\n\r\n";
 					size_t len = head.length();
-					cout << head << endl;
 					send(event.data.fd, head.c_str(), len, 0);
 					flg_remv = 1;
 				}

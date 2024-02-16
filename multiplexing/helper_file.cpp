@@ -44,7 +44,6 @@ string Request::resp_post()
 void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
 {
     op.open(str.c_str());
-    cout << str << endl;
     if (op.is_open())
         read_for_send(event, m, 0);
     else
