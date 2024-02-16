@@ -11,34 +11,37 @@ servers::servers(const string &av)
 	for (server_iterator it = server.begin(); it != server.end(); it++)
 	{
 		if (it->get_host().empty() || it->get_port() == -1)
-			throw (runtime_error("Missing Server Name or Host or Port!"));
+			throw(runtime_error("Missing Server Name or Host or Port!"));
 		int port = it->get_port();
 		// string server_name = it->get_server_names()[];
-		string host =  it->get_host();
+		string host = it->get_host();
 
-		for(server_iterator it2 = it + 1; it2 != server.end(); it2++)
+		for (server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
 			// cout << it2->get_port() <<endl;
-			if ((it2->get_host() == host && it2->get_port() == port) )
-				throw (runtime_error("Invalid configue file!"));
+			if ((it2->get_host() == host && it2->get_port() == port))
+				throw(runtime_error("Invalid configue file!"));
 			if (it2->get_host().empty() || it2->get_port() == -1)
-				throw (runtime_error("Invalid configue file!"));
+				throw(runtime_error("Invalid configue file!"));
 		}
 	}
-	
 }
 
-int get_right_index(vector<server_config> server, int port,string host, string server_name)
+int get_right_index(vector<server_config> server, int port, string host, string server_name)
 {
 	int i = 0;
 
-	for (server_iterator it = server.begin(); it != server.end(); it++,i++)
+	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
 	{
 		// cout  << it->get_port() <<" "<< port << endl;
 		if (it->get_port() == port && it->get_host() == host)
 			return (i);
-		if (find(it->get_server_names().begin(), it->get_server_names().end(), server_name) != it->get_server_names().end() && it->get_port() == port )
+		if (find(it->get_server_names().begin(), it->get_server_names().end(), server_name) != it->get_server_names().end() && it->get_port() == port
+			&& it->get_host() == host)
+		{
+			cout << "server_name: " << server_name << " port: " << port << endl;
 			return (i);
+		}
 	}
 	return (0);
 }
@@ -175,7 +178,6 @@ int get_right_index(vector<server_config> server, int port,string host, string s
 // 	return ("");
 // }
 
-
 // string servers::get_index(int server_key)
 // {
 // 	server_iterator it = server.begin();
@@ -198,4 +200,5 @@ server_config &servers::operator[](int i)
 	return server[i];
 }
 servers::~servers()
-{}
+{
+}

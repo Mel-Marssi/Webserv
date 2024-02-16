@@ -105,6 +105,7 @@ multiplexing::multiplexing(servers &config)
 					{
 						kill(request[event_fd].pid, SIGKILL);
 						waitpid(request[event_fd].pid, NULL, 0);
+						remove(request[event_fd].cgi_file.c_str());
 					}
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -145,6 +146,7 @@ multiplexing::multiplexing(servers &config)
 							{
 								request[event_fd]._host.erase(f, request[event_fd]._host.length());
 								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
+								cout << "index_serv: " << request[event_fd].index_serv << endl;
 							}
 						}
 						else

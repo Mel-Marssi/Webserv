@@ -63,7 +63,7 @@ server {
 server {
     listen 8090;
     server_name test;
-    host 10.14.3.2;
+    host 127.0.0.2;
     root ./;
 	autoindex on;
 
