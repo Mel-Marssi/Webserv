@@ -100,14 +100,10 @@ multiplexing::multiplexing(servers &config)
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
-				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
 				{
 					if (request[event_fd].pid != 0)
 					{
-					{
 						kill(request[event_fd].pid, SIGKILL);
-						waitpid(request[event_fd].pid, NULL, 0);
-					}
 						waitpid(request[event_fd].pid, NULL, 0);
 					}
 					close(event_fd);
@@ -206,9 +202,9 @@ multiplexing::multiplexing(servers &config)
 					string ff = "/" + request[event_fd].path_post;
 					// if (i != string::npos)
 					// {
-						// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
+					// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
 					// }
-					
+
 					head += ff;
 					head += "\r\n\r\n";
 					size_t len = head.length();
@@ -216,8 +212,6 @@ multiplexing::multiplexing(servers &config)
 					flg_remv = 1;
 				}
 
-				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) 
-				{
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
@@ -251,34 +245,34 @@ multiplexing::multiplexing(servers &config)
 						flg_remv = 0;
 						continue;
 					}
+
+					if (flg_remv == 1)
+					{
+						close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+						map<int, Request>::iterator it = request.find(event_fd);
+						if (it != request.end())
+							request.erase(it);
+						request[event_fd].outputFile.close();
+						flg_remv = 0;
+					}
 				}
-				if (flg_remv == 1)
+				if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0)
 				{
-					close(event_fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					map<int, Request>::iterator it = request.find(event_fd);
-					if (it != request.end())
-						request.erase(it);
-					request[event_fd].outputFile.close();
-					flg_remv = 0;
-				}
-			}
-			if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0 )
-			{
-				struct timeval end;
-				gettimeofday(&end, NULL);
-				size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
-				if ((timeOut >= 8))
-				{
-					request[event_fd].error_page(event_wait[i], "504", config);
-					close(event_fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					request.erase(event_fd);
+					struct timeval end;
+					gettimeofday(&end, NULL);
+					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
+					if ((timeOut >= 8))
+					{
+						request[event_fd].error_page(event_wait[i], "504", config);
+						close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+						request.erase(event_fd);
+					}
 				}
 			}
 		}
 	}
-}
 }
 multiplexing::~multiplexing()
 {

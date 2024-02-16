@@ -142,7 +142,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
                     {
                         check_files_open(event, m, this->full_Path);
-                        cout << "full_Path: " << this->full_Path << endl;
                     }
                 }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
