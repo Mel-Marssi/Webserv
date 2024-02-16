@@ -193,7 +193,7 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_fd].cgi_post == true)
 				{
 					string head;
-					// cout << "CGI POST\n";
+					cout << "CGI POST\n";
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
 					// head += request[fd_client].path_post;
@@ -210,7 +210,7 @@ multiplexing::multiplexing(servers &config)
 					size_t len = head.length();
 					send(event.data.fd, head.c_str(), len, 0);
 					flg_remv = 1;
-					request[event_fd].cgi_post = false;
+					// request[event_fd].cgi_post = false;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
@@ -227,7 +227,7 @@ multiplexing::multiplexing(servers &config)
 							request[event_fd].error_page(event_wait[i], "400", config);
 						else
 						{
-							if (request[event_fd].Path == "/cgi-bin")
+							if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post ==false)
 							{
 								request[event_fd].finir = 0;
 								request[event_fd].size_read_request = -1;
@@ -251,7 +251,7 @@ multiplexing::multiplexing(servers &config)
 					{
 						if (!request[event_fd].cgi_file.empty() )
 						{
-							cout << "remove: " << request[event_fd].cgi_file << endl;
+							// cout << "remove: " << request[event_fd].cgi_file << endl;
 							remove(request[event_fd].cgi_file.c_str());
 						}
 						close(event_fd);
