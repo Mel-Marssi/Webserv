@@ -243,7 +243,6 @@ multiplexing::multiplexing(servers &config)
 				}
 				if (flg_remv == 1)
 				{
-					request[event_fd].close_dir();
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					map<int, Request>::iterator it = request.find(event_fd);

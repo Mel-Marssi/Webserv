@@ -116,7 +116,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             string str = this->Path;
             if (str[0] == '/' && root[root.length() - 1] == '/')
                 root.erase(root.length() - 1, root.length());
-            close_dir();
+            // close_dir();//==============================
             dire = opendir((root + str).c_str());
             if (dire)
             {
@@ -146,7 +146,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             }
             else
                 status_pro = "404";
-            close_dir();
         }
         else
             redirection_content(event, config, "301", 0);

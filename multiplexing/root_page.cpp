@@ -11,6 +11,7 @@ void Request::root_page(epoll_event &event, string Pat)
     head += "HTTP/1.1 200 ok\r\nContent-Type: ";
     head += "text/html";
     head += "\r\nContent-Lenght: ";
+    close_dir();
     dire = opendir((Path_tmp.erase(Path_tmp.length() - 1, Path_tmp.length())).c_str());   
     if (dire)
     {
@@ -23,7 +24,7 @@ void Request::root_page(epoll_event &event, string Pat)
             string name = entre->d_name;
             if (name[0] != '.')
             {
-                tmp += "<li class=\"list-group-item \"> <a href= \"http://localhost:" + _port + Path_tmp;
+                tmp += "<li class=\"list-group-item \"> <a href= \"http://" + _host + ":" + _port + Path_tmp;
                 tmp += "/";
                 tmp += name + "\">" + name +"</a> </li>";
             }
@@ -41,5 +42,4 @@ void Request::root_page(epoll_event &event, string Pat)
     }
     else
         status_pro = "404";
-    close_dir();
 }
