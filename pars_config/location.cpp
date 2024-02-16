@@ -213,6 +213,8 @@ void location::setup_location(ifstream &config_fd)
 		}
 		else if (word == "cgi_path")
 		{
+			if (file.find(";") == string::npos)
+				throw(runtime_error("Invalid configue file!"));
 			cscan >> word;
 			while (word != ";")
 			{

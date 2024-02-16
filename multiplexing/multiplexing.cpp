@@ -99,10 +99,17 @@ multiplexing::multiplexing(servers &config)
 				// cout << "index_serv: " << request[event_fd].index_serv << endl;
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
-				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP )
+				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
+				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
 				{
 					if (request[event_fd].pid != 0)
+					{
+					{
 						kill(request[event_fd].pid, SIGKILL);
+						waitpid(request[event_fd].pid, NULL, 0);
+					}
+						waitpid(request[event_fd].pid, NULL, 0);
+					}
 					close(event_fd);
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					map<int, Request>::iterator it = request.find(event_fd);
@@ -190,24 +197,33 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_fd].cgi_post == true)
 				{
 					string head;
+					// cout << "CGI POST\n";
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
 					// head += request[fd_client].path_post;
 					size_t i = 0;
 					i = request[event_fd].path_post.find("/", 1);
-					string ff;
-					if (i != string::npos)
-					{
-						ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
-					}
+					string ff = "/" + request[event_fd].path_post;
+					// if (i != string::npos)
+					// {
+						// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
+					// }
+					string ff = "/" + request[event_fd].path_post;
+					// if (i != string::npos)
+					// {
+						// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
+					// }
 					head += ff;
 					head += "\r\n\r\n";
 					size_t len = head.length();
+					cout << head << endl;
 					send(event.data.fd, head.c_str(), len, 0);
 					flg_remv = 1;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1)) 
+				{
+				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					if (request[event_fd].status_pro != "NULL")
@@ -268,7 +284,6 @@ multiplexing::multiplexing(servers &config)
 		}
 	}
 }
-
 multiplexing::~multiplexing()
 {
 }

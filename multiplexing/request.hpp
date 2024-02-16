@@ -39,6 +39,7 @@ class Request
     public:
         bool cgi_post;
         int fd_cgi;
+        int flag_read_cgi;
         int flg_pars_url ;
         int kk;
         int zompie;

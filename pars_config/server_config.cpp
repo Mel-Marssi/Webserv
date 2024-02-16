@@ -39,7 +39,7 @@ server_config::server_config(ifstream &config_fd)
 	this->port = -1;
 	host = "";
 	root = "";
-	server_name = "";
+	// server_name = "";
 	index = "";
 	server_auto_index = false;
 	this->setup_server_info(config_fd);
@@ -82,13 +82,20 @@ void server_config::setup_server_info(ifstream &config_fd)
 		}
 		else if (word == "server_name")
 		{
-			cscan >> word;
-			if (get_server_name().empty() == false)
+			if (file.find(";") == string::npos)
 				throw(runtime_error("Invalid configue file!"));
-			server_name = word;
 			cscan >> word;
-			if (word != ";")
-				throw runtime_error("Invalid configue file!");
+			// if (get_server_name().empty() == false)
+			// 	throw(runtime_error("Invalid configue file!"));
+			// server_name = word;
+			// cscan >> word;
+			// if (word != ";")
+			// 	throw runtime_error("Invalid configue file!");
+			while (word != ";")
+			{
+				server_names.push_back(word);
+				cscan >> word;
+			}
 		}
 		else if (word == "host")
 		{
@@ -261,11 +268,14 @@ string server_config::get_root()
 	return (root);
 }
 
-string server_config::get_server_name()
+// string server_config::get_server_name()
+// {
+// 	return (server_name);
+// }
+vector<string> server_config::get_server_names()
 {
-	return (server_name);
+	return (server_names);
 }
-
 string server_config::get_index()
 {
 	return (index);

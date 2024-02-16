@@ -7,6 +7,8 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
     (void)server_book;
     (void)fd_client;
+    flag_read_cgi = 1;
+
     flg_pars_url =0;
     type = "NULL";
     size_File_boundri = 0;
@@ -53,6 +55,7 @@ Request::Request(const Request &obj)
 {
     type = "NULL";
     cgi_post = false;
+      flag_read_cgi = 1;
     Path = "";
     size_File_boundri = 0;
     // startTime = 0;
@@ -282,7 +285,7 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
     it0 = header_request.find("Content-Length"); // Content-Length
     if (this->parse_url_prot("POST", config) == 1)
         return 1;
-    int index = get_right_index(config.server, atoi(_port.c_str()), _host, config.get_server_name(atoi(_port.c_str())));
+    int index = get_right_index(config.server, atoi(_port.c_str()), _host, _host);
 
     if ((config[index_serv].get_loc_path_location(this->Path).empty()))
     {

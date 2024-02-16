@@ -1,6 +1,6 @@
 server {
     listen 8090;
-    server_name lala;
+    server_name asas test;
     host 127.0.0.1;
     root ./;
     index index.html;

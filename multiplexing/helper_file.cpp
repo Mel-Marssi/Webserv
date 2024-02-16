@@ -44,6 +44,7 @@ string Request::resp_post()
 void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
 {
     op.open(str.c_str());
+    cout << str << endl;
     if (op.is_open())
         read_for_send(event, m, 0);
     else
@@ -57,10 +58,10 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
         Generate_req_first(event, config, m);
         flg_pars_url = 1;
     }
-    else if (check_req == 1 && Path != "/cgi-bin")
-        Generate_req_second(event);
-    else if (Path == "/cgi-bin")
+    else if (Path == "/cgi-bin" && check_req == 1)
         cgi_handle_get(event, config);
+    if (check_req == 1 && cgi_file.empty())
+        Generate_req_second(event);
     read_get = 1;
 }
 

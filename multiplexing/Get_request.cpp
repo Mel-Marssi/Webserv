@@ -11,14 +11,14 @@ int Request::check_space_first_line()
         {
             status_pro = "400";
             return 1;
-        }  
+        }
         if (first_line_reque[j] == ' ')
         {
             if (first_line_reque[j + 1] == ' ')
             {
                 status_pro = "400";
                 return 1;
-            }  
+            }
             sp++;
         }
         j++;
@@ -67,22 +67,21 @@ int Request::parse_url_prot(string meth, servers &config)
     return (0);
 }
 
-
 void Request::Generate_req_first(epoll_event &event, servers &config, map<string, string> &m)
 {
     if (check_body_get(event) == 1)
-        return ;
+        return;
 
     if (flg_pars_url == 0)
     {
         if (this->parse_url_prot("GET", config) == 1)
-            return ;
+            return;
     }
 
     string root = get_root(config);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
-       status_pro = "404";
-    else if ( (!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
+        status_pro = "404";
+    else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
     else if (this->Path == "/")
     {
@@ -124,9 +123,13 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     redirection_content(event, config, "301", 1);
                 else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty())))
                 {
-                    if (this->Path.find("cgi") != string::npos)
+                    if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
+                    {
+                        cout << "-------================\n";
+                        file_get = config[index_serv].get_loc_index(this->Path);
                         find_cgi(config, index_serv);
-                    else
+                    }
+                    if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
                     {
                         this->Path = this->full_Path + config[index_serv].get_loc_index(this->Path);
                         check_files_open(event, m, Path);
@@ -134,10 +137,13 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 }
                 else if ((file_get != ""))
                 {
-                    if (this->Path.find("cgi") != string::npos)
+                    if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
                         find_cgi(config, index_serv);
-                    else
+                    if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
+                    {
                         check_files_open(event, m, this->full_Path);
+                        cout << "full_Path: " << this->full_Path << endl;
+                    }
                 }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
                     root_page(event, this->full_Path);
@@ -151,7 +157,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             redirection_content(event, config, "301", 0);
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
-            check_files_open(event, m, this->full_Path);
+        check_files_open(event, m, this->full_Path);
     else
         status_pro = "404";
     close_dir();
@@ -243,8 +249,8 @@ void Request::default_error(string key, int fd)
     {
         head += "<html><head><title>" + status + "</title></head><body><h1>" + key + " " + status + "</h1></body></html>";
     }
-        len = head.length();
-        line = "";
+    len = head.length();
+    line = "";
     this->fin_or_still = finish;
     if (send(fd, head.c_str(), len, 0) < 0)
         status_pro = "500";

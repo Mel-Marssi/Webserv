@@ -1,5 +1,6 @@
 #include "cgi_handler.hpp"
-
+// 415 unseportted file
+// get normal file
 int cgi_handler::i = 0;
 
 string get_cgi_path(string extention, map<string, string> cgi_exec_path)
@@ -11,6 +12,7 @@ void execute_cgi(Request &req, server_config &config)
 {
 	cgi_handler cgi(req);
 	string file, tmp;
+	req.flag_read_cgi = 1;
 	try
 	{
 		if (req.methode == "GET")
@@ -19,7 +21,8 @@ void execute_cgi(Request &req, server_config &config)
 			tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
 			if (tmp == "")
 			{
-				req.cgi_file = req.full_Path;
+				req.flag_read_cgi = 0;
+				// req.cgi_file = req.full_Path;
 				return;
 			}
 		}
@@ -29,6 +32,7 @@ void execute_cgi(Request &req, server_config &config)
 			tmp = get_cgi_path(file.substr(req.path_post.find_last_of(".")), config.get_loc_cgi_exec_path(req.Path));
 			if (tmp == "")
 			{
+				req.flag_read_cgi = 0;
 				req.cgi_file = req.path_post;
 				return;
 			}
