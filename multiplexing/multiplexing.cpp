@@ -3,6 +3,24 @@
 #include "request.hpp"
 #include "../cgi-bin/cgi_handler.hpp"
 
+multiplexing::multiplexing(servers &config)
+{
+	server_socket = new int[config.size()];
+	set_socket = 1;
+	flg_remv = 0;
+	epoll_fd = epoll_create(1);
+	if (epoll_fd < 0)
+	{
+		delete[] server_socket;
+		throw(runtime_error("epoll_create() call failed!"));
+	}
+}
+
+multiplexing::~multiplexing()
+{
+	delete[] server_socket;
+}
+
 unsigned long ft_inet_addr(string str)
 {
 	unsigned long addr = 0;
@@ -33,7 +51,7 @@ unsigned long ft_inet_addr(string str)
 	return addr;
 }
 
-void multiplexing::setup_server_socket(servers &config, int *server_socket)
+void multiplexing::setup_server_socket(servers &config)
 {
 	for (int i = 0; i < config.size(); i++)
 	{
@@ -52,6 +70,7 @@ void multiplexing::setup_server_socket(servers &config, int *server_socket)
 			{
 				close(epoll_fd);
 				close(server_socket[j]);
+				delete[] server_socket;
 			}
 			throw(runtime_error("setsockopt() call failed!"));
 		}
@@ -61,6 +80,7 @@ void multiplexing::setup_server_socket(servers &config, int *server_socket)
 			{
 				close(epoll_fd);
 				close(server_socket[j]);
+				delete[] server_socket;
 			}
 			throw(runtime_error("bind() call failed!"));
 		}
@@ -70,6 +90,7 @@ void multiplexing::setup_server_socket(servers &config, int *server_socket)
 			{
 				close(epoll_fd);
 				close(server_socket[j]);
+				delete[] server_socket;
 			}
 			throw(runtime_error("listen() call failed!"));
 		}
@@ -81,13 +102,15 @@ void multiplexing::setup_server_socket(servers &config, int *server_socket)
 			{
 				close(epoll_fd);
 				close(server_socket[j]);
+				delete[] server_socket;
 			}
 			throw(runtime_error("epoll_ctl() call failed!"));
 		}
 	}
 	fill_content_type();
 }
-void multiplexing::run(servers &config, int *server_socket)
+
+void multiplexing::run(servers &config)
 {
 	for (;;)
 	{
@@ -292,19 +315,4 @@ void multiplexing::run(servers &config, int *server_socket)
 			}
 		}
 	}
-}
-multiplexing::multiplexing(servers &config)
-{
-	int server_socket[config.size()];
-	set_socket = 1;
-	flg_remv = 0;
-	epoll_fd = epoll_create(1);
-	if (epoll_fd < 0)
-		throw(runtime_error("epoll_create() call failed!"));
-
-	setup_server_socket(config, server_socket);
-	run(config, server_socket);
-}
-multiplexing::~multiplexing()
-{
 }

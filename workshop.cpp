@@ -16,7 +16,10 @@ int main(int ac, char **av)
 	{
 		servers configs(config_file);
 		configs.run_checks();
+		
 		multiplexing server(configs);
+		server.setup_server_socket(configs);
+		server.run(configs);
 	}
 	catch (const std::exception &e)
 	{
