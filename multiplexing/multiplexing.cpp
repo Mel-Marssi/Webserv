@@ -176,11 +176,11 @@ void multiplexing::run(servers &config)
 						if (it != request[event_fd].header_request.end())
 						{
 							request[event_fd]._host = request[event_fd].header_request["Host"];
-							size_t f = 0;
-							f = request[event_fd]._host.find(":");
-							if (f != string::npos)
+							size_t pos_host = 0;
+							pos_host = request[event_fd]._host.find(":");
+							if (pos_host != string::npos)
 							{
-								request[event_fd]._host.erase(f, request[event_fd]._host.length());
+								request[event_fd]._host.erase(pos_host, request[event_fd]._host.length());
 								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
 							}
 						}
@@ -230,23 +230,17 @@ void multiplexing::run(servers &config)
 				if (request[event_fd].cgi_post == true)
 				{
 					string head;
+					string tmp_path = "/" + request[event_fd].path_post;
+					size_t length;
+
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
-					// head += request[fd_client].path_post;
-					// size_t i = 0;
 					i = request[event_fd].path_post.find("/", 1);
-					string ff = "/" + request[event_fd].path_post;
-					// if (i != string::npos)
-					// {
-					// ff.insert(0, request[event_fd].path_post, i + 1, request[event_fd].path_post.length());
-					// }
-
-					head += ff;
+					head += tmp_path;
 					head += "\r\n\r\n";
-					size_t len = head.length();
-					send(event.data.fd, head.c_str(), len, 0);
+					length = head.length();
+					send(event.data.fd, head.c_str(), length, 0);
 					flg_remv = 1;
-					// request[event_fd].cgi_post = false;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
