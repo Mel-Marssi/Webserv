@@ -47,7 +47,6 @@ int get_right_index(vector<server_config> server, int port, string host, string 
 	int tmp_serv = -1;
 	vector<string> tmp_server_name;
 
-	// cout << "port: " << port << " host: " << hoste << " server_name: " << server_name << endl;
 	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
 	{
 		tmp_server_name = it->get_server_names();

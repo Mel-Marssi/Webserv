@@ -239,16 +239,15 @@ void multiplexing::run(servers &config)
 					head += "\r\n\r\n";
 					length = head.length();
 					send(event.data.fd, head.c_str(), length, 0);
-
 					if (!request[event_fd].cgi_file.empty())
-						remove(request[event_fd].cgi_file.c_str());
-					close(event_fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					map<int, Request>::iterator it = request.find(event_fd);
-					if (it != request.end())
-						request.erase(it);
-					request[event_fd].outputFile.close();
-					continue;
+							remove(request[event_fd].cgi_file.c_str());
+						close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+						map<int, Request>::iterator it = request.find(event_fd);
+						if (it != request.end())
+							request.erase(it);
+						request[event_fd].outputFile.close();
+						continue;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
@@ -289,10 +288,7 @@ void multiplexing::run(servers &config)
 					if (flg_remv == 1)
 					{
 						if (!request[event_fd].cgi_file.empty())
-						{
 							remove(request[event_fd].cgi_file.c_str());
-							cout << request[event_fd].cgi_file << endl;
-						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 						map<int, Request>::iterator it = request.find(event_fd);

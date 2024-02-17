@@ -57,7 +57,6 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
 
 void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m)
 {
-    cout << Path << endl;
     if (check_req == 0 && read_get == 1)
     {
         Generate_req_first(event, config, m);

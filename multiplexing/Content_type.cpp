@@ -20,7 +20,6 @@ void multiplexing::fill_content_type()
     cont_type["zip"] = "application/zip";
     cont_type["php"] = "application/x-httpd-php";
     cont_type["tar"] = "application/x-tar";
-    cont_type["application/x-shellscript\r"] = ".sh";
 }
 
 
@@ -37,6 +36,7 @@ void multiplexing::fill_content_type()
     status_code["413"] = " Request Entity Too Large";
     status_code["501"] = " Not Implemented";
     status_code["414"] = " Request-URI Too Long";
+    status_code["415"] = " Unsupported Media Type";  
     //=================== DELETE ==================
     status_code["409"] = " Conflict";
     status_code["204"] = " No Content";
