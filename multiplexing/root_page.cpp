@@ -12,7 +12,7 @@ void Request::root_page(epoll_event &event, string Pat)
     head += "text/html";
     head += "\r\nContent-Lenght: ";
     close_dir();
-    dire = opendir((Path_tmp.erase(Path_tmp.length() - 1, Path_tmp.length())).c_str());   
+    dire = opendir((Path_tmp).c_str()); 
     if (dire)
     {
         Path_tmp.erase(0, 1);
@@ -25,7 +25,6 @@ void Request::root_page(epoll_event &event, string Pat)
             if (name[0] != '.')
             {
                 tmp += "<li class=\"list-group-item \"> <a href= \"http://" + _host + ":" + _port + Path_tmp;
-                tmp += "/";
                 tmp += name + "\">" + name +"</a> </li>";
             }
         }

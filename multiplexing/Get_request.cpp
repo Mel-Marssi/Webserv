@@ -78,31 +78,57 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             return;
     }
 
-    string root = get_root(config);
+    this->root = get_root(config);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
     else if (this->Path == "/")
     {
-        if (!config[index_serv].get_index().empty())
+        string index_file;
+        if (!config[index_serv].get_loc_index(Path).empty())
+            index_file = config[index_serv].get_loc_index(Path);
+        else if (!config[index_serv].get_index().empty())
+            index_file = config[index_serv].get_index();
+        else
+            index_file = "";
+
+        if (!index_file.empty())
         {
-            Path = config[index_serv].get_index();
-            dire = opendir(config[index_serv].get_root().c_str());
+            string str1 = handle_Path_location(root, index_file);
+            dire = opendir(root.c_str());
             if (dire)
-                check_files_open(event, m, config[index_serv].get_root() + config[index_serv].get_index());
+            {
+                op.open(str1.c_str());
+                if (op.is_open())
+                {
+                    Path = str1;
+                    read_for_send(event, m, 0);
+                }
+                else
+                {
+                    string root_tmp = root;
+                    if (root_tmp[root_tmp.length() - 1] == '/' && Path[0] == '/')
+                        root_tmp.erase(root_tmp.length() - 1, root_tmp.length());
+                    if (config[index_serv].get_loc_auto_index(this->Path))
+                        root_page(event, root_tmp + Path);
+                    else
+                        status_pro = "403";        
+                }
+            }
             else
                 status_pro = "404";
-            close_dir();
         }
         else
         {
             if (config[index_serv].get_loc_auto_index(this->Path))
             {
-                if (Path[0] == '/' && root[root.length() - 1] == '/')
-                    root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
-                else
-                    root_page(event, ((root + Path)));
+                // if (Path[0] == '/' && root[root.length() - 1] == '/')
+                //     root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
+                // else
+                //     root_page(event, ((root + Path)));
+                string tmp = handle_Path_location(root, Path);
+                root_page(event, tmp);
             }
             else
                 status_pro = "403";
@@ -112,10 +138,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     {
         if (config[index_serv].get_loc_redirection(this->Path) == "")
         {
-            string str = this->Path;
-            if (str[0] == '/' && root[root.length() - 1] == '/')
-                root.erase(root.length() - 1, root.length());
-            dire = opendir((root + str).c_str());
+            // string str = this->Path;
+            // if (str[0] == '/' && root[root.length() - 1] == '/')
+            //     root.erase(root.length() - 1, root.length());
+            string tmp = handle_Path_location(root, Path);
+            dire = opendir(tmp.c_str());
             if (dire)
             {
                 if ((file_get == "") && (this->Path_bef[Path_bef.length() - 1] != '/'))
@@ -138,9 +165,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
                         find_cgi(config, index_serv);
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
-                    {
                         check_files_open(event, m, this->full_Path);
-                    }
                 }
                 else if (config[index_serv].get_loc_auto_index(this->Path))
                     root_page(event, this->full_Path);

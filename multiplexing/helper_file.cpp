@@ -55,6 +55,15 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
         status_pro = "404";
 }
 
+string Request::handle_Path_location(string str, string str2)
+{
+    if (str[str.length() - 1] == '/' && str2[0] == '/')
+        str.erase(str.length() - 1, 1);
+    if (str2[0] != '/' && str[str.length() - 1] != '/')
+        str2.insert(0, "/");
+    return (str + str2);
+}
+
 void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m)
 {
     if (check_req == 0 && read_get == 1)
@@ -72,14 +81,16 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
 string Request::get_root(servers &config)
 {
     string root;
+    string tmp;
     if (!config[index_serv].get_loc_root(this->Path).empty())
         root = config[index_serv].get_loc_root(this->Path);
     else
         root = config[index_serv].get_root();
 
-    if (root[root.length() - 1] == '/' && full_Path[0] == '/')
-        root.erase(root.length() - 1, root.length());
-    this->full_Path.insert(0, root);
+    tmp = root;
+    if (tmp[tmp.length() - 1] == '/' && full_Path[0] == '/')
+        tmp.erase(tmp.length() - 1, tmp.length());
+    this->full_Path.insert(0, tmp);
     return (root);
 }
 

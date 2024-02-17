@@ -30,16 +30,6 @@ server {
         uploads_folder pars_config;
     }
 
-    location /root_page {
-        autoindex on;
-        root ./;
-        index root.html;
-        allow_methods GET POST;
-        return /test/fich.pdf;
-        allow_upload on;
-        uploads_folder uploads;
-    }
-
     location /cgi-bin {
         root ./;
         autoindex on;
@@ -61,8 +51,8 @@ server {
 }
 server {
     listen 8090;
-    server_name test0 localhost;
-    host 10.14.2.2;
+    server_name tes0t;
+    host 127.0.0.1;
     root ./;
 	autoindex on;
 
