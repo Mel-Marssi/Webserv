@@ -15,7 +15,8 @@ bool hasDuplicate(vector<string> vec1, vector<string> vec2)
 servers::servers(const string &av)
 {
 	ifstream config_fd(av.c_str());
-
+	if (!config_fd.is_open())
+		throw(runtime_error("Invalid configue file!"));
 	while (!config_fd.eof())
 	{
 		server.push_back(server_config(config_fd));
