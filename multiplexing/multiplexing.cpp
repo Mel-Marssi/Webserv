@@ -27,8 +27,6 @@ unsigned long ft_inet_addr(string str)
 	int i = 0;
 	long long byteValue[4];
 	int shift = 24;
-	if (str == "localhost")
-		str = "127.0.0.1";
 	stringstream ss(str);
 	string byteStr;
 
