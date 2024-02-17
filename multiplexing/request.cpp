@@ -102,7 +102,7 @@ Request::Request(const Request &obj)
     (void)obj;
 }
 
-int Request::parse_line(std::string line, int check_first)
+int Request::parse_line(string line, int check_first)
 {
     if (check_first == 0)
     {
@@ -110,19 +110,19 @@ int Request::parse_line(std::string line, int check_first)
         size_t found_POST = line.find("POST");
         size_t found_GET = line.find("GET");
         size_t found_DELETE = line.find("DELETE");
-        if (found_POST != std::string::npos)
+        if (found_POST != string::npos)
         {
-            header_request.insert(std::make_pair(line.substr(0, found_POST + 4), (line.substr(found_POST + 5, line.length()).c_str())));
+            header_request.insert(make_pair(line.substr(0, found_POST + 4), (line.substr(found_POST + 5, line.length()).c_str())));
             this->methode = POST;
         }
-        else if (found_GET != std::string::npos)
+        else if (found_GET != string::npos)
         {
-            header_request.insert(std::make_pair(line.substr(0, found_GET + 3), (line.substr(found_GET + 4, line.length()).c_str())));
+            header_request.insert(make_pair(line.substr(0, found_GET + 3), (line.substr(found_GET + 4, line.length()).c_str())));
             this->methode = GET;
         }
-        else if (found_DELETE != std::string::npos)
+        else if (found_DELETE != string::npos)
         {
-            header_request.insert(std::make_pair(line.substr(0, found_DELETE + 6), (line.substr(found_DELETE + 7, line.length()).c_str())));
+            header_request.insert(make_pair(line.substr(0, found_DELETE + 6), (line.substr(found_DELETE + 7, line.length()).c_str())));
             this->methode = DELETE;
         }
         else
@@ -139,9 +139,9 @@ int Request::parse_line(std::string line, int check_first)
         if (found_POINT != string::npos)
         {
             if (line[found_POINT + 1] == ' ')
-                header_request.insert(std::make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 2, line.length() - 1).c_str())));
+                header_request.insert(make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 2, line.length() - 1).c_str())));
             else
-                header_request.insert(std::make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 1, line.length() - 1).c_str())));
+                header_request.insert(make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 1, line.length() - 1).c_str())));
         }
     }
     return 0;
@@ -167,7 +167,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
         return 0;
     }
     string tmp;
-    if (check_body != std::string::npos)
+    if (check_body != string::npos)
     {
         if ((read_request[check_body] != '\r' || read_request[check_body + 1] != '\n' || read_request[check_body + 2] != '\r' || read_request[check_body + 3] != '\n'))
         {
@@ -178,7 +178,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     }
 
     check_body++;
-    std::string line;
+    string line;
     int check_first_line = 0;
     while (read_request[i] && i <= check_body) // && i <= check_body)//&& i <= check_body
     {
@@ -192,7 +192,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
         }
         i++;
     }
-    std::string l = header_request["Content-Length"];
+    string l = header_request["Content-Length"];
     size_request = atol(l.c_str());
     if (check_body + 3 < read_request.length())
     {
@@ -224,17 +224,17 @@ void Request::fill_content_type()
     cont_type["application/x-shellscript\r"] = ".sh";
 }
 
-void Request::create_file(std::ofstream &outputFile, std::map<std::string, std::string> &map, servers &config, int index)
+void Request::create_file(ofstream &outputFile, map<string, string> &map, servers &config, int index)
 {
 
-    std::string type_file = map["Content-Type"];
-    std::map<std::string, std::string>::iterator it = header_request.find(type_file);
+    string type_file = map["Content-Type"];
+    std::map<string, string>::iterator it = header_request.find(type_file);
     srand(time(NULL));
-    std::ostringstream str;
+    ostringstream str;
     str << rand();
     if (it != cont_type.end() && !cont_type[type_file].empty())
     {
-        std::string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str() + cont_type[type_file];
+        string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str() + cont_type[type_file];
         file_name_post = randomName;
         path_post = randomName;
         outputFile.open(randomName.c_str());
@@ -242,7 +242,7 @@ void Request::create_file(std::ofstream &outputFile, std::map<std::string, std::
     else
     {
          status_pro = "415";
-        std::string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
+        string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
         path_post = randomName;
         file_name_post = randomName;
         outputFile.open(randomName.c_str());
@@ -253,7 +253,7 @@ void Request::binary(servers &config, int index)
 {
     if (check_create_file == 0)
     {
-        std::map<std::string, std::string>::iterator oo = header_request.find("Content-Type");
+        map<string, string>::iterator oo = header_request.find("Content-Type");
         if (oo != header_request.end() && !header_request["Content-Type"].empty())
             create_file(outputFile, header_request, config, index);
         check_create_file = 1;
@@ -283,7 +283,7 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
 {
     (void)fd;
     (void)event;
-    std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
+    map<string, string>::iterator it = header_request.find("Transfer-Encoding");
     map<string, string>::iterator it0;
     it0 = header_request.find("Content-Length"); // Content-Length
     if (this->parse_url_prot("POST", config) == 1)
@@ -320,7 +320,7 @@ void Request::chunked(servers &config, int index)
 
     if (check_create_file == 0)
     {
-        std::map<std::string, std::string>::iterator itC = header_request.find("Content-Type");
+        map<string, string>::iterator itC = header_request.find("Content-Type");
         if (itC != header_request.end()&& !header_request["Content-Type"].empty())
             create_file(outputFile, header_request, config, index);
         check_create_file = 1;
@@ -332,7 +332,7 @@ void Request::chunked(servers &config, int index)
                 finir = 1;
             }
             int position_int = fir_body.find("\r\n");
-            std::string num = fir_body.substr(0, position_int);
+            string num = fir_body.substr(0, position_int);
             char *endptr;
 
             size_chunked = strtol(num.c_str(), &endptr, 16);
@@ -363,9 +363,9 @@ string Request::generat_name(string name, servers &config, int index, string con
         return generat;
     while (1)
     {
-        std::stringstream ss;
+        stringstream ss;
         ss << i;
-        std::string str = ss.str();
+        string str = ss.str();
         generat = config[index].get_loc_up_folder(Path) + "/" + name + "(" + str + ")" + cont_type[content];
         if (access(generat.c_str(), F_OK) == -1)
             return generat;
@@ -373,21 +373,21 @@ string Request::generat_name(string name, servers &config, int index, string con
     }
 }
 
-void Request::create_file_bondar(std::ofstream &outputFile, std::map<std::string, std::string> &map, servers &config, int index, string name, string content)
+void Request::create_file_bondar(ofstream &outputFile, map<string, string> &map, servers &config, int index, string name, string content)
 {
     (void)map;
     content = content + "\r";
-    std::string type_file = content;
+    string type_file = content;
 
-    std::map<std::string, std::string>::iterator it = cont_type.find(type_file);
+    std::map<string, string>::iterator it = cont_type.find(type_file);
     srand(time(NULL));
-    std::ostringstream str;
+    ostringstream str;
     str << rand();
 
     if (it != cont_type.end())
     {
         // name  = generat_name(name, config, index, content);
-        std::string randomName = generat_name(name, config, index, content); // config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
+        string randomName = generat_name(name, config, index, content); // config[index].get_loc_up_folder(Path) + "/" + name   + cont_type[content];
                                                                              //  cout << randomName << endl;
         path_post = randomName;
         files.push_back(randomName);
@@ -396,8 +396,8 @@ void Request::create_file_bondar(std::ofstream &outputFile, std::map<std::string
     }
     else
     {
-        // std::string randomName = str.str() + ".x";
-        std::string randomName = generat_name(name, config, index, "text/plain\r"); // config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
+        // string randomName = str.str() + ".x";
+        string randomName = generat_name(name, config, index, "text/plain\r"); // config[index].get_loc_up_folder(Path) + "/" + name   + ".txt";
                                                                                     //  cout << randomName<<"\n";
         path_post = randomName;
 
@@ -421,7 +421,7 @@ void Request::boundar(servers &config, int index)
         {
             size_t position_int = fir_body.find("\r\n\r\n");
 
-            std::string boundary = fir_body.substr(0, position_int);
+            string boundary = fir_body.substr(0, position_int);
             // cout << boundary << endl;
             string filename_content = boundary.substr(boundary.find("name=\""));
             string l = filename_content.substr(6, filename_content.length());
@@ -483,7 +483,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
         finir = 0;
         vector<string>::iterator itt = files.begin();
         for (; itt != files.end(); itt++)
-            std::remove((*itt).c_str());
+            remove((*itt).c_str());
         status_pro = "413";
         fake_bondary = "NULL";
         return;
@@ -499,7 +499,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
                 status_pro = "500";
                 vector<string>::iterator itt = files.begin();
                 for (; itt != files.end(); itt++)
-                    std::remove((*itt).c_str());
+                    remove((*itt).c_str());
                 fake_bondary = "NULL";
                 return ;
             }
@@ -540,7 +540,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
                     fake_bondary = read_request;
                     return;
                 }
-                std::string boundary = read_request.substr(0, position_int);
+                string boundary = read_request.substr(0, position_int);
                 if (boundary.find("name=\"") == string::npos)
                 {
                     fake_bondary = read_request.substr(position_int + 4);
@@ -581,7 +581,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
             finir = 0;
             vector<string>::iterator itt = files.begin();
             for (; itt != files.end(); itt++)
-                std::remove((*itt).c_str());
+                remove((*itt).c_str());
             status_pro = "413";
             fake_bondary = "NULL";
             return;
@@ -599,7 +599,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
         finir = 0;
         vector<string>::iterator itt = files.begin();
         for (; itt != files.end(); itt++)
-            std::remove((*itt).c_str());
+            remove((*itt).c_str());
         status_pro = "413";
         fake_bondary = "NULL";
         return;
@@ -608,8 +608,8 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
 
 void Request::post(int fd, servers &config, epoll_event &event)
 {
-    std::map<std::string, std::string>::iterator it = header_request.find("Transfer-Encoding");
-    std::map<std::string, std::string>::iterator itC = header_request.find("Content-Type");
+    map<string, string>::iterator it = header_request.find("Transfer-Encoding");
+    map<string, string>::iterator itC = header_request.find("Content-Type");
 // cout << atol(header_request["Content-Length"].c_str()) << endl;
   
     if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0 || (event.events & EPOLLIN)) && status_pro != "NULL")
@@ -676,7 +676,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
             outputFile.close();
             // size_read_request = 0;
             finir = 0;
-            std::remove(file_name_post.c_str());
+            remove(file_name_post.c_str());
             if (status_pro != "504")
                 status_pro = "413";
             return;
@@ -696,7 +696,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                     outputFile.close();
                     size_read_request = 0;
                     finir = 1;
-                    std::remove(file_name_post.c_str());
+                    remove(file_name_post.c_str());
                     status_pro = "500";
                     return;
                 }
@@ -723,7 +723,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                     read_request.append(buff, a);
                     read_request = read_request.substr(2, size);
                     size_t position_int = read_request.find("\r\n");
-                    std::string num = read_request.substr(0, position_int);
+                    string num = read_request.substr(0, position_int);
                     read_request = read_request.substr(position_int + 2, size);
                     // outputFile << read_request;
                     outputFile.write(read_request.c_str(), read_request.length());
@@ -753,7 +753,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                         outputFile.close();
                         size_read_request = 0;
                         finir = 1;
-                        std::remove(file_name_post.c_str());
+                        remove(file_name_post.c_str());
                         status_pro = "500";
                         return;
                     }
@@ -776,7 +776,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                         outputFile.close();
                         size_read_request = 0;
                         finir = 1;
-                        std::remove(file_name_post.c_str());
+                        remove(file_name_post.c_str());
                         status_pro = "500";
                         return;
                     }
@@ -832,7 +832,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
             outputFile.close();
             // size_read_request = 0;
             finir = 0;
-            std::remove(file_name_post.c_str());
+            remove(file_name_post.c_str());
              if (status_pro != "415")
                 status_pro = "413";
             return;
