@@ -305,7 +305,10 @@ void multiplexing::run(servers &config)
 					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
 					if ((timeOut >= 30))
 					{
-						request[event_fd].error_page(event_wait[i], "504", config);
+						if (request[event_fd].status_pro != "NULL")
+                            request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
+                        else
+							request[event_fd].error_page(event_wait[i], "504", config);
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 						request.erase(event_fd);
