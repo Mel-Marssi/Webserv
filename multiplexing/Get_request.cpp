@@ -115,7 +115,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             string str = this->Path;
             if (str[0] == '/' && root[root.length() - 1] == '/')
                 root.erase(root.length() - 1, root.length());
-            // close_dir();//==============================
             dire = opendir((root + str).c_str());
             if (dire)
             {
@@ -189,7 +188,8 @@ void Request::Generate_req_second(epoll_event &event)
         str += line;
         str += "\r\n";
         len = str.length();
-        send(event.data.fd, str.c_str(), len, 0);
+        if (send(event.data.fd, str.c_str(), len, 0) < 0)
+            status_pro = "500";
         line = "";
         if (op.eof())
             end_of_file(event);
@@ -219,7 +219,8 @@ void Request::Generate_req_second(epoll_event &event)
         str += "\r\n";
         len = str.length();
 
-        send(event.data.fd, str.c_str(), len, 0);
+        if (send(event.data.fd, str.c_str(), len, 0) < 0)
+            status_pro = "500";
         line = "";
         if (op_cgi.eof())
             end_of_file(event);

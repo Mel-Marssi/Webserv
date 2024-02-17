@@ -487,9 +487,20 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
     }
     if (acces_read_in_post == 1)
     {
-        size_t a = 0;
+        int a = 0;
         if ((event.events & EPOLLIN))
+        {
             a = read(fd, buff, 1024);
+            if (a < 0)
+            {
+                status_pro = "500";
+                vector<string>::iterator itt = files.begin();
+                for (; itt != files.end(); itt++)
+                    std::remove((*itt).c_str());
+                fake_bondary = "NULL";
+                return ;
+            }
+        }
         read_request.clear();
         if (fake_bondary != "NULL")
         {
@@ -602,13 +613,17 @@ void Request::post(int fd, servers &config, epoll_event &event)
     {
         size_read_request = 0;
         err = 0;
-        size_t s = 0;
+        int s = 0;
         char buff[2048];
 
         if (check_read_get == 1)
         {
             s = read(event.data.fd, buff, 2048);
-            //  cout << s << endl;
+            if (s < 0)
+            {
+                status_pro = "500";
+                return ;
+            }
             size_body_get += s;
             read_request.clear();
             read_request.append(buff, s);
@@ -672,6 +687,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 if (rest == 0)
                     size = 0;
                 a = read(fd, buff, 2048 - size);
+                if (a < 0)
+                {
+                    outputFile.close();
+                    size_read_request = 0;
+                    finir = 1;
+                    std::remove(file_name_post.c_str());
+                    status_pro = "500";
+                    return;
+                }
                 size_chuked += a;
                 if (a < 2048 - size)
                 {
@@ -726,6 +750,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 if (size_chunked - total >= 2048)
                 {
                     size = read(fd, buff, 2048);
+                    if (size < 0)
+                    {
+                        outputFile.close();
+                        size_read_request = 0;
+                        finir = 1;
+                        std::remove(file_name_post.c_str());
+                        status_pro = "500";
+                        return;
+                    }
                     size_chuked += size;
                     total += size;
                     read_request.append(buff, size);
@@ -740,6 +773,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 else if (size_chunked - total > 0)
                 {
                     size = read(fd, buff, size_chunked - total);
+                    if (size < 0)
+                    {
+                        outputFile.close();
+                        size_read_request = 0;
+                        finir = 1;
+                        std::remove(file_name_post.c_str());
+                        status_pro = "500";
+                        return;
+                    }
                     total += size;
                     size_chuked += size;
                     if (size == (size_chunked - total))
@@ -830,13 +872,20 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
                 size = 0;
                 size = read(fd, buff, 2048);
+                if (size < 0)
+                {
+                    outputFile.close();
+                    size_read_request = 0;
+                    finir = 1;
+                    std::remove(file_name_post.c_str());
+                    status_pro = "500";
+                    return;
+                }
                 size_read_request += size;
                 read_request.append(buff, size);
-                // cout << read_request << endl;
                 outputFile << read_request;
                 read_request.clear();
                 return;
-                // parce_request(read_request);
             }
             binary(config, index_serv);
             if (check_left_header == 1)

@@ -7,7 +7,7 @@ unsigned long ft_inet_addr(const char *str)
 {
 	unsigned long addr = 0;
 	int i = 0;
-	unsigned long byteValue[4];
+	long long byteValue[4];
 	int shift = 24;
 	int byteCount = 0;
 	stringstream ss(str);
@@ -95,8 +95,6 @@ multiplexing::multiplexing(servers &config)
 			}
 			else
 			{
-				// request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, config.get_server_name(atoi(server_book[event_fd].first.c_str())));
-				// cout << "index_serv: " << request[event_fd].index_serv << endl;
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
@@ -121,6 +119,8 @@ multiplexing::multiplexing(servers &config)
 					char buff[1024];
 					request[event_fd].size = 0;
 					request[event_fd].size = read(event_fd, buff, 1024);
+					if (request[event_fd].size < 0)
+						request[event_fd].status_pro = "500";
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd].size_read_request += request[event_fd].size;
 
@@ -128,7 +128,6 @@ multiplexing::multiplexing(servers &config)
 					{
 						request[event_fd].read_request.append(buff, request[event_fd].size);
 						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-						//   cout << request[event_fd].read_request << endl;
 					}
 					if (request[event_fd].check_left_header == 0)
 					{
@@ -146,7 +145,6 @@ multiplexing::multiplexing(servers &config)
 							{
 								request[event_fd]._host.erase(f, request[event_fd]._host.length());
 								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
-								cout << "index_serv: " << request[event_fd].index_serv << endl;
 							}
 						}
 						else
@@ -181,7 +179,7 @@ multiplexing::multiplexing(servers &config)
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd].epoll_fd_tmp = epoll_fd;
-					request[event_fd].Delete_Function(event_wait[i], config, epoll_fd, cont_type);
+					request[event_fd].Delete_Function(event_wait[i] ,config);
 					request[event_fd].response_for_delete(event_wait[i]);
 					flg_remv = 1;
 				}
@@ -198,7 +196,7 @@ multiplexing::multiplexing(servers &config)
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
 					// head += request[fd_client].path_post;
-					size_t i = 0;
+					// size_t i = 0;
 					i = request[event_fd].path_post.find("/", 1);
 					string ff = "/" + request[event_fd].path_post;
 					// if (i != string::npos)
@@ -235,7 +233,8 @@ multiplexing::multiplexing(servers &config)
 								request[event_fd].cgi_post = true;
 								continue;
 							}
-							send(event_fd, request[event_fd].resp_post().c_str(), 862, 0);
+							if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
+								request[event_fd].error_page(event_wait[i], "500", config);
 						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -251,10 +250,7 @@ multiplexing::multiplexing(servers &config)
 					if (flg_remv == 1)
 					{
 						if (!request[event_fd].cgi_file.empty() )
-						{
-							// cout << "remove: " << request[event_fd].cgi_file << endl;
 							remove(request[event_fd].cgi_file.c_str());
-						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 						map<int, Request>::iterator it = request.find(event_fd);
@@ -269,7 +265,7 @@ multiplexing::multiplexing(servers &config)
 					struct timeval end;
 					gettimeofday(&end, NULL);
 					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
-					if ((timeOut >= 8))
+					if ((timeOut >= 30))
 					{
 						request[event_fd].error_page(event_wait[i], "504", config);
 						close(event_fd);

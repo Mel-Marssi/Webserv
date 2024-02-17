@@ -1,13 +1,8 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd, map<string, string> &m)
+void Request::Delete_Function(epoll_event &event, servers &config)
 {
-	(void)event;
-	(void)config;
-	(void)epoll_fd;
-	(void)m;
-
     if (this->parse_url_prot("DELETE", config) == 1)
         return ; 
 
@@ -23,17 +18,16 @@ void Request::Delete_Function(epoll_event &event, servers &config, int epoll_fd,
 			else
 				root_page(event, ((str.erase((str.length() - 1), 1) + this->full_Path)));
 		}
-		else//forbiden 
+		else
 			status_pro = "403";
 	}
 	else if (check_permission_F(root) == 1)
-        delete_content(root, event);
+        delete_content(root);
     else
         status_pro = "404";
-        // error_page(event, epoll_fd, "404", config);
 }
 
-void Request::delete_content(string pat, epoll_event& event)
+void Request::delete_content(string pat)
 {
     DIR* FOLDER;
     struct dirent* entre;
@@ -54,7 +48,7 @@ void Request::delete_content(string pat, epoll_event& event)
                     if (fold)
                     {
                         if ((entre1 = readdir(fold)) != NULL)
-                            delete_content(str, event);
+                            delete_content(str);
                         else
                             std::remove((str).c_str());
                         closedir(fold);

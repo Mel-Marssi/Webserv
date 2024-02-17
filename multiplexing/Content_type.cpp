@@ -88,7 +88,8 @@ void Request::redirection_content(epoll_event &event, servers &config, string st
         head += this->Path + "/";
     head += "\r\n\r\n";
     size_t len = head.length();
-    send(event.data.fd, head.c_str(), len, 0);
+    if (send(event.data.fd, head.c_str(), len, 0) < 0)
+        status_pro = "500";
     fin_or_still = finish;
     close_dir();
 }
