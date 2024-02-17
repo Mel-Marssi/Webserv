@@ -9,20 +9,7 @@ class servers
 	public:
 		vector<server_config> server;
 		servers(const string &av);
-		// int get_port(int server_key);
-		// string get_root(int server_key);
-		string get_server_name(int server_key);
-		// string get_index(int server_key);
-		// // port and hostname and servername
-		// bool get_loc_delete(const string &name);
-		// bool get_loc_post(const string &name);
-		// bool get_loc_get(const string &name);
-		// bool get_loc_auto_index(const string &name);
-		// string get_loc_root(const string &name);
-		// string get_loc_index(const string &name);
-		// string get_loc_redirection(const string &name);
-		// string get_loc_cgi_path(const string &name);
-		// bool get_loc_path_location(const string &name);
+		void run_checks();
 		server_config &operator[](int i);
 		int size();
 		~servers();

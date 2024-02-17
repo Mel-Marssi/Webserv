@@ -1,7 +1,7 @@
-#include"pars_config/servers.hpp"
+#include "pars_config/servers.hpp"
 #include "multiplexing/multiplexing.hpp"
 
-int main(int ac , char **av)
+int main(int ac, char **av)
 {
 	string config_file;
 	if (ac == 2)
@@ -15,9 +15,12 @@ int main(int ac , char **av)
 	try
 	{
 		servers configs(config_file);
-		multiplexing tmp(configs);
+		configs.run_checks();
+		multiplexing server(configs);
 	}
-	catch(const std::exception& e)
-	{std::cerr << e.what() << '\n';}
-	
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+		// sleep(5);
+	}
 }

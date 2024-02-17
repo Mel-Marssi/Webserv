@@ -102,6 +102,8 @@ void server_config::setup_server_info(ifstream &config_fd)
 			cscan >> word;
 			if (get_host().empty() == false)
 				throw(runtime_error("Invalid configue file!"));
+			if (word == "localhost")
+				word = "127.0.0.1";
 			host = word;
 			cscan >> word;
 			if (word != ";")

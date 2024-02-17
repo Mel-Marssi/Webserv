@@ -32,17 +32,9 @@ unsigned long ft_inet_addr(string str)
 	}
 	return addr;
 }
-multiplexing::multiplexing(servers &config)
-{
-	int server_socket[config.size()];
-	struct sockaddr_in adress;
-	int wait_fd, set_socket = 1;
-	int fd_client;
-	int epoll_fd = epoll_create(1024);
-	if (epoll_fd < 0)
-		throw(runtime_error("epoll_create() call failed!"));
-	struct epoll_event event, event_wait[1024];
 
+void multiplexing::setup_server_socket(servers &config, int *server_socket)
+{
 	for (int i = 0; i < config.size(); i++)
 	{
 		stringstream int_to_string;
@@ -55,21 +47,49 @@ multiplexing::multiplexing(servers &config)
 		server_book[server_socket[i]] = make_pair(int_to_string.str(), config[i].get_host());
 
 		if (setsockopt(server_socket[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &set_socket, sizeof(set_socket)) < 0)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				close(epoll_fd);
+				close(server_socket[j]);
+			}
 			throw(runtime_error("setsockopt() call failed!"));
+		}
 		if (bind(server_socket[i], (const sockaddr *)&adress, sizeof(adress)) < 0)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				close(epoll_fd);
+				close(server_socket[j]);
+			}
 			throw(runtime_error("bind() call failed!"));
-		if (listen(server_socket[i], 0) < 0)
+		}
+		if (listen(server_socket[i], 1024) < 0)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				close(epoll_fd);
+				close(server_socket[j]);
+			}
 			throw(runtime_error("listen() call failed!"));
+		}
 		event.data.fd = server_socket[i];
 		event.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket[i], &event) < 0)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				close(epoll_fd);
+				close(server_socket[j]);
+			}
 			throw(runtime_error("epoll_ctl() call failed!"));
+		}
 	}
-	// Methode GET fill Content Type : =======================
-	this->fill_content_type();
-	int flg_remv = 0;
-	//================================================
-	for (;;)
+	fill_content_type();
+}
+void multiplexing::run(servers &config,int *server_socket)
+{
+for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
 
@@ -272,6 +292,18 @@ multiplexing::multiplexing(servers &config)
 			}
 		}
 	}
+}
+multiplexing::multiplexing(servers &config)
+{
+	int server_socket[config.size()];
+	set_socket = 1;
+	flg_remv = 0;
+	epoll_fd = epoll_create(1);
+	if (epoll_fd < 0)
+		throw(runtime_error("epoll_create() call failed!"));
+
+	setup_server_socket(config, server_socket);
+	run(config, server_socket);
 }
 multiplexing::~multiplexing()
 {

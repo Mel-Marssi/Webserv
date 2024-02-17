@@ -45,7 +45,6 @@ class server_config
 		int get_port();
 		bool get_server_auto_index();
 		string get_root();
-		string get_server_name();
 		vector<string> get_server_names();
 		string get_index();
 		string get_host();

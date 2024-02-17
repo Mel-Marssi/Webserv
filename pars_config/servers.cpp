@@ -21,12 +21,14 @@ servers::servers(const string &av)
 	{
 		server.push_back(server_config(config_fd));
 	}
+}
+void servers::run_checks()
+{
 	for (server_iterator it = server.begin(); it != server.end(); it++)
 	{
 		if (it->get_host().empty() || it->get_port() == -1)
 			throw(runtime_error("Missing Server Name or Host or Port!"));
 		int port = it->get_port();
-		// string server_name = it->get_server_names()[];
 		string host = it->get_host();
 
 		for (server_iterator it2 = it + 1; it2 != server.end(); it2++)
@@ -39,13 +41,13 @@ servers::servers(const string &av)
 		}
 	}
 }
-
 int get_right_index(vector<server_config> server, int port, string host, string server_name)
 {
 	int i = 0;
 	int tmp_serv = -1;
 	vector<string> tmp_server_name;
 
+	// cout << "port: " << port << " host: " << hoste << " server_name: " << server_name << endl;
 	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
 	{
 		tmp_server_name = it->get_server_names();
@@ -57,11 +59,10 @@ int get_right_index(vector<server_config> server, int port, string host, string 
 				return (i);
 		}
 	}
-	if(tmp_serv != -1)
+	if (tmp_serv != -1)
 		return (tmp_serv);
 	return (0);
 }
-
 
 int servers::size()
 {

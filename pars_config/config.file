@@ -12,7 +12,6 @@ server {
         autoindex on;
         allow_upload on;
         uploads_folder pars_config;
- 
     }
 
     location /test {
@@ -62,7 +61,7 @@ server {
 }
 server {
     listen 8090;
-    server_name tes0t;
+    server_name test0;
     host 127.0.0.1;
     root ./;
 	autoindex on;
