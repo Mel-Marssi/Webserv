@@ -8,7 +8,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     (void)server_book;
     (void)fd_client;
     flag_read_cgi = 1;
-
+    root = "";
     flg_pars_url =0;
     type = "NULL";
     size_File_boundri = 0;

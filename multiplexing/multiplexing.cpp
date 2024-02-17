@@ -206,7 +206,6 @@ void multiplexing::run(servers &config)
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd]._port = server_book[event_fd].first;
-					request[event_fd]._host = server_book[event_fd].second;
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;
