@@ -3,32 +3,28 @@
 #include "request.hpp"
 #include "../cgi-bin/cgi_handler.hpp"
 
-unsigned long ft_inet_addr(const char *str)
+unsigned long ft_inet_addr(string str)
 {
 	unsigned long addr = 0;
 	int i = 0;
 	long long byteValue[4];
 	int shift = 24;
-	int byteCount = 0;
+	if (str == "localhost")
+		str = "127.0.0.1";
 	stringstream ss(str);
 	string byteStr;
 
 	while (getline(ss, byteStr, '.'))
 	{
+		if (i >= 4)
+			throw(runtime_error("Invalid IP address format not IPv4 format"));
 		byteValue[i] = atoi(byteStr.c_str());
 		if (byteValue[i] < 0 || byteValue[i] > 255)
-		{
 			throw(runtime_error("Invalid IP address format"));
-		}
-		byteCount++;
 		i++;
 	}
-	if (byteCount != 4)
-	{
-		throw(runtime_error("Invalid IP address format not IPv4 format"));
-	}
 	i = 3;
-	while (shift >= 0)
+	while (shift >= 0 && i >= 0)
 	{
 		addr += byteValue[i] << shift;
 		shift -= 8;
@@ -52,7 +48,7 @@ multiplexing::multiplexing(servers &config)
 		stringstream int_to_string;
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw(runtime_error("socket() call failed!"));
-		adress.sin_addr.s_addr = ft_inet_addr(config[i].get_host().c_str());
+		adress.sin_addr.s_addr = ft_inet_addr(config[i].get_host());
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
 		int_to_string << config[i].get_port();
@@ -179,7 +175,7 @@ multiplexing::multiplexing(servers &config)
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd].epoll_fd_tmp = epoll_fd;
-					request[event_fd].Delete_Function(event_wait[i] ,config);
+					request[event_fd].Delete_Function(event_wait[i], config);
 					request[event_fd].response_for_delete(event_wait[i]);
 					flg_remv = 1;
 				}
@@ -226,7 +222,7 @@ multiplexing::multiplexing(servers &config)
 							request[event_fd].error_page(event_wait[i], "400", config);
 						else
 						{
-							if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post ==false)
+							if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)
 							{
 								request[event_fd].finir = 0;
 								request[event_fd].size_read_request = -1;
@@ -249,7 +245,7 @@ multiplexing::multiplexing(servers &config)
 
 					if (flg_remv == 1)
 					{
-						if (!request[event_fd].cgi_file.empty() )
+						if (!request[event_fd].cgi_file.empty())
 							remove(request[event_fd].cgi_file.c_str());
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
