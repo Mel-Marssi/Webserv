@@ -1,7 +1,7 @@
 server {
     listen 8090;
     server_name asas test;
-    host localhost;
+    host localhosasdat;
     root ./;
     index index.html;
     error_pages 400 index.ml;

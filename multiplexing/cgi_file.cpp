@@ -6,8 +6,7 @@
 void Request::cgi_handle_get(epoll_event &event, servers &config)
 {
 	int status;
-	(void)config;
-
+(void)	config;
 	if (Path.find("cgi") != std::string::npos)
 	{
 		int out;
@@ -17,6 +16,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec/1000000) - (start_cgi.tv_sec + start_cgi.tv_usec/1000000)));
+			// cout << "timeOut: " << timeOut << endl;
 			if (timeOut >= 30)
 			{
 				if (pid != 0)
