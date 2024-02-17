@@ -2,6 +2,7 @@
 #include "server_config.hpp"
 
 typedef vector<server_config>::iterator server_iterator;
+typedef vector<string>::iterator string_iterator;
 class servers
 {
 	

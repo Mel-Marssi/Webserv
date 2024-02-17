@@ -125,7 +125,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
                     {
-                        cout << "-------================\n";
                         file_get = config[index_serv].get_loc_index(this->Path);
                         find_cgi(config, index_serv);
                     }

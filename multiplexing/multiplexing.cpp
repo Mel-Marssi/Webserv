@@ -195,7 +195,6 @@ multiplexing::multiplexing(servers &config)
 				if (request[event_fd].cgi_post == true)
 				{
 					string head;
-					cout << "CGI POST\n";
 					head += "HTTP/1.1 ";
 					head += "301 Moved Permanently\r\nLocation: ";
 					// head += request[fd_client].path_post;

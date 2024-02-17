@@ -62,8 +62,8 @@ server {
 }
 server {
     listen 8090;
-    server_name test;
-    host 127.0.0.2;
+    server_name tes0t;
+    host 127.0.0.1;
     root ./;
 	autoindex on;
 
