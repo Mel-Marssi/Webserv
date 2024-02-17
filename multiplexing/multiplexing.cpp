@@ -87,9 +87,9 @@ void multiplexing::setup_server_socket(servers &config, int *server_socket)
 	}
 	fill_content_type();
 }
-void multiplexing::run(servers &config,int *server_socket)
+void multiplexing::run(servers &config, int *server_socket)
 {
-for (;;)
+	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
 
