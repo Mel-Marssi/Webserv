@@ -60,6 +60,12 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     i = 1;
     i = this->Path.find("/", i);
+    cout << "Path: " << Path << endl;
+    if (Path[i] == '/' && (Path[i + 1] == '/' || Path[i - 1] == '/'))
+    {
+        status_pro = "404";
+        return 1;
+    }
     if (i != string::npos)
         handle_Path(i);
     else
@@ -85,6 +91,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         status_pro = "405";
     else if (this->Path == "/")
     {
+        cout << Path << endl;
         string index_file;
         if (!config[index_serv].get_loc_index(Path).empty())
             index_file = config[index_serv].get_loc_index(Path);
@@ -123,10 +130,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         {
             if (config[index_serv].get_loc_auto_index(this->Path))
             {
-                // if (Path[0] == '/' && root[root.length() - 1] == '/')
-                //     root_page(event, ((root.erase((root.length() - 1), 1) + Path)));
-                // else
-                //     root_page(event, ((root + Path)));
                 string tmp = handle_Path_location(root, Path);
                 root_page(event, tmp);
             }
@@ -138,9 +141,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     {
         if (config[index_serv].get_loc_redirection(this->Path) == "")
         {
-            // string str = this->Path;
-            // if (str[0] == '/' && root[root.length() - 1] == '/')
-            //     root.erase(root.length() - 1, root.length());
             string tmp = handle_Path_location(root, Path);
             dire = opendir(tmp.c_str());
             if (dire)

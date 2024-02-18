@@ -56,7 +56,7 @@ server {
     root ./;
 	autoindex on;
 
-    location / {
+    location /// {
         allow_methods  DELETE POST GET;
         autoindex on;
         allow_upload on;
