@@ -54,7 +54,15 @@ void multiplexing::setup_server_socket(servers &config)
 	{
 		stringstream int_to_string;
 		if ((server_socket[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				close(epoll_fd);
+				close(server_socket[j]);
+				delete[] server_socket;
+			}
 			throw(runtime_error("socket() call failed!"));
+		}
 		adress.sin_addr.s_addr = ft_inet_addr(config[i].get_host());
 		adress.sin_family = AF_INET;
 		adress.sin_port = htons(config[i].get_port());
