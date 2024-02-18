@@ -255,7 +255,7 @@ void Request::Generate_req_second(epoll_event &event)
 void Request::default_error(string key, int fd)
 {
     string head;
-    string status = "TimeOut Gateway";
+    string status = get_status_code(key);
     int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
     std::ostringstream oss;
     oss << size;
