@@ -123,7 +123,7 @@ void multiplexing::run(servers &config)
 
 		for (int i = 0; i < wait_fd; i++)
 		{
-			int &event_fd = event_wait[i].data.fd;
+			int event_fd = event_wait[i].data.fd;
 			if (event_fd <= server_socket[config.size() - 1])
 			{
 				server_book[event_fd];
@@ -214,10 +214,16 @@ void multiplexing::run(servers &config)
 				{
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd]._port = server_book[event_fd].first;
+					// cout << "GEt Method"<<endl;	
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
 					{
 						request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
+						if (request[event_fd].pid != 0)
+						{
+							kill(request[event_fd].pid, SIGKILL);
+							waitpid(request[event_fd].pid, NULL, 0);
+						}
 						remove(request[event_fd].cgi_file.c_str());
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -292,6 +298,7 @@ void multiplexing::run(servers &config)
 							if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
 								request[event_fd].error_page(event_wait[i], "500", config);
 						}
+
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 
@@ -305,8 +312,12 @@ void multiplexing::run(servers &config)
 
 					if (flg_remv == 1)
 					{
-						if (!request[event_fd].cgi_file.empty())
+						if (request[event_fd ].pid != 0)
+						{
+							kill(request[event_fd].pid, SIGKILL);
+							waitpid(request[event_fd].pid, NULL, 0);
 							remove(request[event_fd].cgi_file.c_str());
+						}
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 						map<int, Request>::iterator it = request.find(event_fd);

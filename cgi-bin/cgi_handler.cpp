@@ -10,6 +10,7 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void execute_cgi(Request &req, server_config &config)
 {
+	cout << "execute_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	req.flag_read_cgi = 1;

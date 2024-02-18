@@ -37,6 +37,7 @@
 class Request
 {
     public:
+    bool timeOut;
         bool cgi_post;
         int fd_cgi;
         int flag_read_cgi;

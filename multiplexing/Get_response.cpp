@@ -23,7 +23,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     op_cgi.seekg(0, ios::beg);
 
     char buffer[1024];
-    memset(buffer, 0, 1024 );
+    memset(buffer, 0, 1024);
     op_cgi.read(buffer, 1024);
     //--- size of what read is reading ---
     std::streamsize bytesRead = op_cgi.gcount();
@@ -61,21 +61,28 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
         {
             len = buffer.length();
             if (send(event.data.fd, buffer.c_str(), len, 0) < 0)
+            {
+                cout << "SEND ERROR0" << endl;
+                exit(5);
                 status_pro = "500";
+            }
             buffer = "";
         }
         else
         {
             len = head.length();
             if (send(event.data.fd, head.c_str(), len, 0) < 0)
+            {
+                cout << "SEND ERROR0" << endl;
+                exit(4);
                 status_pro = "500";
+            }
             buffer = "";
         }
     }
     line = "";
     head = "";
 }
-
 
 void Request::end_of_file(epoll_event &event)
 {
@@ -85,7 +92,11 @@ void Request::end_of_file(epoll_event &event)
         string str;
         str += "0\r\n\r\n";
         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+        {
+            cout << "SEND ERROR" << endl;
+            exit(6);
             status_pro = "500";
+        }
         fin_or_still = finish;
         op.close();
         close_dir();
@@ -124,7 +135,7 @@ int Request::check_permission_X(string str)
 
 int Request::is_open_diir(string str)
 {
-    DIR* d;
+    DIR *d;
     d = opendir(str.c_str());
     if (d)
     {
@@ -158,15 +169,19 @@ void Request::response_for_delete(epoll_event &event)
     len = head.length();
 
     if (send(event.data.fd, head.c_str(), len, 0) < 0)
+    {
+        cout << "SEND ERROR" << endl;
+        exit(50);
         status_pro = "500";
+    }
 }
 
 string Request::get_the_p(servers &config, string Path)
 {
-	string root = config[index_serv].get_loc_root(this->Path);
-	if (root == "")
-		root = config[index_serv].get_root();
-    
+    string root = config[index_serv].get_loc_root(this->Path);
+    if (root == "")
+        root = config[index_serv].get_root();
+
     if (((Path[0] == '/') && (root[root.length() - 1] == '/')))
         root.erase(root.length() - 1, 1);
     root += Path;

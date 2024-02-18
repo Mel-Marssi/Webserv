@@ -214,7 +214,11 @@ void Request::Generate_req_second(epoll_event &event)
         str += "\r\n";
         len = str.length();
         if (send(event.data.fd, str.c_str(), len, 0) < 0)
+        {
+            cout << "SEND ERROR" << endl;
+            exit(5 );
             status_pro = "500";
+        }
         line = "";
         if (op.eof())
             end_of_file(event);
@@ -245,7 +249,11 @@ void Request::Generate_req_second(epoll_event &event)
         len = str.length();
 
         if (send(event.data.fd, str.c_str(), len, 0) < 0)
+        {
+            cout << "SEND ERROR" << endl;
+            exit(5 );
             status_pro = "500";
+        }
         line = "";
         if (op_cgi.eof())
             end_of_file(event);
@@ -256,16 +264,29 @@ void Request::default_error(string key, int fd)
 {
     string response;
     map<string, string>::iterator it = status_code.find(key);
-    if (it != status_code.end()) {
-        ostringstream oss;
-		string tmp = "<html><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
-        oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n" << tmp;
-        response = oss.str();
+    if (it != status_code.end())
+    {
+        if (methode != "HEAD")
+        {
+            ostringstream oss;
+            string tmp = "<html><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
+            oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n" << tmp;
+            response = oss.str();
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "HTTP/1.1 " << key << it->second << "\r\n\r\n";
+            response = oss.str();
+        }
     }
 
     if (send(fd, response.c_str(), response.length(), 0) < 0)
-        status_pro = "500";
-    // return response;
+        {
+            cout << "SEND ERROR" << endl;
+            status_pro = "500";
+            // exit(501 );
+        }
 }
 
 void Request::error_page(epoll_event &event, string key, servers &config)
@@ -291,7 +312,11 @@ void Request::error_page(epoll_event &event, string key, servers &config)
         len = head.length();
         line = "";
         if (send(event.data.fd, head.c_str(), len, 0) < 0)
+        {
+            cout << "SEND ERROR" << endl;
             status_pro = "500";
+            exit(2 );
+        }
         end_of_file(event);
         ovp.close();
     }
