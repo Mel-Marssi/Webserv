@@ -10,14 +10,13 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 	if (Path.find("cgi") != std::string::npos)
 	{
 		int out;
-		struct timeval end;
 		if ((out = waitpid(pid, &status, WNOHANG)) == 0)
 		{
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec/1000000) - (start_cgi.tv_sec + start_cgi.tv_usec/1000000)));
-			// cout << "timeOut: " << timeOut << endl;
-			if (timeOut >= 30)
+			cout << "timeOut: "  << pid << " " << timeOut << endl;
+			if (timeOut >= 10)
 			{
 				if (pid != 0)
 				{

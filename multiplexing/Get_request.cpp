@@ -60,7 +60,7 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     i = 1;
     i = this->Path.find("/", i);
-    cout << "Path: " << Path << endl;
+    // cout << "Path: " << Path << endl;
     if (Path[i] == '/' && (Path[i + 1] == '/' || Path[i - 1] == '/'))
     {
         status_pro = "404";
@@ -91,7 +91,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         status_pro = "405";
     else if (this->Path == "/")
     {
-        cout << Path << endl;
+        // cout << Path << endl;
         string index_file;
         if (!config[index_serv].get_loc_index(Path).empty())
             index_file = config[index_serv].get_loc_index(Path);
@@ -120,7 +120,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     if (config[index_serv].get_loc_auto_index(this->Path))
                         root_page(event, root_tmp + Path);
                     else
-                        status_pro = "403";        
+                        status_pro = "403";
                 }
             }
             else
@@ -255,7 +255,7 @@ void Request::Generate_req_second(epoll_event &event)
 void Request::default_error(string key, int fd)
 {
     string head;
-    string status = get_status_code(key);
+    string status = "TimeOut Gateway";
     int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
     std::ostringstream oss;
     oss << size;

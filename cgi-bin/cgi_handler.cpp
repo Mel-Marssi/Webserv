@@ -70,6 +70,7 @@ void execute_cgi(Request &req, server_config &config)
 	fd_error = open("./errors/error.log", O_CREAT | O_RDWR | O_TRUNC, 0777);
 	gettimeofday(&req.start_cgi, NULL);
 	req.pid = fork();
+	
 	if (req.pid == 0)
 	{
 		dup2(fd[0], 0);

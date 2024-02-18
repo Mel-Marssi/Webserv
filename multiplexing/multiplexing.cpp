@@ -81,7 +81,7 @@ void multiplexing::setup_server_socket(servers &config)
 			}
 			throw(runtime_error("bind() call failed!"));
 		}
-		if (listen(server_socket[i], 1024) < 0)
+		if (listen(server_socket[i], -1) < 0)
 		{
 			for (int j = 0; j <= i; j++)
 			{
@@ -115,7 +115,7 @@ void multiplexing::run(servers &config)
 
 		for (int i = 0; i < wait_fd; i++)
 		{
-			int event_fd = event_wait[i].data.fd;
+			int &event_fd = event_wait[i].data.fd;
 			if (event_fd <= server_socket[config.size() - 1])
 			{
 				server_book[event_fd];
@@ -207,6 +207,22 @@ void multiplexing::run(servers &config)
 					gettimeofday(&request[event_fd].startTime, NULL);
 					request[event_fd]._port = server_book[event_fd].first;
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
+					if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
+					{
+						string response;
+						if (request[event_fd].status_pro == "504")
+							response = "HTTP/1.1 504 Gateway Timeout\r\nContent-Length: 92\r\n\r\n<html><head><title>504TimeOut</title></head><body><h1>504 Gateway Timeout</h1></body></html>";
+						else
+							response = "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 113\r\n\r\n<html><head><title>500 Internal Server Error</title></head><body><h1>500 Internal Server Error</h1></body></html>";
+						send(event_fd, response.c_str(), response.length(), 0);
+						remove(request[event_fd].cgi_file.c_str());
+						close(event_fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+						map<int, Request>::iterator it = request.find(event_fd);
+						if (it != request.end())
+							request.erase(it);
+						continue;
+					}
 					if (request[event_fd].fin_or_still == finish)
 						flg_remv = 1;
 				}
@@ -225,7 +241,7 @@ void multiplexing::run(servers &config)
 					flg_remv = 1;
 				}
 
-				if (request[event_fd].cgi_post == true)
+				if (request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())
 				{
 					string head;
 					string tmp_path = "/" + request[event_fd].path_post;
@@ -305,8 +321,8 @@ void multiplexing::run(servers &config)
 					if ((timeOut >= 30))
 					{
 						if (request[event_fd].status_pro != "NULL")
-                            request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-                        else
+							request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
+						else
 							request[event_fd].error_page(event_wait[i], "504", config);
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);

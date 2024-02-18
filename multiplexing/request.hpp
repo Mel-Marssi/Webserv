@@ -45,6 +45,7 @@ class Request
         int zompie;
         struct timeval start_cgi;
          struct timeval startTime;
+         struct timeval end;
 
         string _host, _port;
         bool get_to_cgi;
