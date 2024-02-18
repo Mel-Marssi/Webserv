@@ -3,21 +3,6 @@
 #include "request.hpp"
 #include "../cgi-bin/cgi_handler.hpp"
 
-std::string multiplexing::get_http_response(Request &request, string status_code) {
-
-    std::string response;
-    std::map<std::string, std::string>::iterator it = request.status_code.find(status_code);
-    if (it != request.status_code.end()) {
-        std::ostringstream oss;
-		string tmp = "<html><head><title>" + status_code + it->second + "</title></head><body><h1>" + status_code + it->second + "</h1></body></html>";
-        oss << "HTTP/1.1 " << status_code << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n" + tmp;
-        response = oss.str();
-    } else {
-        // Default response for unknown status codes
-        response = "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 113\r\n\r\n<html><head><title>500 Internal Server Error</title></head><body><h1>500 Internal Server Error</h1></body></html>";
-    }
-    return response;
-}
 multiplexing::multiplexing(servers &config)
 {
 	server_socket = new int[config.size()];
@@ -232,9 +217,7 @@ void multiplexing::run(servers &config)
 					request[event_fd].Get_methode(config, event_wait[i], cont_type);
 					if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
 					{
-						string response;
-						response = get_http_response(request[event_fd], request[event_fd].status_pro);
-						send(event_fd, response.c_str(), response.length(), 0);
+						request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 						remove(request[event_fd].cgi_file.c_str());
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
@@ -312,7 +295,7 @@ void multiplexing::run(servers &config)
 						close(event_fd);
 						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 
-						std::map<int, Request>::iterator it = request.find(event_fd);
+						map<int, Request>::iterator it = request.find(event_fd);
 						if (it != request.end())
 							request.erase(it);
 						request[event_fd].outputFile.close();

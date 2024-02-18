@@ -254,30 +254,18 @@ void Request::Generate_req_second(epoll_event &event)
 
 void Request::default_error(string key, int fd)
 {
-    string head;
-    string status = get_status_code(key);
-    int size = 19 + status.length() + 25 + key.length() + 1 + status.length() + 19;
-    std::ostringstream oss;
-    oss << size;
-    head = "HTTP/1.1 ";
-    head += key;
-    head += status;
-    if (methode != "HEAD")
-    {
-        head += "\r\n";
-        head += "Content-Type: text/html\r\nContent-Lenght:";
-        head += oss.str();
+    string response;
+    map<string, string>::iterator it = status_code.find(key);
+    if (it != status_code.end()) {
+        ostringstream oss;
+		string tmp = "<html><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
+        oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n" << tmp;
+        response = oss.str();
     }
-    head += "\r\n\r\n";
-    if (methode != "HEAD")
-    {
-        head += "<html><head><title>" + status + "</title></head><body><h1>" + key + " " + status + "</h1></body></html>";
-    }
-    len = head.length();
-    line = "";
-    this->fin_or_still = finish;
-    if (send(fd, head.c_str(), len, 0) < 0)
+
+    if (send(fd, response.c_str(), response.length(), 0) < 0)
         status_pro = "500";
+    // return response;
 }
 
 void Request::error_page(epoll_event &event, string key, servers &config)

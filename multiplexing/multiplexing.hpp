@@ -18,7 +18,6 @@ private:
 	int flg_remv;
 
 public:
-	string get_http_response(Request &request, string status_code);
 	map<int, Request> request;
 	map<int, pair<string, string> > server_book;
 	multiplexing(servers &config);
