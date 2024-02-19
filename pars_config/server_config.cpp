@@ -51,6 +51,8 @@ void server_config::setup_server_info(ifstream &config_fd)
 	int flag = 0;
 	while (getline(config_fd, file))
 	{
+		if (file.empty())
+			continue;
 		if (file.find(";") != string::npos)
 		{
 			file.insert(file.find(";"), " ");
@@ -68,7 +70,7 @@ void server_config::setup_server_info(ifstream &config_fd)
 		}
 		else if (flag == 0 || (flag == 1 && word == "server"))
 			throw(runtime_error("Invalid configue file!"));
-		if (word.empty() || file.empty())
+		if (word.empty())
 			continue;
 		if (word == "listen")
 		{

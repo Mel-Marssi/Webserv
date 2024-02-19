@@ -6,8 +6,6 @@ server {
     index index.html;
     error_pages 400 index.ml;
     error_pages 405 prblm/405.html;
-    error_pages 500 prblm/500.html;
-    error_pages 504 prblm/504.html;
 
     location / {
         allow_methods  DELETE POST GET;
@@ -27,9 +25,9 @@ server {
         autoindex on;
         root ./;
         allow_methods GET POST;
-        max_client_size 230188989;
         allow_upload on;
         uploads_folder pars_config;
+        max_client_size 8435508602;
     }
 
     location /cgi-bin {
@@ -41,7 +39,7 @@ server {
         cgi_path .sh /usr/bin/bash;
         allow_upload on;
         uploads_folder cgi-bin;
-        max_client_size 123212000;
+        max_client_size 8435508602;
     }
 
     location /uploads {
@@ -51,6 +49,8 @@ server {
     max_client_size 123212000;
     }
 }
+
+
 server {
     listen 8090;
     server_name tes0t;

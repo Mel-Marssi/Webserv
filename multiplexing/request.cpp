@@ -164,7 +164,6 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     size_t check_body = read_request.find("\r\n\r\n");
     if (check_body == 0)
     {
-        
         status_pro = "400";
         check_left_header = 1;
         methode = "POST";
@@ -246,6 +245,10 @@ void Request::create_file(ofstream &outputFile, map<string, string> &map, server
     else
     {
          status_pro = "415";
+        // string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
+        // path_post = randomName;
+        // file_name_post = randomName;
+        // outputFile.open(randomName.c_str());
         // string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
         // path_post = randomName;
         // file_name_post = randomName;
