@@ -60,7 +60,6 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     i = 1;
     i = this->Path.find("/", i);
-    // cout << "Path: " << Path << endl;
     if (Path[i] == '/' && (Path[i + 1] == '/' || Path[i - 1] == '/'))
     {
         status_pro = "404";
@@ -290,7 +289,7 @@ void Request::default_error(string key, int fd)
 
         cerr << "SEND ERROR" << endl;
         cerr << event_fd << " \n"
-             << read_request << endl;
+        << read_request << endl;
         status_pro = "500";
         // dup2(1, fd);
         // exit(501 );
@@ -305,6 +304,10 @@ void Request::error_page(epoll_event &event, string key, servers &config)
     map<string, string>::iterator it = status_code.find(key);
     if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
     {
+        if (flg_entr_frst == 0)
+        {
+
+        }
         string resp;
         string line;
         ostringstream oss;

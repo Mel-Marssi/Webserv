@@ -8,6 +8,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     (void)fd_client;
     flag_read_cgi = 1;
     pid = 0;
+    flg_entr_frst = 0;
     flg_pars_url =0;
     type = "NULL";
     size_File_boundri = 0;
@@ -54,10 +55,12 @@ Request::Request(const Request &obj)
 {
     type = "NULL";
     pid = 0;
+    full_Path = "";
     cgi_post = false;
       flag_read_cgi = 1;
     Path = "";
     root = "";
+    flg_entr_frst = 0;
     size_File_boundri = 0;
     // startTime = 0;
     file_get = "";
@@ -161,6 +164,7 @@ int Request::parce_request(string read_request, epoll_event &event, int epoll_fd
     size_t check_body = read_request.find("\r\n\r\n");
     if (check_body == 0)
     {
+        
         status_pro = "400";
         check_left_header = 1;
         methode = "POST";
@@ -242,10 +246,10 @@ void Request::create_file(ofstream &outputFile, map<string, string> &map, server
     else
     {
          status_pro = "415";
-        string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
-        path_post = randomName;
-        file_name_post = randomName;
-        outputFile.open(randomName.c_str());
+        // string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
+        // path_post = randomName;
+        // file_name_post = randomName;
+        // outputFile.open(randomName.c_str());
     }
 }
 
@@ -291,6 +295,8 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
 
     if ((config[index_serv].get_loc_path_location(this->Path).empty()))
     {
+       
+
         status_pro = "404";
         return 1;
     }
@@ -308,6 +314,7 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
     }
     if (config[index_serv].get_loc_upload(this->Path) == 0) //&& (events & EPOLLOUT )
     {
+
         status_pro = "404";
         return 1;
     }
@@ -320,15 +327,15 @@ void Request::chunked(servers &config, int index)
     if (check_create_file == 0)
     {
         map<string, string>::iterator itC = header_request.find("Content-Type");
-        if (itC != header_request.end()&& !header_request["Content-Type"].empty())
+        if (itC != header_request.end() && !header_request["Content-Type"].empty())
             create_file(outputFile, header_request, config, index);
         check_create_file = 1;
         if (fir_body != "NULL")
         {
             if (fir_body == "0\r\n\r\n" || fir_body == "\r\n0\r\n\r\n" )
             {
-
                 finir = 1;
+                 return;
             }
             int position_int = fir_body.find("\r\n");
             string num = fir_body.substr(0, position_int);
@@ -597,7 +604,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
 {
     map<string, string>::iterator it = header_request.find("Transfer-Encoding");
     map<string, string>::iterator itC = header_request.find("Content-Type");
-  
     if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0 || (event.events & EPOLLIN)) && status_pro != "NULL")
     {
         size_read_request = 0;
@@ -639,7 +645,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
     }
     if (check_read_get == 0)
     {
-        this->parse_url_prot("POST", config);
+        // this->parse_url_prot("POST", config);
         string content = header_request["Content-Type"];
         size_t si = content.find("multipart/form-data");
         if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
@@ -876,8 +882,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 return;
             }
             binary(config, index_serv);
-              if (status_pro == "415")
+            if (status_pro == "415")
             {
+
                 outputFile.close();
                 finir = 0;
                 remove(file_name_post.c_str());

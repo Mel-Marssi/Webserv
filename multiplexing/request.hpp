@@ -161,6 +161,7 @@ class Request
         int fd_request;
         int index_serv;
         //============= Delete =========================
+        int flg_entr_frst;
         void Delete_Function(epoll_event &event, servers &config);
         int check_permission_F(string str);
         int check_permission_X(string str);

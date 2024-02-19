@@ -115,6 +115,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				request[event_fd].size_read_request = -1;
 				request[event_fd].cgi_post = true;
 				return 1;
+				exit(2);
 			}
 			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
 				request[event_fd].error_page(event_wait[i], "500", config);
