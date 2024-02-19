@@ -117,9 +117,9 @@ void multiplexing::setup_server_socket(servers &config)
 
 void multiplexing::run(servers &config)
 {
-	// int fd = open("error.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
-	// dup2(fd, 1);
-	// close(fd);
+	int fd = open("error.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
+	dup2(fd, 2);
+	close(fd);
 	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
@@ -139,6 +139,7 @@ void multiplexing::run(servers &config)
 			}
 			else
 			{
+				// cout << "ELSE" <<endl;
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
@@ -187,6 +188,7 @@ void multiplexing::run(servers &config)
 				{
 					time_out_post(event_fd, config, i);
 				}
+
 			}
 		}
 	}

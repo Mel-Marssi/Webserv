@@ -42,6 +42,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	}
 	return 0;
 }
+
 void multiplexing::error_epoll(int event_fd, int i)
 {
 	if (request[event_fd].pid != 0)
@@ -50,12 +51,12 @@ void multiplexing::error_epoll(int event_fd, int i)
 		waitpid(request[event_fd].pid, NULL, 0);
 		remove(request[event_fd].cgi_file.c_str());
 	}
-	close(event_fd);
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 	map<int, Request>::iterator it = request.find(event_fd);
 	if (it != request.end())
 		request.erase(it);
 	request[event_fd].outputFile.close();
+	close(event_fd);
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 }
 
 void multiplexing::delete_method(int event_fd, servers &config, int i)
@@ -80,14 +81,18 @@ void multiplexing::redirect_to_cgi_result(int event_fd, int i)
 	head += "\r\n\r\n";
 	length = head.length();
 	send(event_fd, head.c_str(), length, 0);
-	if (!request[event_fd].cgi_file.empty())
+	if (request[event_fd].pid != 0)
+	{
+		kill(request[event_fd].pid, SIGKILL);
+		waitpid(request[event_fd].pid, NULL, 0);
 		remove(request[event_fd].cgi_file.c_str());
-	close(event_fd);
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+	}
 	map<int, Request>::iterator it = request.find(event_fd);
 	if (it != request.end())
 		request.erase(it);
 	request[event_fd].outputFile.close();
+	close(event_fd);
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 }
 
 int multiplexing::send_response(int event_fd, servers &config, int i)
@@ -120,12 +125,12 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 			waitpid(request[event_fd].pid, NULL, 0);
 			remove(request[event_fd].cgi_file.c_str());
 		}
-		close(event_fd);
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		map<int, Request>::iterator it = request.find(event_fd);
 		if (it != request.end())
 			request.erase(it);
 		request[event_fd].outputFile.close();
+		close(event_fd);
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		flg_remv = 0;
 		return 1;
 	}
@@ -137,11 +142,11 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 			waitpid(request[event_fd].pid, NULL, 0);
 			remove(request[event_fd].cgi_file.c_str());
 		}
-		close(event_fd);
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		map<int, Request>::iterator it = request.find(event_fd);
 		if (it != request.end())
 			request.erase(it);
+		close(event_fd);
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		request[event_fd].outputFile.close();
 		flg_remv = 0;
 	}
@@ -153,6 +158,7 @@ int multiplexing::get_methode(int event_fd, servers &config, int i)
 	gettimeofday(&request[event_fd].startTime, NULL);
 	request[event_fd]._port = server_book[event_fd].first;
 	// cout << "GEt Method"<<endl;
+	cout << event_fd <<endl;
 	request[event_fd].Get_methode(config, event_wait[i], cont_type);
 	if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
 	{
@@ -161,17 +167,20 @@ int multiplexing::get_methode(int event_fd, servers &config, int i)
 		{
 			kill(request[event_fd].pid, SIGKILL);
 			waitpid(request[event_fd].pid, NULL, 0);
+			remove(request[event_fd].cgi_file.c_str());
 		}
-		remove(request[event_fd].cgi_file.c_str());
-		close(event_fd);
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		map<int, Request>::iterator it = request.find(event_fd);
 		if (it != request.end())
 			request.erase(it);
+		close(event_fd);
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 		return 1;
 	}
 	if (request[event_fd].fin_or_still == finish)
+	{
+		cerr << ">>>>>>>>> GET: " << request[event_fd].pid << endl;
 		flg_remv = 1;
+	}
 	return 0;
 }
 
@@ -179,17 +188,23 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 {
 	struct timeval end;
 	gettimeofday(&end, NULL);
-	size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
+	double timeOut = static_cast<double>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
 	if ((timeOut >= 30))
 	{
 		if (request[event_fd].status_pro != "NULL")
 			request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 		else
 			request[event_fd].error_page(event_wait[i], "504", config);
-		cerr << ">>>>>>>> TimeOut: " << request[event_fd].pid << endl;
+		cerr << ">>>>>>>> TimeOut: " << request[event_fd].pid << " " << timeOut << endl;
+		if (request[event_fd].pid != 0)
+		{
+			kill(request[event_fd].pid, SIGKILL);
+			waitpid(request[event_fd].pid, NULL, 0);
+			remove(request[event_fd].cgi_file.c_str());
+		}
+		request.erase(event_fd);
 		close(event_fd);
 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-		request.erase(event_fd);
 	}
 }
 

@@ -7,7 +7,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     (void)server_book;
     (void)fd_client;
     flag_read_cgi = 1;
-
+    pid = 0;
     flg_pars_url =0;
     type = "NULL";
     size_File_boundri = 0;
@@ -53,6 +53,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 Request::Request(const Request &obj)
 {
     type = "NULL";
+    pid = 0;
     cgi_post = false;
       flag_read_cgi = 1;
     Path = "";

@@ -10,7 +10,7 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void execute_cgi(Request &req, server_config &config)
 {
-	cout << "execute_cgi" << endl;
+	cerr << "execute_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	req.flag_read_cgi = 1;
@@ -18,7 +18,7 @@ void execute_cgi(Request &req, server_config &config)
 	{
 		if (req.methode == "GET")
 		{
-			file = req.full_Path ;
+			file = req.full_Path;
 			tmp = get_cgi_path(req.file_get.substr(req.file_get.find(".")), config.get_loc_cgi_exec_path(req.Path));
 			if (tmp == "")
 			{
@@ -70,8 +70,18 @@ void execute_cgi(Request &req, server_config &config)
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
 	fd_error = open("./errors/error.log", O_CREAT | O_RDWR | O_TRUNC, 0777);
 	gettimeofday(&req.start_cgi, NULL);
+
 	req.pid = fork();
 	
+	if (req.pid == -1)
+	{
+		close(fd[0]);
+		close(fd[1]);
+		close(fd_error);
+		cerr << "error fork" << endl;
+		req.status_pro = "500";
+		return;
+	}
 	if (req.pid == 0)
 	{
 		dup2(fd[0], 0);
@@ -87,6 +97,7 @@ void execute_cgi(Request &req, server_config &config)
 		delete[] env;
 		exit(1);
 	}
+	cerr << "pid: " << req.pid << endl;
 	close(fd[0]);
 	close(fd[1]);
 	close(fd_error);
