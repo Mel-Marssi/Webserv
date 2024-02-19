@@ -63,7 +63,7 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
             if (send(event.data.fd, buffer.c_str(), len, 0) < 0)
             {
                 cout << "SEND ERROR0" << endl;
-                exit(5);
+                // exit(5);
                 status_pro = "500";
             }
             buffer = "";
@@ -74,7 +74,7 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
             if (send(event.data.fd, head.c_str(), len, 0) < 0)
             {
                 cout << "SEND ERROR0" << endl;
-                exit(4);
+                // exit(4);
                 status_pro = "500";
             }
             buffer = "";
@@ -94,7 +94,7 @@ void Request::end_of_file(epoll_event &event)
         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
         {
             cout << "SEND ERROR" << endl;
-            exit(6);
+            // exit(6);
             status_pro = "500";
         }
         fin_or_still = finish;

@@ -21,7 +21,6 @@ server {
         root ./;
         allow_methods GET POST;
         max_client_size 123123123;
-        return /cgi-bin;
     }
 
     location /multiplexing {

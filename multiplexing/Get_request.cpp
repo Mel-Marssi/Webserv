@@ -219,7 +219,7 @@ void Request::Generate_req_second(epoll_event &event)
         if (send(event.data.fd, str.c_str(), len, 0) < 0)
         {
             cout << "SEND ERROR" << endl;
-            exit(5);
+            // exit(5);
             status_pro = "500";
         }
         line = "";
@@ -254,7 +254,7 @@ void Request::Generate_req_second(epoll_event &event)
         if (send(event.data.fd, str.c_str(), len, 0) < 0)
         {
             cout << "SEND ERROR" << endl;
-            exit(5);
+            // exit(5);
             status_pro = "500";
         }
         line = "";
