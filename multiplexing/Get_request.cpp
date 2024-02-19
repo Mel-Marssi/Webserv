@@ -302,28 +302,23 @@ void Request::error_page(epoll_event &event, string key, servers &config)
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
-    if ((ovp.is_open() && fin_or_still != finish))
+    map<string, string>::iterator it = status_code.find(key);
+    if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
     {
-        string head;
+        string resp;
+        string line;
+        ostringstream oss;
+
         getline(ovp, line, '\0');
-        size_t len = line.length();
-        std::ostringstream oss;
-        oss << len;
-        head += "HTTP/1.1 ";
-        head += key;
-        head += get_status_code(key);
-        head += "\r\n";
-        head += "Content-Type: text/html\r\nContent-Lenght:";
-        head += oss.str();
-        head += "\r\n\r\n";
-        head += line;
-        len = head.length();
-        line = "";
-        if (send(event.data.fd, head.c_str(), len, 0) < 0)
+        oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << line.length() << "\r\n\r\n" << line;
+        resp = oss.str();
+
+
+        if (send(event.data.fd, resp.c_str(), resp.length(), 0) < 0)
         {
             cout << "SEND ERROR" << endl;
             status_pro = "500";
-            exit(2);
+            // exit(2);
         }
         end_of_file(event);
         ovp.close();

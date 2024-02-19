@@ -6,6 +6,8 @@ server {
     index index.html;
     error_pages 400 index.ml;
     error_pages 405 prblm/405.html;
+    error_pages 500 prblm/500.html;
+    error_pages 504 prblm/504.html;
 
     location / {
         allow_methods  DELETE POST GET;

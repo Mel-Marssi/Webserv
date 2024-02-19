@@ -29,7 +29,7 @@ int check_error_code(const char *av, const char *message)
 	}
 	tmp = atol(av);
 
-	if (tmp != 503 && tmp != 500 && tmp != 100 && tmp != 101 && tmp != 501 && tmp != 404 && tmp != 403 && tmp != 401 && tmp != 400 && tmp != 304 && tmp != 302 && tmp != 301 && tmp != 300 && tmp != 200 && tmp != 201 && tmp != 204 && tmp != 405)
+	if (tmp < 100 || tmp > 599)
 		throw(runtime_error(message));
 	return (static_cast<int>(tmp));
 }
