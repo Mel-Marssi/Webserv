@@ -135,7 +135,7 @@ class Request
         string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config, int index);
         void root_page(epoll_event &event, string Pat);
-        string read_buff(map<string, string> &m);
+        string read_buff(map<string, string> &m, string status);
         map<string, string> status_code;
         void fill_status_code();
         string get_status_code(string key);

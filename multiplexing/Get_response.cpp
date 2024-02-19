@@ -1,10 +1,11 @@
 #include "multiplexing.hpp"
 #include "request.hpp"
 
-std::string Request::read_buff(map<string, string> &m)
+std::string Request::read_buff(map<string, string> &m, string status)
 {
     string head;
-    head += "HTTP/1.1 200 OK\r\n";
+    head += "HTTP/1.1 ";
+    head += status + get_status_code(status) + "\r\n";
     con_type = "Content-Type: " + get_content_type(m) + "\r\n";
     head += con_type;
     head += "Transfer-Encoding: chunked";
@@ -46,7 +47,7 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
     if (flg == 0)
     {
         check_req = 1;
-        head = read_buff(m);
+        head = read_buff(m, "200");
         buffer += head;
     }
     else if (flg == 1)

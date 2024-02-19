@@ -158,7 +158,7 @@ int multiplexing::get_methode(int event_fd, servers &config, int i)
 	gettimeofday(&request[event_fd].startTime, NULL);
 	request[event_fd]._port = server_book[event_fd].first;
 	// cout << "GEt Method"<<endl;
-	cout << event_fd <<endl;
+	// cout << event_fd <<endl;
 	request[event_fd].Get_methode(config, event_wait[i], cont_type);
 	if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
 	{

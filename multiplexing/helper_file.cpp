@@ -66,18 +66,23 @@ string Request::handle_Path_location(string str, string str2)
 
 void Request::Get_methode(servers &config, epoll_event &event, map<string, string> &m)
 {
-    // cerr << "Path: " << Path << "| " << check_req << endl;
+    cerr << "Pid: " << pid << "| " << check_req << endl;
     if (check_req == 0 && read_get == 1)
     {
+        cout << "********\n";
         Generate_req_first(event, config, m);
         flg_pars_url = 1;
     }
     if (pid != 0)
     {
+        cout << "----------\n";
         cgi_handle_get(event, config);
     }
     if (check_req == 1 && cgi_file.empty())
+    {
+        cout << "============\n";
         Generate_req_second(event);
+    }
     read_get = 1;
 }
 
