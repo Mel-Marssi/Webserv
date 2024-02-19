@@ -117,9 +117,9 @@ void multiplexing::setup_server_socket(servers &config)
 
 void multiplexing::run(servers &config)
 {
-	int fd = open("error.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
-	dup2(fd, 1);
-	close(fd);
+	// int fd = open("error.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
+	// dup2(fd, 1);
+	// close(fd);
 	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
