@@ -8,6 +8,7 @@ multiplexing/multiplexing.cpp multiplexing/post.cpp  multiplexing/request.cpp \
 multiplexing/Get_request.cpp multiplexing/Get_response.cpp	\
 multiplexing/Content_type.cpp	multiplexing/root_page.cpp	\
 multiplexing/Delete_Methode.cpp	multiplexing/cgi_file.cpp \
+multiplexing/multi_tools.cpp \
 cgi-bin/cgi_handler.cpp	multiplexing/helper_file.cpp
 
 OBJ=$(FILE:.cpp=.o)

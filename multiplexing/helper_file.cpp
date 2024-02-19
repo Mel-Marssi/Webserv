@@ -71,7 +71,7 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
         Generate_req_first(event, config, m);
         flg_pars_url = 1;
     }
-    else if (Path == "/cgi-bin" && check_req == 1)
+    else if ((Path == "/cgi-bin" && check_req == 1) || timeOut == true)
         cgi_handle_get(event, config);
     if (check_req == 1 && cgi_file.empty())
         Generate_req_second(event);

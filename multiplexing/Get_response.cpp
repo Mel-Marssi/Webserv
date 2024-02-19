@@ -171,7 +171,6 @@ void Request::response_for_delete(epoll_event &event)
     if (send(event.data.fd, head.c_str(), len, 0) < 0)
     {
         cout << "SEND ERROR" << endl;
-        exit(50);
         status_pro = "500";
     }
 }

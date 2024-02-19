@@ -281,10 +281,13 @@ void Request::default_error(string key, int fd)
         }
     }
 
-    if (send(fd, response.c_str(), response.length(), 0) < 0)
+    if (send(fd, response.c_str(), response.length(), 0) <= 0)
         {
-            cout << "SEND ERROR" << endl;
+
+            cerr << "SEND ERROR" << endl;
+            cerr << event_fd << " \n" << read_request <<endl;
             status_pro = "500";
+            // dup2(1, fd);
             // exit(501 );
         }
 }

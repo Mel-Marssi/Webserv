@@ -117,6 +117,9 @@ void multiplexing::setup_server_socket(servers &config)
 
 void multiplexing::run(servers &config)
 {
+	int fd = open("error.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
+	dup2(fd, 1);
+	close(fd);
 	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
@@ -124,18 +127,15 @@ void multiplexing::run(servers &config)
 		for (int i = 0; i < wait_fd; i++)
 		{
 			int event_fd = event_wait[i].data.fd;
+			if (event_fd <= 0)
+			{
+				cerr << "Error: epoll_wait() returned " << wait_fd << endl;
+				break;
+			}
 			if (event_fd <= server_socket[config.size() - 1])
 			{
-				server_book[event_fd];
-				if ((fd_client = accept(event_fd, NULL, NULL)) < 0)
+				if (accept_client(event_fd) == 1)
 					continue;
-				event.data.fd = fd_client;
-				event.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
-				server_book[fd_client] = server_book[event_fd];
-				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd_client, &event);
-				request.insert(make_pair(fd_client, Request(server_book, fd_client)));
-				gettimeofday(&request[fd_client].startTime, NULL);
-				request[fd_client].fd_request = fd_client;
 			}
 			else
 			{
@@ -143,105 +143,27 @@ void multiplexing::run(servers &config)
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
 				{
-					if (request[event_fd].pid != 0)
-					{
-						kill(request[event_fd].pid, SIGKILL);
-						waitpid(request[event_fd].pid, NULL, 0);
-						remove(request[event_fd].cgi_file.c_str());
-					}
-					close(event_fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					map<int, Request>::iterator it = request.find(event_fd);
-					if (it != request.end())
-						request.erase(it);
-					request[event_fd].outputFile.close();
+					error_epoll(event_fd, i);
 					continue;
 				}
-
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
-					char buff[1024];
-					request[event_fd].size = 0;
-					request[event_fd].size = read(event_fd, buff, 1024);
-					if (request[event_fd].size < 0)
-						request[event_fd].status_pro = "500";
-					gettimeofday(&request[event_fd].startTime, NULL);
-					request[event_fd].size_read_request += request[event_fd].size;
-
-					if (request[event_fd].size != -1)
-					{
-						request[event_fd].read_request.append(buff, request[event_fd].size);
-						request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-					}
-					if (request[event_fd].check_left_header == 0)
-					{
+					if (read_request(event_fd, config, i) == 1)
 						continue;
-					}
-					else if (request[event_fd].check_left_header == 1)
-					{
-						map<string, string>::iterator it = request[event_fd].header_request.find("Host");
-						if (it != request[event_fd].header_request.end())
-						{
-							request[event_fd]._host = request[event_fd].header_request["Host"];
-							size_t pos_host = 0;
-							pos_host = request[event_fd]._host.find(":");
-							if (pos_host != string::npos)
-							{
-								request[event_fd]._host.erase(pos_host, request[event_fd]._host.length());
-								request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
-							}
-						}
-						else
-							request[event_fd].status_pro = "400";
-
-						if (request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
-						{
-						}
-					}
 				}
 
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{
-
-					gettimeofday(&request[event_fd].startTime, NULL);
-					request[event_fd]._port = server_book[event_fd].first;
-					request[event_fd]._host = server_book[event_fd].second;
-
-					request[event_fd].post(event_fd, config, event_wait[i]);
-					request[event_fd].check_read_get = 1;
+					post_boundry(event_fd, config, i);
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
-					gettimeofday(&request[event_fd].startTime, NULL);
-					request[event_fd]._port = server_book[event_fd].first;
-					// cout << "GEt Method"<<endl;	
-					request[event_fd].Get_methode(config, event_wait[i], cont_type);
-					if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
-					{
-						request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-						if (request[event_fd].pid != 0)
-						{
-							kill(request[event_fd].pid, SIGKILL);
-							waitpid(request[event_fd].pid, NULL, 0);
-						}
-						remove(request[event_fd].cgi_file.c_str());
-						close(event_fd);
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-						map<int, Request>::iterator it = request.find(event_fd);
-						if (it != request.end())
-							request.erase(it);
+					if (get_methode(event_fd, config, i) == 1)
 						continue;
-					}
-					if (request[event_fd].fin_or_still == finish)
-						flg_remv = 1;
 				}
 				else if (request[event_fd].methode == "DELETE")
 				{
-					gettimeofday(&request[event_fd].startTime, NULL);
-					request[event_fd].epoll_fd_tmp = epoll_fd;
-					request[event_fd].Delete_Function(event_wait[i], config);
-					request[event_fd].response_for_delete(event_wait[i]);
-					flg_remv = 1;
+					delete_method(event_fd, config, i);
 				}
 
 				if (request[event_fd].methode == "NONE" || request[event_fd].methode == "HEAD")
@@ -252,96 +174,18 @@ void multiplexing::run(servers &config)
 
 				if (request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())
 				{
-					string head;
-					string tmp_path = "/" + request[event_fd].path_post;
-					size_t length;
-
-					head += "HTTP/1.1 ";
-					head += "301 Moved Permanently\r\nLocation: ";
-					i = request[event_fd].path_post.find("/", 1);
-					head += tmp_path;
-					head += "\r\n\r\n";
-					length = head.length();
-					send(event_fd, head.c_str(), length, 0);
-					if (!request[event_fd].cgi_file.empty())
-						remove(request[event_fd].cgi_file.c_str());
-					close(event_fd);
-					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-					map<int, Request>::iterator it = request.find(event_fd);
-					if (it != request.end())
-						request.erase(it);
-					request[event_fd].outputFile.close();
+					redirect_to_cgi_result(event_fd, i);
 					continue;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
-					gettimeofday(&request[event_fd].startTime, NULL);
-					if (request[event_fd].status_pro != "NULL")
-					{
-						flg_remv = 1;
-						request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-					}
-					else if (request[event_fd].methode == "POST")
-					{
-						if (request[event_fd].path_post == "NULL")
-							request[event_fd].error_page(event_wait[i], "400", config);
-						else
-						{
-							if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)
-							{
-								request[event_fd].finir = 0;
-								request[event_fd].size_read_request = -1;
-								request[event_fd].cgi_post = true;
-								continue;
-							}
-							if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
-								request[event_fd].error_page(event_wait[i], "500", config);
-						}
-
-						close(event_fd);
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-
-						map<int, Request>::iterator it = request.find(event_fd);
-						if (it != request.end())
-							request.erase(it);
-						request[event_fd].outputFile.close();
-						flg_remv = 0;
+					if (send_response(event_fd, config, i) == 1)
 						continue;
-					}
-
-					if (flg_remv == 1)
-					{
-						if (request[event_fd ].pid != 0)
-						{
-							kill(request[event_fd].pid, SIGKILL);
-							waitpid(request[event_fd].pid, NULL, 0);
-							remove(request[event_fd].cgi_file.c_str());
-						}
-						close(event_fd);
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-						map<int, Request>::iterator it = request.find(event_fd);
-						if (it != request.end())
-							request.erase(it);
-						request[event_fd].outputFile.close();
-						flg_remv = 0;
-					}
 				}
 				if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0)
 				{
-					struct timeval end;
-					gettimeofday(&end, NULL);
-					size_t timeOut = static_cast<size_t>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
-					if ((timeOut >= 30))
-					{
-						if (request[event_fd].status_pro != "NULL")
-							request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-						else
-							request[event_fd].error_page(event_wait[i], "504", config);
-						close(event_fd);
-						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-						request.erase(event_fd);
-					}
+					time_out_post(event_fd, config, i);
 				}
 			}
 		}
