@@ -115,7 +115,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				request[event_fd].size_read_request = -1;
 				request[event_fd].cgi_post = true;
 				return 1;
-				exit(2);
+				// exit(2);
 			}
 			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
 				request[event_fd].error_page(event_wait[i], "500", config);
@@ -203,7 +203,8 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 			waitpid(request[event_fd].pid, NULL, 0);
 			remove(request[event_fd].cgi_file.c_str());
 		}
-		request.erase(event_fd);
+		if (request.find(event_fd) != request.end())
+			request.erase(event_fd);
 		close(event_fd);
 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 	}

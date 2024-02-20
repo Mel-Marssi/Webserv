@@ -16,7 +16,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec/1000000) - (start_cgi.tv_sec + start_cgi.tv_usec/1000000)));
 			// cout  << "timeOut: "  << pid << " " << (int)timeOut << endl;
-			if (timeOut >= 10)
+			if (timeOut >= 30)
 			{
 				if (pid != 0)
 				{
