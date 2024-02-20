@@ -92,18 +92,27 @@ void Request::end_of_file(epoll_event &event)
     {
         string str;
         str += "0\r\n\r\n";
+        cerr << "end of file 3adiiiii" << endl;
         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
         {
             cout << "SEND ERROR" << endl;
-            // exit(6);
             status_pro = "500";
         }
         fin_or_still = finish;
         op.close();
         close_dir();
     }
-    else if (op_cgi.is_open())
+    if (op_cgi.is_open())
     {
+        string str;
+        str += "0\r\n\r\n";
+        cerr << "end of file 3adiiiii" << endl;
+        if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+        {
+            cout << "SEND ERROR" << endl;
+            status_pro = "500";
+        }
+        cerr << "end of file cgiiii" << endl;
         fin_or_still = finish;
         op_cgi.close();
         close_dir();
@@ -201,7 +210,7 @@ void Request::check_url_encoding()
 
     for (;;)
     {
-        i = Path.find("%");
+        i = Path.find("%", i);
         if (i != string::npos)
         {
             string tmp;
@@ -212,6 +221,7 @@ void Request::check_url_encoding()
         }
         else
             break;
+        i++;
     }
 }
 

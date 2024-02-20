@@ -127,6 +127,7 @@ void multiplexing::run(servers &config)
 		for (int i = 0; i < wait_fd; i++)
 		{
 			int event_fd = event_wait[i].data.fd;
+			cerr <<" New requ:    " << event_fd << endl;
 			if (event_fd <= 0)
 			{
 				cerr << "Error: epoll_wait() returned " << wait_fd << endl;
@@ -139,7 +140,6 @@ void multiplexing::run(servers &config)
 			}
 			else
 			{
-				// cout << "ELSE" <<endl;
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
@@ -152,24 +152,19 @@ void multiplexing::run(servers &config)
 					if (read_request(event_fd, config, i) == 1)
 						continue;
 				}
-
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
-				{
 					post_boundry(event_fd, config, i);
-				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
 					if (get_methode(event_fd, config, i) == 1)
 						continue;
 				}
 				else if (request[event_fd].methode == "DELETE")
-				{
 					delete_method(event_fd, config, i);
-				}
 
 				if (request[event_fd].methode == "NONE" || request[event_fd].methode == "HEAD")
 				{
-					request[event_fd].error_page(event_wait[i], "501", config);
+					request[event_fd].error_page(event_wait[i], "501", config, cont_type);
 					flg_remv = 1;
 				}
 
@@ -185,10 +180,7 @@ void multiplexing::run(servers &config)
 						continue;
 				}
 				if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0)
-				{
 					time_out_post(event_fd, config, i);
-				}
-
 			}
 		}
 	}
