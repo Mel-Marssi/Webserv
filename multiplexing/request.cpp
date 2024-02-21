@@ -604,11 +604,20 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
 }
 
 void Request::post(int fd, servers &config, epoll_event &event)
-{
+{   
+
     map<string, string>::iterator it = header_request.find("Transfer-Encoding");
     map<string, string>::iterator itC = header_request.find("Content-Type");
     if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0 || (event.events & EPOLLIN)) && status_pro != "NULL")
     {
+        cout << status_pro << " ---------------------------\n";
+         if (size_read_request >= size_request && size_request > 0)
+            {
+                cout << "ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
+                finir = 1;
+                return;
+            }
+            cout << "ANAAA dkholt\n";
         size_read_request = 0;
         err = 0;
         int s = 0;
@@ -638,9 +647,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             finir = 1;
         }
-
         return;
     }
+
     if (it != header_request.end() && header_request["Transfer-Encoding"] != "chunked\r")
     {
         status_pro = "501";
@@ -847,6 +856,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         else if (type == "binary")
         {
+           
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request)  || status_pro == "415")
             {
 
@@ -868,7 +878,10 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 char buff[2048];
 
                 size = 0;
+                cout << fd_request<<"  11111111111111111111111111111111" << endl;
+                cout << fd << " " << size_read_request<< endl;
                 size = read(fd, buff, 2048);
+                cout << "11111111111111111111111111111111" << endl;
                 if (size < 0)
                 {
                     outputFile.close();
@@ -884,7 +897,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 read_request.clear();
                 return;
             }
+            cout << "binaryyyyy\n";
             binary(config, index_serv);
+             if (size_read_request >= size_request && size_request > 0)
+            {
+                cout << size_request << "      " <<size_read_request  <<" ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
+                finir = 1;
+                return;
+            }
+            cout << "binaryyyyyOut\n";
             if (status_pro == "415")
             {
 

@@ -74,7 +74,6 @@ int Request::parse_url_prot(string meth, servers &config)
 
 void Request::Generate_req_first(epoll_event &event, servers &config, map<string, string> &m)
 {
-
     if (check_body_get(event) == 1)
         return;
 
@@ -90,7 +89,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         status_pro = "405";
     else if (this->Path == "/")
     {
-        // cout << Path << endl;
         string index_file;
         if (!config[index_serv].get_loc_index(Path).empty())
             index_file = config[index_serv].get_loc_index(Path);
@@ -292,69 +290,21 @@ void Request::default_error(string key, int fd)
     }
 }
 
-void Request::error_page(epoll_event &event, string key, servers &config, map<string, string> &m)
+void Request::error_page(epoll_event &event, string key, servers &config)
 {
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
     map<string, string>::iterator it = status_code.find(key);
-    // if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
-    // {
-    //     if (flg_entr_frst == 0)
-    //     {
-    //         string head;
-    //         head += "HTTP/1.1 ";
-    //         head += key + get_status_code(key) + "\r\n";
-    //         con_type = "Content-Type: " + get_content_type(m) + "\r\n";
-    //         head += con_type;
-    //         head += "Transfer-Encoding: chunked";
-    //         head += "\r\n\r\n";
-    //     }
-    //     // string resp;
-    //     // string line;
-    //     // ostringstream oss;
-
-    //     // getline(ovp, line, '\0');
-    //     // oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << line.length() << "\r\n\r\n" << line;
-    //     // resp = oss.str();
-
-    //     if (send(event.data.fd, resp.c_str(), resp.length(), 0) < 0)
-    //     {
-    //         cout << "SEND ERROR" << endl;
-    //         status_pro = "500";
-    //     }
-    //     end_of_file(event);
-    //     ovp.close();
-    // }
     if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
     {
         string resp;
-        if (flg_entr_frst == 0)
-        {
-            resp += "HTTP/1.1 ";
-            resp += key + get_status_code(key) + "\r\n";
-            con_type = "Content-Type: " + get_content_type(m) + "\r\n";
-            resp += con_type;
-            resp += "Transfer-Encoding: chunked";
-            resp += "\r\n\r\n";
-            flg_entr_frst = 1;
-        }
-        char buf[1024];
-        memset(buf, 0, 1024);
-        ovp.read(buf, 1024);
+        string line;
+        ostringstream oss;
 
-        string tmp;
-        std::streamsize bytesRead = ovp.gcount();
-        tmp.append(buf, bytesRead);
-
-        stringstream si;
-        size_t len;
-        len = tmp.length();
-        si << std::hex << len;
-        resp += si.str();
-        resp += "\r\n";
-        resp += tmp;
-        resp += "\r\n";
+        getline(ovp, line, '\0');
+        oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << line.length() << "\r\n\r\n" << line;
+        resp = oss.str();
 
         if (send(event.data.fd, resp.c_str(), resp.length(), 0) < 0)
         {
