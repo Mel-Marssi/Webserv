@@ -64,8 +64,8 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
             if (send(event.data.fd, buffer.c_str(), len, 0) < 0)
             {
                 cout << "SEND ERROR0" << endl;
-                // exit(5);
                 status_pro = "500";
+                // exit(5);
             }
             buffer = "";
         }

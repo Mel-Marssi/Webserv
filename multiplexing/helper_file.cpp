@@ -49,11 +49,12 @@ string Request::resp_post()
 void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
 {
     op.open(str.c_str());
-    if (op.is_open())
+    if (op.is_open() && (is_open_diir(str) == 0))
     {
-
         read_for_send(event, m, 0);
     }
+    else if ((is_open_diir(str) == 1))
+        root_page(event, str + "/");
     else
         status_pro = "404";
 }
