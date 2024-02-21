@@ -269,11 +269,10 @@ void Request::default_error(string key, int fd)
         if (methode != "HEAD")
         {
             ostringstream oss;
-            string tmp = "<html><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
+            string tmp = "<html><meta charset=\"UTF-8\"><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
             oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n"
                 << tmp;
             response = oss.str();
-            cout << response << endl;
         }
         else
         {
@@ -285,7 +284,6 @@ void Request::default_error(string key, int fd)
 
     if (send(fd, response.c_str(), response.length(), 0) <= 0)
     {
-
         cerr << "SEND ERROR" << endl;
         cerr << event_fd << " \n"
         << read_request << endl;
@@ -298,6 +296,7 @@ void Request::error_page(epoll_event &event, string key, servers &config)
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
+    cout << str << endl;
     map<string, string>::iterator it = status_code.find(key);
     if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
     {
