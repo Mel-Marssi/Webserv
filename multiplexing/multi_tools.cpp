@@ -104,13 +104,13 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 	if (request[event_fd].status_pro != "NULL")
 	{
 		flg_remv = 1;
-		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config, cont_type);
+		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 		cerr << "response Error : " << event_fd << " " << request[event_fd].status_pro << endl;
 	}
 	else if (request[event_fd].methode == "POST")
 	{
 		if (request[event_fd].path_post == "NULL")
-			request[event_fd].error_page(event_wait[i], "400", config, cont_type);
+			request[event_fd].error_page(event_wait[i], "400", config);
 		else
 		{
 			if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)
@@ -121,7 +121,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				return 1;
 			}
 			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
-				request[event_fd].error_page(event_wait[i], "500", config, cont_type);
+				request[event_fd].error_page(event_wait[i], "500", config);
 		}
 		if (request[event_fd].pid != 0)
 		{
@@ -165,7 +165,7 @@ int multiplexing::get_methode(int event_fd, servers &config, int i)
 	request[event_fd].Get_methode(config, event_wait[i], cont_type);
 	if ((request[event_fd].status_pro == "504" || request[event_fd].status_pro == "500") && !request[event_fd].cgi_file.empty())
 	{
-		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config, cont_type);
+		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 		if (request[event_fd].pid != 0)
 		{
 			kill(request[event_fd].pid, SIGKILL);
@@ -196,9 +196,9 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 	{
 			cerr << "timmmmmmmmmmmmmmmmmmmmmoooooooouuuuutttttt\t" << event_fd << "\n";
 		if (request[event_fd].status_pro != "NULL")
-			request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config, cont_type);
+			request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 		else
-			request[event_fd].error_page(event_wait[i], "504", config, cont_type);
+			request[event_fd].error_page(event_wait[i], "504", config);
 		if (request[event_fd].pid != 0)
 		{
 			kill(request[event_fd].pid, SIGKILL);

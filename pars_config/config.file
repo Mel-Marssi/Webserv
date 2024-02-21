@@ -4,7 +4,7 @@ server {
     host localhost;
     root ./;
     error_pages 400 index.ml;
-    error_pages 504 prblm/ved.mp4;
+    error_pages 504 prblm/504.html;
 
     location / {
         allow_methods  DELETE POST GET;

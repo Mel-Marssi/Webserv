@@ -204,20 +204,20 @@ string Request::get_the_p(servers &config, string Path)
     return (root);
 }
 
-void Request::check_url_encoding()
+void Request::check_url_encoding(string &str)
 {
     size_t i = 0;
 
     for (;;)
     {
-        i = Path.find("%", i);
+        i = str.find("%", i);
         if (i != string::npos)
         {
             string tmp;
-            tmp.insert(0, Path, i, 3);
+            tmp.insert(0, str, i, 3);
             tmp = enco_form_txt(tmp);
-            Path.erase(i, 3);
-            Path.insert(i, tmp, 0, tmp.length());
+            str.erase(i, 3);
+            str.insert(i, tmp, 0, tmp.length());
             
         }
         else
@@ -235,3 +235,5 @@ char Request::enco_form_txt(string str)
     h = strtol(str.substr(1).c_str(), &endptr, 16);
     return (h);
 }
+
+

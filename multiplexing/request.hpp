@@ -130,7 +130,7 @@ class Request
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
         void Generate_req_first(epoll_event &event, servers &config, map<string, string> &m);
         void Generate_req_second(epoll_event &event);
-        void error_page(epoll_event &event, string key, servers &config, map<string, string> &m);
+        void error_page(epoll_event &event, string key, servers &config);
         // string get_content_type(string s, map<string, string>& m);
         string get_content_type(map<string, string>& m);
         void redirection_content(epoll_event &event, int epoll_fd, servers &config, int index);
@@ -176,7 +176,7 @@ class Request
         string buffer;
         void cgi_handle_get(epoll_event &event, servers &config);
         void find_cgi(servers &config, int index);
-        void check_url_encoding();
+        void check_url_encoding(string &str);
         char enco_form_txt(string str);
         void read_buuf_for_get(epoll_event &event);
         int check_body_get(epoll_event &event);
