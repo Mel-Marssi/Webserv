@@ -42,27 +42,7 @@ using namespace std;
 
 int main()
 {
-	sockaddr_in server;
-	try
-	{
-		int fd_socket = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd_socket < 0)
-			perror("socket() call failed");
-		server.sin_family = AF_INET;
-		server.sin_addr.s_addr = inet_addr("127.0.0.1");
-		server.sin_port = htons("8080");
-		int binf_fd = bind(fd_socket, (const sockaddr *)&server, sizeof(server));
-		if (binf_fd < 0)
-			perror("bind() call failed");
-		int listen_fd = listen(fd_socket, 0);
-		if (listen_fd < 0)
-			perror("listen() call failed");
-		int accept_fd = accept(fd_socket, NULL, NULL);
-		if (accept_fd < 0)
-			perror("accept() call failed");
-	}
-	catch (...)
-	{
-		// cerr << e.what() << endl;
-	}
+	ifstream ok("./test//fich.pdf");
+	if (ok.is_open())
+		cout << "0000000\n";
 }

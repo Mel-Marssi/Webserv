@@ -26,6 +26,26 @@ int Request::check_space_first_line()
     return 0;
 }
 
+string real_Path(string str)
+{
+    int i = 0;
+    string tmp;
+    size_t d = 0;
+    while (str[i])
+    {
+        if (str[i] == '/')
+            d++;
+        else
+             break;
+    i++;
+    }
+    if (d == str.length())
+        return "/";
+    tmp = str.substr(d - 1);
+    cout << tmp << " tmpppp\n";
+    return (tmp);
+}
+
 int Request::parse_url_prot(string meth, servers &config)
 {
     map<string, string>::iterator it;
@@ -56,21 +76,24 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     }
     check_url_encoding(Path);
-    cout << Path << endl;
-    cout << file_get << endl;
     if (meth == "DELETE" && delete_checker(config) == 1)
         return 1;
     i = 1;
+    Path = real_Path(Path);
     i = this->Path.find("/", i);
-    if (Path[i] == '/' && (Path[i + 1] == '/' || Path[i - 1] == '/'))
-    {
-        status_pro = "404";
-        return 1;
-    }
     if (i != string::npos)
         handle_Path(i);
     else
         this->full_Path = this->Path;
+    // cout << Path << " - " << file_get << endl;
+    if (file_get != "")
+    {
+        if (file_get[0] == '/' )
+        {
+            status_pro = "404";
+            return 1;
+        }
+    }
     return (0);
 }
 
@@ -89,7 +112,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
-    else if (this->Path == "/")
+    else if (this->Path == "/" && file_get == "")
     {
         string index_file;
         if (!config[index_serv].get_loc_index(Path).empty())
@@ -163,7 +186,6 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
                     {
-                        cerr << "file_get: " << endl;
                         find_cgi(config, index_serv);
                     }
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)

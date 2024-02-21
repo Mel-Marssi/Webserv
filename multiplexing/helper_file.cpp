@@ -50,7 +50,10 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
 {
     op.open(str.c_str());
     if (op.is_open())
+    {
+
         read_for_send(event, m, 0);
+    }
     else
         status_pro = "404";
 }
@@ -127,6 +130,7 @@ void Request::handle_Path(size_t i)
 {
     this->file_get.insert(0, this->Path, i + 1, this->Path.length());
     this->Path_bef = this->Path;
+    cout << "--------->>>\t" << Path << "  " << file_get << endl;
     this->Path.erase(i, this->Path.length());
     this->full_Path = this->Path_bef;
     if (this->file_get.find("?") != string::npos)
