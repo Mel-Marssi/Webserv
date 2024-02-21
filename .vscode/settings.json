@@ -65,6 +65,7 @@
     "iostream": "cpp",
     "ostream": "cpp",
     "stdexcept": "cpp",
-    "new": "cpp"
+    "new": "cpp",
+    "deque": "cpp"
   }
 }

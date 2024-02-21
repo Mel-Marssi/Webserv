@@ -38,7 +38,6 @@ void multiplexing::fill_content_type()
     status_code["414"] = " Request-URI Too Long";
     status_code["415"] = " Unsupported Media Type";  
     //=================== DELETE ==================
-    status_code["409"] = " Conflict";
     status_code["204"] = " No Content";
     status_code["500"] = " Internal Server Error";
      

@@ -218,6 +218,7 @@ void Request::check_url_encoding()
             tmp = enco_form_txt(tmp);
             Path.erase(i, 3);
             Path.insert(i, tmp, 0, tmp.length());
+            
         }
         else
             break;
@@ -225,44 +226,12 @@ void Request::check_url_encoding()
     }
 }
 
-string Request::enco_form_txt(string str)
+char Request::enco_form_txt(string str)
 {
     map<string, string> map_m;
-    map_m["%21"] = "!";
-    map_m["%23"] = "#";
-    map_m["%24"] = "$";
-    map_m["%26"] = "&";
-    map_m["%27"] = "'";
-    map_m["%28"] = "(";
-    map_m["%29"] = ")";
-    map_m["%2A"] = "*";
-    map_m["%2B"] = "+";
-    map_m["%2C"] = ",";
-    map_m["%2F"] = "/";
-    map_m["%3A"] = ":";
-    map_m["%3B"] = ";";
-    map_m["%3D"] = "=";
-    map_m["%3F"] = "?";
-    map_m["%40"] = "@";
-    map_m["%5B"] = "[";
-    map_m["%5D"] = "]";
-    map_m["%20"] = " ";
-    map_m["%22"] = "\"";
-    map_m["%25"] = "%";
-    map_m["%2D"] = "-";
-    map_m["%2E"] = ".";
-    map_m["%3C"] = "<";
-    map_m["%3E"] = ">";
-    map_m["%5C"] = "\\";
-    map_m["%5E"] = "^";
-    map_m["%5F"] = "_";
-    map_m["%60"] = "`";
-    map_m["%7B"] = "{";
-    map_m["%7C"] = "|";
-    map_m["%7D"] = "}";
-    map_m["%7E"] = "~";
-
-    if (map_m.find(str) == map_m.end())
-        return (str);
-    return (map_m[str]);
+  
+    char *endptr;
+    int h;
+    h = strtol(str.substr(1).c_str(), &endptr, 16);
+    return (h);
 }

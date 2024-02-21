@@ -138,51 +138,77 @@ void multiplexing::run(servers &config)
 			}
 			else
 			{
+				cerr << "Errrrrrrrrrrrrrrrrrrror\t" << event_fd << "\n";
 				request[event_fd].fill_status_code();
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
 				{
+					cerr << "0000000000000000000\t" << event_fd << "\n";
 					error_epoll(event_fd, i);
+					cerr << "fin : 0000000000000000000\t" << event_fd << "\n";
 					continue;
 				}
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
+					cerr << "111111111\t" << event_fd << "\n";
 					if (read_request(event_fd, config, i) == 1)
+					{
+						cerr << "fin : 111111111\t" << event_fd << "\n";
 						continue;
+					}
+					cerr << "fin : 111111111\t" << event_fd << "\n";
 				}
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{
+					cerr << "2222222222\t" << event_fd << "\n";
 					post_boundry(event_fd, config, i);
+					cerr << "Fin : 222222222222\t" << event_fd << "\n";
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{
+					cerr << "333333333333\t" << event_fd << "\n";
 					if (get_methode(event_fd, config, i) == 1)
+					{
+						cerr << "fin : 3333333333333333\t" << event_fd << "\n";
 						continue;
+					}
+					cerr << "fin : 3333333333333333\t" << event_fd << "\n";
 				}
 				else if (request[event_fd].methode == "DELETE")
 					delete_method(event_fd, config, i);
 
 				if (request[event_fd].methode == "NONE" || request[event_fd].methode == "HEAD")
 				{
-					request[event_fd].error_page(event_wait[i], "501", config);
+					cerr << "++++++++++++++++++++++++++++++\n";
+					request[event_fd].error_page(event_wait[i], "501", config, cont_type);
 					flg_remv = 1;
 				}
 
 				if (request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())
 				{
+					cerr << "4444444444444444444444444\t" << event_fd << "\n";
 					redirect_to_cgi_result(event_fd, i);
+					cerr << "fin : 4444444444444444444444444\t" << event_fd << "\n";
 					continue;
 				}
 
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
+					cerr << "555555555555555555\t" << event_fd << "\n";
 					if (send_response(event_fd, config, i) == 1)
+					{
+						cerr << "fin : 555555555555555555\t" << event_fd << "\n";
 						continue;
+					}
+						cerr << "fin : 555555555555555555\t" << event_fd << "\n";
 				}
+				// if (request[event_fd].end_file_op == 0)
+				// {
+				// 	request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config, cont_type);
+				// }
 				if (event_fd > server_socket[config.size() - 1] && request[event_fd].startTime.tv_sec > 0)
 				{
 					time_out_post(event_fd, config, i);
-					// cerr << "time ooooooo\n";
 				}
 			}
 		}

@@ -56,6 +56,8 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     }
     check_url_encoding();
+    cout << Path << endl;
+    cout << file_get << endl;
     if (meth == "DELETE" && delete_checker(config) == 1)
         return 1;
     i = 1;
@@ -290,8 +292,9 @@ void Request::default_error(string key, int fd)
     }
 }
 
-void Request::error_page(epoll_event &event, string key, servers &config)
+void Request::error_page(epoll_event &event, string key, servers &config, map<string, string> &m)
 {
+    (void)m;
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
@@ -314,6 +317,64 @@ void Request::error_page(epoll_event &event, string key, servers &config)
         end_of_file(event);
         ovp.close();
     }
+    // if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
+    // {
+    //     string resp;
+    //     string line;
+    //     stringstream size;
+    //     string head;
+
+    //     if (flg_err_page == 0)
+    //     {
+    //         resp += "HTTP/1.1 ";
+    //         resp += key + get_status_code(key) + "\r\n";
+    //         con_type = "Content-Type: " + get_content_type(m) + "\r\n";
+    //         resp += con_type;
+    //         resp += "Transfer-Encoding: chunked";
+    //         resp += "\r\n\r\n";
+    //         flg_err_page = 1;
+    //     }
+
+    //     char buf[1024];
+    //     memset(buf, 0, 1024);
+    //     ovp.read(buf, 1024);
+
+    //     std::streamsize bytesRead = ovp.gcount();
+    //     line.append(buf, bytesRead);
+
+    //     len = line.length();
+    //     size << std::hex << len;
+    //     resp += size.str();
+    //     resp += "\r\n";
+    //     resp += line;
+    //     resp += "\r\n";
+    //     len = resp.length();
+
+    //     if (send(event.data.fd, resp.c_str(), resp.length(), 0) < 0)
+    //     {
+    //         cout << "SEND ERROR" << endl;
+    //         status_pro = "500";
+    //     }
+    //     if (ovp.eof())
+    //     {
+    //         end_file_op = 1;
+    //         string str;
+    //         str += "0\r\n\r\n";
+    //         cerr << "end of file 3adiiiii_00000000" << endl;
+    //         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+    //         {
+    //             cout << "SEND ERROR" << endl;
+    //             status_pro = "500";
+    //         }
+            
+    //         // fin_or_still = finish;
+    //         end_of_file(event);
+    //         ovp.close();
+    //         // close_dir();
+    //     }
+    //     // end_of_file(event);
+    //     // ovp.close();
+    // }
     else
         default_error(key, event.data.fd);
 }

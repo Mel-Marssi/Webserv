@@ -9,6 +9,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     flag_read_cgi = 1;
     pid = 0;
     flg_entr_frst = 0;
+    flg_err_page = 0;
     flg_pars_url =0;
     type = "NULL";
     size_File_boundri = 0;
@@ -48,13 +49,16 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     rest = 0;
     path_post = "NULL";
     cgi_post = false;
+    end_file_op = 0;
     fill_content_type();
 }
 
 Request::Request(const Request &obj)
 {
+    end_file_op = 0;
     type = "NULL";
     pid = 0;
+    flg_err_page = 0;
     full_Path = "";
     cgi_post = false;
       flag_read_cgi = 1;
@@ -610,8 +614,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
     map<string, string>::iterator itC = header_request.find("Content-Type");
     if ((fir_body != "NULL" || atol(header_request["Content-Length"].c_str()) > 0 || (event.events & EPOLLIN)) && status_pro != "NULL")
     {
-        cout << status_pro << " ---------------------------\n";
-         if (size_read_request >= size_request && size_request > 0)
+         if (size_read_request >= size_request)
             {
                 cout << "ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
                 finir = 1;
@@ -856,7 +859,12 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         else if (type == "binary")
         {
-           
+            if (size_read_request >= size_request)
+            {
+                cout << "ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
+                finir = 1;
+                return;
+            }
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request)  || status_pro == "415")
             {
 
@@ -899,12 +907,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
             }
             cout << "binaryyyyy\n";
             binary(config, index_serv);
-             if (size_read_request >= size_request && size_request > 0)
-            {
-                cout << size_request << "      " <<size_read_request  <<" ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
-                finir = 1;
-                return;
-            }
             cout << "binaryyyyyOut\n";
             if (status_pro == "415")
             {
