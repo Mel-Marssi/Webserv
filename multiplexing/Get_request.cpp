@@ -84,7 +84,6 @@ int Request::parse_url_prot(string meth, servers &config)
         handle_Path(i);
     else
         this->full_Path = this->Path;
-    // cout << Path << " - " << file_get << endl;
     // if (file_get != "")
     // {
     //     if (file_get[0] == '/' )
@@ -107,6 +106,9 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             return;
     }
     this->root = get_root(config);
+    // cout << "PATH: " << this->Path << endl;
+    // if (Path == "/favicon.ico")
+    //     exit(1);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
@@ -201,6 +203,21 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         else
             redirection_content(event, config, "301", 0);
     }
+    else if (Path == "/favicon.ico")
+    {
+        string response;
+        ostringstream oss;
+        string tmp = "<html><head><meta charset=\"UTF-8\"><link rel=\"icon\" href=\"/logo.png\" type=\"image/png\">/head><body></body></html>";
+        oss << "HTTP/1.1 200 ok \r\nContent-Length: 0\r\n\r\n"
+            << tmp;
+        response = oss.str();
+
+        if (send(event.data.fd, response.c_str(), response.length(), 0) <= 0)
+        {
+            status_pro = "500";
+        }
+        fin_or_still = finish;
+    }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
         check_files_open(event, m, this->full_Path);
     else
@@ -238,7 +255,6 @@ void Request::Generate_req_second(epoll_event &event)
         len = str.length();
         if (send(event.data.fd, str.c_str(), len, 0) < 0)
         {
-            cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
         line = "";
@@ -290,7 +306,7 @@ void Request::default_error(string key, int fd)
         if (methode != "HEAD")
         {
             ostringstream oss;
-            string tmp = "<html><meta charset=\"UTF-8\"><head><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
+            string tmp = "<html><head><meta charset=\"UTF-8\"><link rel=\"icon\" href=\"/logo.png\" type=\"image/png\"><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
             oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n"
                 << tmp;
             response = oss.str();
@@ -317,7 +333,6 @@ void Request::error_page(epoll_event &event, string key, servers &config)
     close_dir();
     string str = config[index_serv]._error_book[atoi(key.c_str())];
     std::ifstream ovp(str.c_str());
-    cout << str << endl;
     map<string, string>::iterator it = status_code.find(key);
     if ((ovp.is_open() && fin_or_still != finish) && it != status_code.end())
     {

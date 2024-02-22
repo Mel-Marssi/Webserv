@@ -23,7 +23,7 @@ server {
     location /multiplexing {
         autoindex on;
         root ./;
-        allow_methods GET POST;
+        allow_methods GET;
         allow_upload on;
         uploads_folder pars_config;
         max_client_size 8435508602;

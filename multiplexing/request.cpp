@@ -339,8 +339,10 @@ void Request::chunked(servers &config, int index)
         check_create_file = 1;
         if (fir_body != "NULL")
         {
+            cout << finir << endl;
             if (fir_body == "0\r\n\r\n" || fir_body == "\r\n0\r\n\r\n" )
             {
+                cout << "AHA\n";
                 finir = 1;
                  return;
             }
@@ -616,11 +618,9 @@ void Request::post(int fd, servers &config, epoll_event &event)
     {
          if (size_read_request >= size_request)
             {
-                cout << "ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
                 finir = 1;
                 return;
             }
-            cout << "ANAAA dkholt\n";
         size_read_request = 0;
         err = 0;
         int s = 0;
@@ -839,7 +839,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
         chunked(config, index_serv);
         if (check_left_header == 1)
             acces_read_in_post = 1;
-         if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked) || status_pro == "415")
+         if (finir != 1 &&( (config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked) || status_pro == "415"))
         {
             outputFile.close();
             // size_read_request = 0;
@@ -861,7 +861,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             if (size_read_request >= size_request)
             {
-                cout << "ROOOOOOOOOOOOTTTIIIIIINNNNEEEE\n";
                 finir = 1;
                 return;
             }
@@ -886,10 +885,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 char buff[2048];
 
                 size = 0;
-                cout << fd_request<<"  11111111111111111111111111111111" << endl;
-                cout << fd << " " << size_read_request<< endl;
                 size = read(fd, buff, 2048);
-                cout << "11111111111111111111111111111111" << endl;
                 if (size < 0)
                 {
                     outputFile.close();
@@ -905,9 +901,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 read_request.clear();
                 return;
             }
-            cout << "binaryyyyy\n";
             binary(config, index_serv);
-            cout << "binaryyyyyOut\n";
             if (status_pro == "415")
             {
 

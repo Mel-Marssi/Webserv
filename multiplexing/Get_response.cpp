@@ -92,7 +92,6 @@ void Request::end_of_file(epoll_event &event)
     {
         string str;
         str += "0\r\n\r\n";
-        cerr << "end of file 3adiiiii" << endl;
         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
         {
             cout << "SEND ERROR" << endl;
@@ -106,13 +105,11 @@ void Request::end_of_file(epoll_event &event)
     {
         string str;
         str += "0\r\n\r\n";
-        cerr << "end of file 3adiiiii" << endl;
         if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
         {
             cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
-        cerr << "end of file cgiiii" << endl;
         fin_or_still = finish;
         op_cgi.close();
         close_dir();

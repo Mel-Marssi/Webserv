@@ -10,7 +10,6 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void execute_cgi(Request &req, server_config &config)
 {
-	cerr << "execute_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	req.flag_read_cgi = 1;
@@ -78,7 +77,6 @@ void execute_cgi(Request &req, server_config &config)
 		close(fd[0]);
 		close(fd[1]);
 		close(fd_error);
-		cerr << "error fork" << endl;
 		req.status_pro = "500";
 		return;
 	}
@@ -91,13 +89,11 @@ void execute_cgi(Request &req, server_config &config)
 		close(fd[1]);
 		close(fd_error);
 		execve(argv[0], argv, env);
-		cerr << "error execve" << endl;
 		for (int i = 0; env[i]; i++)
 			delete[] env[i];
 		delete[] env;
 		exit(1);
 	}
-	cerr << "pid: " << req.pid << endl;
 	close(fd[0]);
 	close(fd[1]);
 	close(fd_error);

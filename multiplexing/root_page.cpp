@@ -17,7 +17,7 @@ void Request::root_page(epoll_event &event, string Pat)
     {
         Path_tmp.erase(0, 1);
         struct dirent* entre;
-        tmp += "<html><meta charset=\"UTF-8\"><head><title> Listed Folder </title> <link  rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\"> </head> <body>";
+        tmp += "<html><head><meta charset=\"UTF-8\"><title> Listed Folder </title><link rel=\"icon\" href=\"/logo.png\" type=\"image/x-icon\"> <link  rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\"> </head> <body>";
         tmp += "<ul class=\"list-group list-group-flush\">";
         while ((entre = readdir(dire)) != NULL)
         {

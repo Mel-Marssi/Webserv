@@ -148,7 +148,17 @@ void multiplexing::run(servers &config)
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
 					if (read_request(event_fd, config, i) == 1)
+					{
+					cerr << endl;
+						cerr << request[event_fd].read_request << endl;
+					cerr << endl;
+
 						continue;
+					}
+					cerr << endl;
+						cerr << request[event_fd].read_request << endl;
+					cerr << endl;
+
 				}
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{

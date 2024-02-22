@@ -14,9 +14,9 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	{
 		request[event_fd].read_request.append(buff, request[event_fd].size);
 		request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-		cerr << endl;
-		cerr << request[event_fd].read_request << endl;
-		cerr << endl;
+		// cerr << endl;
+		// cout  << request[event_fd].read_request << endl;
+		// cerr << endl;
 	}
 	if (request[event_fd].check_left_header == 0)
 	{
@@ -105,7 +105,6 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 	{
 		flg_remv = 1;
 		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-		cerr << "response Error : " << event_fd << " " << request[event_fd].status_pro << endl;
 	}
 	else if (request[event_fd].methode == "POST")
 	{
@@ -140,7 +139,6 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 	}
 	if (flg_remv == 1)
 	{
-		cerr << "2 : response Error : " << event_fd << " " << request[event_fd].status_pro << endl;
 		if (request[event_fd].pid != 0)
 		{
 			kill(request[event_fd].pid, SIGKILL);
@@ -181,7 +179,6 @@ int multiplexing::get_methode(int event_fd, servers &config, int i)
 	}
 	if (request[event_fd].fin_or_still == finish)
 	{
-		cerr << ">>>>>>>>> GET: " << request[event_fd].pid << endl;
 		flg_remv = 1;
 	}
 	return 0;
@@ -194,7 +191,6 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 	double timeOut = static_cast<double>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
 	if (request[event_fd].timeOut == false && (timeOut >= 10) && request.find(event_fd) != request.end())
 	{
-			cerr << "timmmmmmmmmmmmmmmmmmmmmoooooooouuuuutttttt\t" << event_fd << "\n";
 		if (request[event_fd].status_pro != "NULL")
 			request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
 		else
@@ -209,7 +205,6 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 			request.erase(event_fd);
 		close(event_fd);
 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
-		cerr << "fin :   timmmmmmmmmmmmmmmmmmmmmoooooooouuuuutttttt\t" << event_fd << "\n";
 	}
 }
 
