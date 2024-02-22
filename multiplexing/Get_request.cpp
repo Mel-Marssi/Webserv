@@ -94,6 +94,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
 
     if (flg_pars_url == 0)
     {
+        flg_pars_url = 1;
         if (this->parse_url_prot("GET", config) == 1)
             return;
     }
