@@ -33,7 +33,6 @@ void servers::run_checks()
 
 		for (server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
-			// cout << it2->get_port() <<endl;
 			if (it2->get_host() == host && it2->get_port() == port && hasDuplicate(it->get_server_names(), it2->get_server_names()) == true)
 				throw(runtime_error("Invalid configue file!"));
 			if (it2->get_host().empty() || it2->get_port() == -1)

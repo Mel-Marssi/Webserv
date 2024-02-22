@@ -9,25 +9,25 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 (void)	config;
 	if (Path.find("cgi") != std::string::npos)
 	{
-		int out;
-		if ((out = waitpid(pid, &status, WNOHANG)) == 0)
+		if ((waitpid(pid, &status, WNOHANG)) == 0)
 		{
 			get_to_cgi = true;
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec / 1000000) - (start_cgi.tv_sec + start_cgi.tv_usec/1000000)));
-			if (timeOut >= 20)
+			if (timeOut >= 30)
 			{
 				if (pid != 0)
 				{
 					kill(pid, SIGKILL);
 					waitpid(pid, &status, 0);
+					remove(cgi_file.c_str());
 				}
 				status_pro = "504";
 			}
 			else if (timeOut != 0)
 				this->timeOut = true;
 		}
-		else if (WEXITSTATUS(status) != 0 && pid != 0)
+		else if ((WIFEXITED(status) &&WEXITSTATUS(status) != 0 && pid != 0) || WIFSIGNALED(status))
 		{
 			status_pro = "500";
 		}

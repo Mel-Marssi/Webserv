@@ -117,9 +117,6 @@ void multiplexing::setup_server_socket(servers &config)
 
 void multiplexing::run(servers &config)
 {
-	int fd = open("error.log", O_CREAT | O_WRONLY , 0644);
-	dup2(fd, 2);
-	close(fd);
 	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
@@ -149,15 +146,8 @@ void multiplexing::run(servers &config)
 				{
 					if (read_request(event_fd, config, i) == 1)
 					{
-					cerr << endl;
-						cerr << request[event_fd].read_request << endl;
-					cerr << endl;
-
 						continue;
 					}
-					cerr << endl;
-						cerr << request[event_fd].read_request << endl;
-					cerr << endl;
 
 				}
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")

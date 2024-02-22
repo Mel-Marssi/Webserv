@@ -339,10 +339,8 @@ void Request::chunked(servers &config, int index)
         check_create_file = 1;
         if (fir_body != "NULL")
         {
-            cout << finir << endl;
             if (fir_body == "0\r\n\r\n" || fir_body == "\r\n0\r\n\r\n" )
             {
-                cout << "AHA\n";
                 finir = 1;
                  return;
             }
@@ -590,7 +588,6 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
             return;
         }
         return;
-        // exit(1);
     }
     if (check_left_header == 1)
         acces_read_in_post = 1;

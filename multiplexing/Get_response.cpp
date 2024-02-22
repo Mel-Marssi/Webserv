@@ -61,21 +61,17 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
         if (buffer != "")
         {
             len = buffer.length();
-            if (send(event.data.fd, buffer.c_str(), len, 0) < 0)
+            if (send(event.data.fd, buffer.c_str(), len, 0) <= 0)
             {
-                cout << "SEND ERROR0" << endl;
                 status_pro = "500";
-                // exit(5);
             }
             buffer = "";
         }
         else
         {
             len = head.length();
-            if (send(event.data.fd, head.c_str(), len, 0) < 0)
+            if (send(event.data.fd, head.c_str(), len, 0) <= 0)
             {
-                cout << "SEND ERROR0" << endl;
-                // exit(4);
                 status_pro = "500";
             }
             buffer = "";
@@ -92,9 +88,8 @@ void Request::end_of_file(epoll_event &event)
     {
         string str;
         str += "0\r\n\r\n";
-        if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+        if (send(event.data.fd, str.c_str(), str.length(), 0) <= 0)
         {
-            cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
         fin_or_still = finish;
@@ -105,9 +100,8 @@ void Request::end_of_file(epoll_event &event)
     {
         string str;
         str += "0\r\n\r\n";
-        if (send(event.data.fd, str.c_str(), str.length(), 0) < 0)
+        if (send(event.data.fd, str.c_str(), str.length(), 0) <= 0)
         {
-            cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
         fin_or_still = finish;
@@ -175,9 +169,8 @@ void Request::response_for_delete(epoll_event &event)
     head += "\r\n\r\n";
     len = head.length();
 
-    if (send(event.data.fd, head.c_str(), len, 0) < 0)
+    if (send(event.data.fd, head.c_str(), len, 0) <= 0)
     {
-        cout << "SEND ERROR" << endl;
         status_pro = "500";
     }
 }

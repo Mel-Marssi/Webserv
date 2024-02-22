@@ -106,9 +106,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             return;
     }
     this->root = get_root(config);
-    // cout << "PATH: " << this->Path << endl;
-    // if (Path == "/favicon.ico")
-    //     exit(1);
+
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
@@ -233,7 +231,7 @@ void Request::Generate_req_second(epoll_event &event)
         char buf[1024];
         memset(buf, 0, 1024);
         op.read(buf, 1024);
-
+    
         std::streamsize bytesRead = op.gcount();
         line.append(buf, bytesRead);
 
@@ -286,9 +284,8 @@ void Request::Generate_req_second(epoll_event &event)
         str += "\r\n";
         len = str.length();
 
-        if (send(event.data.fd, str.c_str(), len, 0) < 0)
+        if (send(event.data.fd, str.c_str(), len, 0) <= 0)
         {
-            cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
         line = "";
@@ -344,9 +341,8 @@ void Request::error_page(epoll_event &event, string key, servers &config)
         oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << line.length() << "\r\n\r\n" << line;
         resp = oss.str();
 
-        if (send(event.data.fd, resp.c_str(), resp.length(), 0) < 0)
+        if (send(event.data.fd, resp.c_str(), resp.length(), 0) <= 0)
         {
-            cout << "SEND ERROR" << endl;
             status_pro = "500";
         }
         end_of_file(event);

@@ -14,9 +14,6 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	{
 		request[event_fd].read_request.append(buff, request[event_fd].size);
 		request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-		// cerr << endl;
-		// cout  << request[event_fd].read_request << endl;
-		// cerr << endl;
 	}
 	if (request[event_fd].check_left_header == 0)
 	{
@@ -189,7 +186,7 @@ void multiplexing::time_out_post(int event_fd, servers &config, int i)
 	struct timeval end;
 	gettimeofday(&end, NULL);
 	double timeOut = static_cast<double>(((end.tv_sec) - (request[event_fd].startTime.tv_sec)));
-	if (request[event_fd].timeOut == false && (timeOut >= 10) && request.find(event_fd) != request.end())
+	if (request[event_fd].timeOut == false && (timeOut >= 30) && request.find(event_fd) != request.end())
 	{
 		if (request[event_fd].status_pro != "NULL")
 			request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
