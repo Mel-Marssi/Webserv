@@ -188,4 +188,5 @@ class Request
         int delete_checker(servers &config);
         void handle_Path(size_t i);
         string handle_Path_location(string str, string str2);
+        string real_Path(string str);
 };

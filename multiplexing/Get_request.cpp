@@ -26,7 +26,7 @@ int Request::check_space_first_line()
     return 0;
 }
 
-string real_Path(string str)
+string Request::real_Path(string str)
 {
     int i = 0;
     string tmp;
@@ -42,7 +42,7 @@ string real_Path(string str)
     if (d == str.length())
         return "/";
     tmp = str.substr(d - 1);
-    cout << tmp << " tmpppp\n";
+    // cout << tmp << " tmpppp\n";
     return (tmp);
 }
 
@@ -86,14 +86,14 @@ int Request::parse_url_prot(string meth, servers &config)
     else
         this->full_Path = this->Path;
     // cout << Path << " - " << file_get << endl;
-    if (file_get != "")
-    {
-        if (file_get[0] == '/' )
-        {
-            status_pro = "404";
-            return 1;
-        }
-    }
+    // if (file_get != "")
+    // {
+    //     if (file_get[0] == '/' )
+    //     {
+    //         status_pro = "404";
+    //         return 1;
+    //     }
+    // }
     return (0);
 }
 
