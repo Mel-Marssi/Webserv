@@ -5,7 +5,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	char buff[1024];
 	request[event_fd].size = 0;
 	request[event_fd].size = read(event_fd, buff, 1024);
-	if (request[event_fd].size < 0)
+	if (request[event_fd].size <= 0)
 		request[event_fd].status_pro = "500";
 	gettimeofday(&request[event_fd].startTime, NULL);
 	request[event_fd].size_read_request += request[event_fd].size;

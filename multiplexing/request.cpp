@@ -148,7 +148,7 @@ int Request::parse_line(string line, int check_first)
             if (line[found_POINT + 1] == ' ')
                 header_request.insert(make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 2, line.length() - 1).c_str())));
             else
-                header_request.insert(make_pair(line.substr(0, found_POINT), (line.substr(found_POINT + 1, line.length() - 1).c_str())));
+               status_pro = "500";
         }
     }
     return 0;
@@ -298,13 +298,14 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
     it0 = header_request.find("Content-Length"); // Content-Length
     if (this->parse_url_prot("POST", config) == 1)
         return 1;
-    // int index = get_right_index(config.server, atoi(_port.c_str()), _host, _host);
-
     if ((config[index_serv].get_loc_path_location(this->Path).empty()))
     {
-       
-
         status_pro = "404";
+        return 1;
+    }
+    if (!(config[index_serv].get_loc_path_location(this->Path).empty()) && !file_get.empty())
+    {
+        status_pro = "403";
         return 1;
     }
     //========================================
@@ -629,7 +630,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
         if (check_read_get == 1)
         {
             s = read(event.data.fd, buff, 2048);
-            if (s < 0)
+            if (s <= 0)
             {
                 status_pro = "500";
                 return ;
@@ -701,7 +702,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 if (rest == 0)
                     size = 0;
                 a = read(fd, buff, 2048 - size);
-                if (a < 0)
+                if (a <= 0)
                 {
                     outputFile.close();
                     size_read_request = 0;
@@ -763,7 +764,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 if (size_chunked - total >= 2048)
                 {
                     size = read(fd, buff, 2048);
-                    if (size < 0)
+                    if (size <= 0)
                     {
                         outputFile.close();
                         size_read_request = 0;
@@ -786,7 +787,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 else if (size_chunked - total > 0)
                 {
                     size = read(fd, buff, size_chunked - total);
-                    if (size < 0)
+                    if (size <= 0)
                     {
                         outputFile.close();
                         size_read_request = 0;
@@ -889,7 +890,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
 
                 size = 0;
                 size = read(fd, buff, 2048);
-                if (size < 0)
+                if (size <= 0)
                 {
                     outputFile.close();
                     size_read_request = 0;
