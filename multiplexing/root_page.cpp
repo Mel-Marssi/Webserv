@@ -35,7 +35,7 @@ void Request::root_page(epoll_event &event, string Pat)
         head += tmp;
         head += "</ul></body></html>";
         len = head.length();
-        if (send(event.data.fd, head.c_str(), len, 0) < 0)
+        if (send(event.data.fd, head.c_str(), len, 0) <= 0)
             status_pro = "500";
         fin_or_still = finish;
     }

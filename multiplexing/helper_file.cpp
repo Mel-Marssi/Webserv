@@ -12,7 +12,7 @@ int Request::check_body_get(epoll_event &event)
         if ((event.events & EPOLLIN) && read_get == 1)
         {
             siz = read(event.data.fd, buff, 1024);
-            if (siz < 0)
+            if (siz <= 0)
             {
                 status_pro = "500";
                 return 1;

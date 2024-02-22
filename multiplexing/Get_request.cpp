@@ -225,9 +225,6 @@ void Request::Generate_req_second(epoll_event &event)
         if (op.bad())
         {
             status_pro = "500";
-            // cout << buf << endl;
-            // exit(2);
-            fin_or_still = finish;
             return ;
         }
     
@@ -250,7 +247,7 @@ void Request::Generate_req_second(epoll_event &event)
         str += line;
         str += "\r\n";
         len = str.length();
-        if (send(event.data.fd, str.c_str(), len, 0) < 0)
+        if (send(event.data.fd, str.c_str(), len, 0) <= 0)
         {
             status_pro = "500";
         }
@@ -266,7 +263,6 @@ void Request::Generate_req_second(epoll_event &event)
         if (op_cgi.bad())
         {
             status_pro = "500";
-            // fin_or_still = finish;
             return ;
         }
         std::streamsize bytesRead = op_cgi.gcount();

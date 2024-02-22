@@ -499,7 +499,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
         if ((event.events & EPOLLIN))
         {
             a = read(fd, buff, 1024);
-            if (a < 0)
+            if (a <= 0)
             {
                 status_pro = "500";
                 vector<string>::iterator itt = files.begin();
