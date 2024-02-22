@@ -42,7 +42,6 @@ string Request::real_Path(string str)
     if (d == str.length())
         return "/";
     tmp = str.substr(d - 1);
-    // cout << tmp << " tmpppp\n";
     return (tmp);
 }
 
