@@ -117,17 +117,17 @@ int Request::parse_line(string line, int check_first)
         size_t found_POST = line.find("POST");
         size_t found_GET = line.find("GET");
         size_t found_DELETE = line.find("DELETE");
-        if (found_POST != string::npos)
+        if (found_POST != string::npos && line[found_POST + 4] == ' ')
         {
             header_request.insert(make_pair(line.substr(0, found_POST + 4), (line.substr(found_POST + 5, line.length()).c_str())));
             this->methode = POST;
         }
-        else if (found_GET != string::npos)
+        else if (found_GET != string::npos && line[found_POST + 4] == ' ')
         {
             header_request.insert(make_pair(line.substr(0, found_GET + 3), (line.substr(found_GET + 4, line.length()).c_str())));
             this->methode = GET;
         }
-        else if (found_DELETE != string::npos)
+        else if (found_DELETE != string::npos && line[found_POST + 7] == ' ')
         {
             header_request.insert(make_pair(line.substr(0, found_DELETE + 6), (line.substr(found_DELETE + 7, line.length()).c_str())));
             this->methode = DELETE;
@@ -339,8 +339,10 @@ void Request::chunked(servers &config, int index)
         check_create_file = 1;
         if (fir_body != "NULL")
         {
+            cout << finir << endl;
             if (fir_body == "0\r\n\r\n" || fir_body == "\r\n0\r\n\r\n" )
             {
+                cout << "AHA\n";
                 finir = 1;
                  return;
             }
@@ -588,6 +590,7 @@ void Request::boundaries(servers &config, int index, int fd, epoll_event &event)
             return;
         }
         return;
+        // exit(1);
     }
     if (check_left_header == 1)
         acces_read_in_post = 1;
@@ -637,6 +640,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
         }
         if (header_request["Transfer-Encoding"] == "chunked\r" && read_request.find("\r\n0\r\n\r\n") != string::npos)
         {
+
             finir = 1;
         }
         else if (header_request["Transfer-Encoding"] != "chunked\r"  && header_request["Content-Type"].find("multipart/form-data") == string::npos && size_body_get >= (size_t)atol(header_request["Content-Length"].c_str()))
@@ -655,11 +659,15 @@ void Request::post(int fd, servers &config, epoll_event &event)
         status_pro = "501";
         return;
     }
+    string content = header_request["Content-Type"];
+    size_t si = content.find("multipart/form-data");
+    if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r" && si != string::npos)
+    {
+        status_pro = "501";
+        return;
+    }
     if (check_read_get == 0)
     {
-        // this->parse_url_prot("POST", config);
-        string content = header_request["Content-Type"];
-        size_t si = content.find("multipart/form-data");
         if (it != header_request.end() && header_request["Transfer-Encoding"] == "chunked\r")
         {
             type = "chunked";
@@ -667,7 +675,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         else if (si != string::npos)
         {
             type = "boundri";
-            // return;
         }
         else
          type = "binary";
@@ -678,7 +685,6 @@ void Request::post(int fd, servers &config, epoll_event &event)
         if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_chuked) || status_pro == "504")
         {
             outputFile.close();
-            // size_read_request = 0;
             finir = 0;
             remove(file_name_post.c_str());
             if (status_pro != "504")

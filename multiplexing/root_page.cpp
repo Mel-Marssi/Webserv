@@ -42,3 +42,77 @@ void Request::root_page(epoll_event &event, string Pat)
     else
         status_pro = "404";
 }
+
+
+
+// void Request::Generate_req_second(epoll_event &event)
+// {
+//     if (op.is_open() && event.events & EPOLLOUT)
+//     {
+//         char buf[1024];
+//         memset(buf, 0, 1024);
+//         op.read(buf, 1024);
+
+//         std::streamsize bytesRead = op.gcount();
+//         line.append(buf, bytesRead);
+
+//         if (buffer != "")
+//         {
+//             buffer += line;
+//             line = buffer;
+//         }
+
+//         stringstream size;
+//         size_t len;
+//         string str;
+//         len = line.length();
+//         size << std::hex << len;
+//         str += size.str();
+//         str += "\r\n";
+//         str += line;
+//         str += "\r\n";
+//         len = str.length();
+//         if (send(event.data.fd, str.c_str(), len, 0) < 0)
+//         {
+//             cout << "SEND ERROR" << endl;
+//             status_pro = "500";
+//         }
+//         line = "";
+//         if (op.eof())
+//             end_of_file(event);
+//     }
+//     if (op_cgi.is_open() && event.events & EPOLLOUT)
+//     {
+//         char buf[1024];
+//         memset(buf, 0, 1024);
+//         op_cgi.read(buf, 1024);
+//         std::streamsize bytesRead = op_cgi.gcount();
+//         line.append(buf, bytesRead);
+
+//         if (buffer != "")
+//         {
+//             buffer += line;
+//             line = buffer;
+//         }
+
+//         stringstream size;
+//         size_t len;
+//         string str;
+//         len = line.length();
+//         size << std::hex << len;
+//         str += size.str();
+//         str += "\r\n";
+//         str += line;
+//         str += "\r\n";
+//         len = str.length();
+
+//         if (send(event.data.fd, str.c_str(), len, 0) < 0)
+//         {
+//             cout << "SEND ERROR" << endl;
+//             status_pro = "500";
+//         }
+//         line = "";
+//         if (op_cgi.eof())
+//             end_of_file(event);
+//     }
+// }

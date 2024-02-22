@@ -84,14 +84,6 @@ int Request::parse_url_prot(string meth, servers &config)
         handle_Path(i);
     else
         this->full_Path = this->Path;
-    // if (file_get != "")
-    // {
-    //     if (file_get[0] == '/' )
-    //     {
-    //         status_pro = "404";
-    //         return 1;
-    //     }
-    // }
     return (0);
 }
 
@@ -211,9 +203,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         response = oss.str();
 
         if (send(event.data.fd, response.c_str(), response.length(), 0) <= 0)
-        {
             status_pro = "500";
-        }
         fin_or_still = finish;
     }
     else if ((is_open_diir("." + Path) == 0) && (is_open_fil("." + Path) == 1))
@@ -231,6 +221,14 @@ void Request::Generate_req_second(epoll_event &event)
         char buf[1024];
         memset(buf, 0, 1024);
         op.read(buf, 1024);
+        if (op.bad())
+        {
+            status_pro = "500";
+            // cout << buf << endl;
+            // exit(2);
+            fin_or_still = finish;
+            return ;
+        }
     
         std::streamsize bytesRead = op.gcount();
         line.append(buf, bytesRead);
@@ -264,6 +262,12 @@ void Request::Generate_req_second(epoll_event &event)
         char buf[1024];
         memset(buf, 0, 1024);
         op_cgi.read(buf, 1024);
+        if (op_cgi.bad())
+        {
+            status_pro = "500";
+            // fin_or_still = finish;
+            return ;
+        }
         std::streamsize bytesRead = op_cgi.gcount();
         line.append(buf, bytesRead);
 
@@ -298,7 +302,7 @@ void Request::default_error(string key, int fd)
 {
     string response;
     map<string, string>::iterator it = status_code.find(key);
-    if (it != status_code.end())
+    if (it != status_code.end() && fin_or_still != finish)
     {
         if (methode != "HEAD")
         {
@@ -314,14 +318,13 @@ void Request::default_error(string key, int fd)
             oss << "HTTP/1.1 " << key << it->second << "\r\n\r\n";
             response = oss.str();
         }
-    }
-
-    if (send(fd, response.c_str(), response.length(), 0) <= 0)
-    {
-        cerr << "SEND ERROR" << endl;
-        cerr << event_fd << " \n"
-        << read_request << endl;
-        status_pro = "500";
+        if (send(fd, response.c_str(), response.length(), 0) <= 0)
+        {
+            cerr << "SEND ERROR" << endl;
+            cerr << event_fd << " \n"
+            << read_request << endl;
+            status_pro = "500";
+        }
     }
 }
 

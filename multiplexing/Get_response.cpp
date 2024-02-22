@@ -26,13 +26,18 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     char buffer[1024];
     memset(buffer, 0, 1024);
     op_cgi.read(buffer, 1024);
+    if (op_cgi.bad())
+    {
+        status_pro = "500";
+        return ("");
+    }
     //--- size of what read is reading ---
     std::streamsize bytesRead = op_cgi.gcount();
     line.append(buffer, bytesRead);
     //------------------------------------
     head += "HTTP/1.1 200 ok\r\n";
     head += "Content-Lenght:";
-    size << fileS; // check this
+    size << fileS; 
     head += size.str();
     head += "\r\n";
     head += line;
@@ -56,7 +61,7 @@ void Request::read_for_send(epoll_event &event, map<string, string> &m, int flg)
         head = read_buff_cgi(m);
         buffer += head;
     }
-    if ((event.events & EPOLLOUT))
+    if ((event.events & EPOLLOUT) && head != "")
     {
         if (buffer != "")
         {
@@ -98,12 +103,6 @@ void Request::end_of_file(epoll_event &event)
     }
     if (op_cgi.is_open())
     {
-        string str;
-        str += "0\r\n\r\n";
-        if (send(event.data.fd, str.c_str(), str.length(), 0) <= 0)
-        {
-            status_pro = "500";
-        }
         fin_or_still = finish;
         op_cgi.close();
         close_dir();

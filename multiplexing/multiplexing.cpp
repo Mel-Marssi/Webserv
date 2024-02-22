@@ -1,4 +1,3 @@
-
 #include "multiplexing.hpp"
 #include "request.hpp"
 #include "../cgi-bin/cgi_handler.hpp"
@@ -117,6 +116,9 @@ void multiplexing::setup_server_socket(servers &config)
 
 void multiplexing::run(servers &config)
 {
+	int fd = open("error.log", O_CREAT | O_WRONLY , 0644);
+	dup2(fd, 2);
+	close(fd);
 	for (;;)
 	{
 		wait_fd = epoll_wait(epoll_fd, event_wait, 1024, 0);
@@ -145,10 +147,7 @@ void multiplexing::run(servers &config)
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
 					if (read_request(event_fd, config, i) == 1)
-					{
 						continue;
-					}
-
 				}
 				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
 				{
@@ -160,12 +159,27 @@ void multiplexing::run(servers &config)
 						continue;
 				}
 				else if (request[event_fd].methode == "DELETE")
+				{
 					delete_method(event_fd, config, i);
+					map<int, Request>::iterator it = request.find(event_fd);
+					if (it != request.end())
+						request.erase(it);
+					request[event_fd].outputFile.close();
+					close(event_fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+					continue;
+				}
 
 				if (request[event_fd].methode == "NONE" || request[event_fd].methode == "HEAD")
 				{
 					request[event_fd].error_page(event_wait[i], "501", config);
-					flg_remv = 1;
+					map<int, Request>::iterator it = request.find(event_fd);
+					if (it != request.end())
+						request.erase(it);
+					request[event_fd].outputFile.close();
+					close(event_fd);
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+					continue;
 				}
 
 				if (request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())
