@@ -3,7 +3,6 @@ server {
     server_name asas test;
     host localhost;
     root ./;
-    index index.html;
     error_pages 400 index.ml;
     error_pages 504 prblm/504.html;
     error_pages 403 prblm/403.html;
