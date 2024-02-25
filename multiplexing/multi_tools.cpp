@@ -34,7 +34,9 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 			}
 		}
 		else
+		{
 			request[event_fd].status_pro = "400";
+		}
 
 		if (request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
 		{
@@ -64,7 +66,10 @@ void multiplexing::delete_method(int event_fd, servers &config, int i)
 	gettimeofday(&request[event_fd].startTime, NULL);
 	request[event_fd].epoll_fd_tmp = epoll_fd;
 	request[event_fd].Delete_Function(event_wait[i], config);
-	request[event_fd].response_for_delete(event_wait[i]);
+	if (request[event_fd].flg_resp_err == 1)
+		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
+	else
+		request[event_fd].response_for_delete(event_wait[i]);
 	flg_remv = 1;
 }
 
@@ -106,7 +111,9 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 	else if (request[event_fd].methode == "POST")
 	{
 		if (request[event_fd].path_post == "NULL")
+		{
 			request[event_fd].error_page(event_wait[i], "400", config);
+		}
 		else
 		{
 			if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)

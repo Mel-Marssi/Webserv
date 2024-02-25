@@ -53,8 +53,10 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
     {
         read_for_send(event, m, 0);
     }
-    else if ((is_open_diir(str) == 1))
+    else if ((is_open_diir(str) == 1) && check_permission_R(str) == 1)
         root_page(event, str + "/");
+    else if (check_permission_R(str) == 0)
+        status_pro = "403";
     else
         status_pro = "404";
 }

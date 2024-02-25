@@ -11,6 +11,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     flg_entr_frst = 0;
     flg_err_page = 0;
     flg_pars_url =0;
+    flg_resp_err = 0;
     type = "NULL";
     size_File_boundri = 0;
     // startTime = 0;
@@ -57,6 +58,7 @@ Request::Request(const Request &obj)
 {
     end_file_op = 0;
     type = "NULL";
+    flg_resp_err = 0;
     pid = 0;
     flg_err_page = 0;
     full_Path = "";
@@ -303,7 +305,7 @@ int Request::Handle_error(int fd, servers &config, epoll_event &event)
         status_pro = "404";
         return 1;
     }
-    if (!(config[index_serv].get_loc_path_location(this->Path).empty()) && !file_get.empty())
+    if (!(config[index_serv].get_loc_path_location(this->Path).empty()) && !file_get.empty() && methode == "POST" && Path != "/cgi-bin" )
     {
         status_pro = "403";
         return 1;
@@ -340,10 +342,8 @@ void Request::chunked(servers &config, int index)
         check_create_file = 1;
         if (fir_body != "NULL")
         {
-            cout << finir << endl;
             if (fir_body == "0\r\n\r\n" || fir_body == "\r\n0\r\n\r\n" )
             {
-                cout << "AHA\n";
                 finir = 1;
                  return;
             }
@@ -866,7 +866,8 @@ void Request::post(int fd, servers &config, epoll_event &event)
             if (size_read_request >= size_request)
             {
                 finir = 1;
-                return;
+                if (size_request > 0 && check_create_file == 1)
+                    return;
             }
             if ((config[index_serv].get_loc_max_client_size(this->Path) < (size_t)size_request)  || status_pro == "415")
             {

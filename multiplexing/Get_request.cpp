@@ -125,7 +125,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     Path = str1;
                     read_for_send(event, m, 0);
-                }
+                } // here tcheck if file index not open what should i do ?
                 else
                 {
                     string root_tmp = root;
@@ -305,7 +305,7 @@ void Request::default_error(string key, int fd)
         {
             ostringstream oss;
             string tmp = "<html><head><meta charset=\"UTF-8\"><link rel=\"icon\" href=\"/logo.png\" type=\"image/png\"><title>" + key + it->second + "</title></head><body><h1>" + key + it->second + "</h1></body></html>";
-            oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Length: " << tmp.length() << "\r\n\r\n"
+            oss << "HTTP/1.1 " << key << it->second << "\r\nContent-Type: text/html \r\nContent-Length: " << tmp.length() << "\r\n\r\n"
                 << tmp;
             response = oss.str();
         }

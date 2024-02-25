@@ -164,9 +164,11 @@ class Request
         int end_file_op;
         //============= Delete =========================
         int flg_entr_frst;
+        int flg_resp_err;
         void Delete_Function(epoll_event &event, servers &config);
         int check_permission_F(string str);
         int check_permission_X(string str);
+        int check_permission_R(string str);
         void delete_content(string pat);
         int is_open_diir(string str);
         int is_open_fil(string str);

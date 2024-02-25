@@ -7,7 +7,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 {
 	int status;
 (void)	config;
-	if (Path.find("cgi") != std::string::npos)
+	if (Path.find("/cgi-bin") != std::string::npos)
 	{
 		if ((waitpid(pid, &status, WNOHANG)) == 0)
 		{
@@ -27,7 +27,7 @@ void Request::cgi_handle_get(epoll_event &event, servers &config)
 			else if (timeOut != 0)
 				this->timeOut = true;
 		}
-		else if ((WIFEXITED(status) &&WEXITSTATUS(status) != 0 && pid != 0) || WIFSIGNALED(status))
+		else if ((WIFEXITED(status) && WEXITSTATUS(status) != 0 && pid != 0) || WIFSIGNALED(status))
 		{
 			status_pro = "500";
 		}

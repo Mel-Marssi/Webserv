@@ -133,6 +133,14 @@ int Request::check_permission_X(string str)
         return (0);
 }
 
+int Request::check_permission_R(string str)
+{
+    if (access((str).c_str(), R_OK) != -1)
+        return (1);
+    else
+        return (0);
+}
+
 int Request::is_open_diir(string str)
 {
     DIR *d;

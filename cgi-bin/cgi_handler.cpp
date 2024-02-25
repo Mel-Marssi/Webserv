@@ -10,6 +10,7 @@ string get_cgi_path(string extention, map<string, string> cgi_exec_path)
 
 void execute_cgi(Request &req, server_config &config)
 {
+	cerr << "execute_cgi" << endl;
 	cgi_handler cgi(req);
 	string file, tmp;
 	req.flag_read_cgi = 1;
@@ -47,7 +48,7 @@ void execute_cgi(Request &req, server_config &config)
 	stringstream to_s;
 	to_s << t;
 
-	string tmp_file = "/tmp/_." + to_s.str();
+	string tmp_file = "/tmp/_" + to_s.str();
 	req.cgi_file = tmp_file;
 	int fd[2], fd_error;
 
@@ -66,21 +67,18 @@ void execute_cgi(Request &req, server_config &config)
 	char *argv[3] = {(char *)tmp.c_str(), (char *)file.c_str(), NULL};
 
 	fd[0] = open(file.c_str(), O_RDONLY);
-	if (fd[0] == -1)
-	{
-		req.status_pro = "500";
-		return;
-	}
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0777);
 	fd_error = open("./errors/error.log", O_CREAT | O_RDWR | O_TRUNC, 0777);
 	gettimeofday(&req.start_cgi, NULL);
 
 	req.pid = fork();
+	
 	if (req.pid == -1)
 	{
 		close(fd[0]);
 		close(fd[1]);
 		close(fd_error);
+		cerr << "error fork" << endl;
 		req.status_pro = "500";
 		return;
 	}
@@ -93,10 +91,13 @@ void execute_cgi(Request &req, server_config &config)
 		close(fd[1]);
 		close(fd_error);
 		execve(argv[0], argv, env);
+		cerr << "error execve" << endl;
 		for (int i = 0; env[i]; i++)
 			delete[] env[i];
 		delete[] env;
+		exit(1);
 	}
+	cerr << "pid: " << req.pid << endl;
 	close(fd[0]);
 	close(fd[1]);
 	close(fd_error);

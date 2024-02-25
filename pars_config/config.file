@@ -3,8 +3,11 @@ server {
     server_name asas test;
     host localhost;
     root ./;
+    index index.html;
     error_pages 400 index.ml;
     error_pages 504 prblm/504.html;
+    error_pages 403 prblm/403.html;
+    error_pages 405 prblm/405.html;
     error_pages 500 prblm/500.html;
 
     location / {
@@ -21,10 +24,17 @@ server {
         max_client_size 123123123;
     }
 
+    location /tesr_fo {
+        autoindex on;
+        root ./;
+        allow_methods GET POST;
+        max_client_size 123123123;
+    }
+
     location /multiplexing {
         autoindex on;
         root ./;
-        allow_methods GET;
+        allow_methods GET DELETE POST;
         allow_upload on;
         uploads_folder pars_config;
         max_client_size 8435508602;
