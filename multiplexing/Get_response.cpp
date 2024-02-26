@@ -205,6 +205,8 @@ void Request::check_url_encoding(string &str)
 {
     size_t i = 0;
 
+    // cout << "str: " << str << endl;
+
     for (;;)
     {
         i = str.find("%", i);

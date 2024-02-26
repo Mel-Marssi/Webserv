@@ -48,6 +48,7 @@ string Request::real_Path(string str)
 int Request::parse_url_prot(string meth, servers &config)
 {
     map<string, string>::iterator it;
+    string root = config[index_serv].get_root();
     size_t i;
 
     if (status_pro != "NULL")
@@ -74,7 +75,9 @@ int Request::parse_url_prot(string meth, servers &config)
         status_pro = "414";
         return 1;
     }
-    check_url_encoding(Path);
+    if(access((root + Path).c_str(), F_OK) == -1)
+        check_url_encoding(Path);
+
     if (meth == "DELETE" && delete_checker(config) == 1)
         return 1;
     i = 1;
@@ -92,14 +95,19 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
     if (check_body_get(event) == 1)
         return;
 
+    string root = config[index_serv].get_loc_root(this->Path);
+    if (root == "")
+        root = config[index_serv].get_root();
+
+    root_class = root;
+
     if (flg_pars_url == 0)
     {
         flg_pars_url = 1;
         if (this->parse_url_prot("GET", config) == 1)
             return;
     }
-    this->root = get_root(config);
-
+    full_Path = handle_Path_location(root, full_Path);
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
@@ -125,12 +133,10 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     Path = str1;
                     read_for_send(event, m, 0);
-                } // here tcheck if file index not open what should i do ?
+                }
                 else
                 {
-                    string root_tmp = root;
-                    if (root_tmp[root_tmp.length() - 1] == '/' && Path[0] == '/')
-                        root_tmp.erase(root_tmp.length() - 1, root_tmp.length());
+                    string root_tmp = handle_Path_location(root, Path);
                     if (config[index_serv].get_loc_auto_index(this->Path))
                         root_page(event, root_tmp + Path);
                     else
@@ -177,9 +183,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 else if ((file_get != ""))
                 {
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
-                    {
+        
                         find_cgi(config, index_serv);
-                    }
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
                         check_files_open(event, m, this->full_Path);
                 }

@@ -19,6 +19,7 @@ server {
     location /test {
         autoindex on;
         root ./;
+        index im.jpeg;
         allow_methods GET POST;
         max_client_size 123123123;
     }

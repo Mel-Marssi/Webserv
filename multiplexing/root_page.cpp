@@ -13,6 +13,7 @@ void Request::root_page(epoll_event &event, string Pat)
     head += "\r\nContent-Lenght: ";
     close_dir();
     dire = opendir((Path_tmp).c_str()); 
+    cout << Pat <<" --\n";
     if (dire)
     {
         Path_tmp.erase(0, 1);

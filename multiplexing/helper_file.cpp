@@ -48,6 +48,8 @@ string Request::resp_post()
 
 void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
 {
+    // str.erase(0,1);
+    cout << str << endl;
     op.open(str.c_str());
     if (op.is_open() && (is_open_diir(str) == 0))
     {

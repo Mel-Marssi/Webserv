@@ -6,6 +6,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
     (void)server_book;
     (void)fd_client;
+    root_class = "";
     flag_read_cgi = 1;
     pid = 0;
     flg_entr_frst = 0;
@@ -14,7 +15,6 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     flg_resp_err = 0;
     type = "NULL";
     size_File_boundri = 0;
-    // startTime = 0;
     size_chuked = 0;
     read_get = 0;
     Path = "";
@@ -61,14 +61,14 @@ Request::Request(const Request &obj)
     flg_resp_err = 0;
     pid = 0;
     flg_err_page = 0;
+    root_class = "";
     full_Path = "";
     cgi_post = false;
-      flag_read_cgi = 1;
+    flag_read_cgi = 1;
     Path = "";
     root = "";
     flg_entr_frst = 0;
     size_File_boundri = 0;
-    // startTime = 0;
     file_get = "";
     rest = 0;
     size_chuked = 0;
@@ -91,14 +91,11 @@ Request::Request(const Request &obj)
     check_left_header = 0;
     flg_pars_url =0;
     check_create_file = 0;
-    // check_first_line = 0;
     kk = 0;
     len = 0;
     dire = NULL;
     err = 0;
     fin_or_still = Still;
-    // check_first_time = 0;
-    // counter = obj.counter;
     check_req = 0;
     fir_body = "NULL";
     finir = 0;

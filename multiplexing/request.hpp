@@ -125,6 +125,7 @@ class Request
         string Host, server_name;
         string Port;
         string Path_bef;
+        string root_class;
         
         int parse_url_prot(string meth, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
@@ -143,6 +144,7 @@ class Request
         void end_of_file(epoll_event &event);
         void close_dir();
         std::string read_buff_cgi(map<string, string> &m);
+        int check_if_file_exist(string str);
         string fin_or_still;
         size_t check_first_time;
         int check_req;
