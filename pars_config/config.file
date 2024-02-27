@@ -24,7 +24,7 @@ server {
         max_client_size 123123123;
     }
 
-    location /tesr_fo {
+    location /tesr  fo 5  2 {
         autoindex on;
         root ./;
         allow_methods GET POST;
