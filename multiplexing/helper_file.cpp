@@ -48,8 +48,6 @@ string Request::resp_post()
 
 void Request::check_files_open(epoll_event &event, map<string, string> m, string str)
 {
-    // str.erase(0,1);
-    cout << str << endl;
     op.open(str.c_str());
     if (op.is_open() && (is_open_diir(str) == 0))
     {
@@ -57,7 +55,7 @@ void Request::check_files_open(epoll_event &event, map<string, string> m, string
     }
     else if ((is_open_diir(str) == 1) && check_permission_R(str) == 1)
         root_page(event, str + "/");
-    else if (check_permission_R(str) == 0)
+    else if ((check_permission_F(str) == 1) && (check_permission_R(str) == 0))
         status_pro = "403";
     else
         status_pro = "404";

@@ -85,7 +85,10 @@ void multiplexing::redirect_to_cgi_result(int event_fd, int i)
 	head += tmp_path;
 	head += "\r\n\r\n";
 	length = head.length();
-	send(event_fd, head.c_str(), length, 0);
+	if (send(event_fd, head.c_str(), length, 0) <= 0)
+	{
+		request[event_fd].status_pro = "500";
+	}
 	if (request[event_fd].pid != 0)
 	{
 		kill(request[event_fd].pid, SIGKILL);
@@ -123,7 +126,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				request[event_fd].cgi_post = true;
 				return 1;
 			}
-			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) < 0)
+			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) <= 0)
 				request[event_fd].error_page(event_wait[i], "500", config);
 		}
 		if (request[event_fd].pid != 0)

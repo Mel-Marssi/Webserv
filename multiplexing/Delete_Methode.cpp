@@ -12,7 +12,6 @@ void Request::Delete_Function(epoll_event &event, servers &config)
         flg_resp_err = 1;
         return ;
     }
-
     string root = get_the_p(config, Path);
 
 	if (this->Path == "/")
@@ -31,7 +30,7 @@ void Request::Delete_Function(epoll_event &event, servers &config)
 	else if (check_permission_F(root) == 1)
         delete_content(root);
     else
-        status_pro = "404";
+        status_pro = "403";
     if (status_pro != "204")
         flg_resp_err = 1;
 }
@@ -48,6 +47,7 @@ void Request::delete_content(string pat)
         while ((entre = readdir(FOLDER)) != NULL)
         {
             string name = entre->d_name;
+            cout << "name: " << name << endl;
             if (name[0] != '.')
             {
                 string str = pat + "/" + name;

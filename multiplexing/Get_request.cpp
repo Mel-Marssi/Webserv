@@ -77,7 +77,7 @@ int Request::parse_url_prot(string meth, servers &config)
         return 1;
     }
 
-    if (access((root + Path).c_str(), F_OK) == -1)
+    if (check_permission_F(root + Path) == 0)
         check_url_encoding(Path);
     if (meth == "DELETE" && delete_checker(config) == 1)
         return 1;
@@ -110,9 +110,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
             return;
     }
     full_Path = handle_Path_location(root, full_Path);
-    cout << (config[index_serv].get_loc_path_location(this->Path).empty()) << endl;
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
-        status_pro = "403";
+        status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
         status_pro = "405";
     else if (this->Path == "/" && file_get == "")
