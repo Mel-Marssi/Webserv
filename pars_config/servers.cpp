@@ -61,7 +61,7 @@ int get_right_index(vector<server_config> server, int port, string host, string 
 	}
 	if (tmp_serv != -1)
 		return (tmp_serv);
-	return (0);
+	return (-1);
 }
 
 int servers::size()

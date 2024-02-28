@@ -220,7 +220,7 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 		{
 			gettimeofday(&end, NULL);
 			double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec / 1000000) - (request[event_fd].start_cgi.tv_sec + request[event_fd].start_cgi.tv_usec / 1000000)));
-			if (timeOut >= 10)
+			if (timeOut >= 30)
 			{
 				if (request[event_fd].pid != 0)
 				{
