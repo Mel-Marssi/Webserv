@@ -146,7 +146,7 @@ void multiplexing::run(servers &config)
 					if (read_request(event_fd, config, i) == 1)
 						continue;
 				}
-				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN)) || request[event_fd].fake_bondary != "NULL")
+				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN) && !(request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())) || request[event_fd].fake_bondary != "NULL")
 				{
 					post_boundry(event_fd, config, i);
 				}
@@ -178,13 +178,11 @@ void multiplexing::run(servers &config)
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 					continue;
 				}
-
-				if (request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())
+				if (request[event_fd].cgi_post == true)
 				{
-					redirect_to_cgi_result(event_fd, i);
+					cgi_post(event_fd, config, i);
 					continue;
 				}
-
 				if ((request[event_fd].methode == "POST" || request[event_fd].methode == "GET") && (event_wait[i].events & EPOLLOUT) && request[event_fd].check_left_header == 1 && ((request[event_fd].type != "chunked" && request[event_fd].size_request <= request[event_fd].size_read_request && request[event_fd].size_read_request > 0) || request[event_fd].finir == 1 || request[event_fd].err == 1))
 				{
 					if (send_response(event_fd, config, i) == 1)

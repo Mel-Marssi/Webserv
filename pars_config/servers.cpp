@@ -34,7 +34,9 @@ void servers::run_checks()
 		for (server_iterator it2 = it + 1; it2 != server.end(); it2++)
 		{
 			if (it2->get_host() == host && it2->get_port() == port && hasDuplicate(it->get_server_names(), it2->get_server_names()) == true)
-				throw(runtime_error("Invalid configue file!"));
+				throw(runtime_error("Duplicate server!"));
+			else if (it2->get_host() == host && it2->get_port() == port && it2->get_server_names().size() == 0 && it->get_server_names().size() == 0)
+				throw(runtime_error("Duplicate server!"));
 			if (it2->get_host().empty() || it2->get_port() == -1)
 				throw(runtime_error("Invalid configue file!"));
 		}

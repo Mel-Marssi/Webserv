@@ -27,12 +27,13 @@ public:
 	int read_request(int event_fd, servers &config, int i);
 	void error_epoll(int event_fd, int i);
 	void delete_method(int event_fd, servers &config, int i);
-	void redirect_to_cgi_result(int event_fd, int i);
+	void redirect_to_cgi_result(int event_fd, int i, servers &config);
 	int send_response(int event_fd, servers &config, int i);
 	int get_methode(int event_fd, servers &config, int i);
 	void time_out_post(int event_fd, servers &config, int i);
 	void post_boundry(int event_fd, servers &config, int i);
 	int accept_client(int event_fd);
+	void cgi_post(int event_fd, servers &config, int i);
 	// Get Methode======================
 	void fill_content_type();
 	std::map<std::string, std::string> cont_type;

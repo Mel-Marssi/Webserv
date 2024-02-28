@@ -1,6 +1,6 @@
 NAME=webserv
 CXX=c++
-CXXFLAGS= -Wall -Wextra -Werror -std=c++98 
+CXXFLAGS= -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
 
 FILE=pars_config/server_config.cpp workshop.cpp \
 pars_config/location.cpp pars_config/servers.cpp \
@@ -14,7 +14,6 @@ cgi-bin/cgi_handler.cpp	multiplexing/helper_file.cpp
 OBJ=$(FILE:.cpp=.o)
 INCLUDE=pars_config/server_config.hpp pars_config/location.hpp \
 pars_config/servers.hpp multiplexing/multiplexing.hpp \
-cgi-bin/cgi_handler.hpp multiplexing/request.hpp
 
 
 all: $(NAME)

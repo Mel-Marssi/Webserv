@@ -66,41 +66,25 @@ void multiplexing::delete_method(int event_fd, servers &config, int i)
 	gettimeofday(&request[event_fd].startTime, NULL);
 	request[event_fd].epoll_fd_tmp = epoll_fd;
 	request[event_fd].Delete_Function(event_wait[i], config);
-	if (request[event_fd].flg_resp_err == 1)
-		request[event_fd].error_page(event_wait[i], request[event_fd].status_pro, config);
-	else
-		request[event_fd].response_for_delete(event_wait[i]);
+	request[event_fd].response_for_delete(event_wait[i]);
 	flg_remv = 1;
 }
 
-void multiplexing::redirect_to_cgi_result(int event_fd, int i)
+void multiplexing::redirect_to_cgi_result(int event_fd, int i, servers &config)
 {
-	string head;
-	string tmp_path = "/" + request[event_fd].path_post;
-	size_t length;
+	// string resp,tmp;
+	// char buff[2048];
+	// memset(buff, 0, 2048);
+	// resp += "HTTP/1.1 200 OK\r\n";
+	// resp += "Content-Length: 200\r\n";
 
-	head += "HTTP/1.1 ";
-	head += "301 Moved Permanently\r\nLocation: ";
-	i = request[event_fd].path_post.find("/", 1);
-	head += tmp_path;
-	head += "\r\n\r\n";
-	length = head.length();
-	if (send(event_fd, head.c_str(), length, 0) <= 0)
-	{
-		request[event_fd].status_pro = "500";
-	}
-	if (request[event_fd].pid != 0)
-	{
-		kill(request[event_fd].pid, SIGKILL);
-		waitpid(request[event_fd].pid, NULL, 0);
-		remove(request[event_fd].cgi_file.c_str());
-	}
-	map<int, Request>::iterator it = request.find(event_fd);
-	if (it != request.end())
-		request.erase(it);
-	request[event_fd].outputFile.close();
-	close(event_fd);
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+	execute_cgi(request[event_fd], config[i]);
+	// waitpid(request[event_fd].pid, NULL, 0);
+	// int fd = open(request[event_fd].cgi_file.c_str(), O_RDONLY);
+	// read(fd, &buff, 2048);
+	// cout << buff << endl;
+	// send(event_fd,buff, 2048, 0);
+	// flg_remv = 1;
 }
 
 int multiplexing::send_response(int event_fd, servers &config, int i)
@@ -115,6 +99,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 	{
 		if (request[event_fd].path_post == "NULL")
 		{
+			cout << "hdiejfoe\n";
 			request[event_fd].error_page(event_wait[i], "400", config);
 		}
 		else
@@ -124,9 +109,10 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				request[event_fd].finir = 0;
 				request[event_fd].size_read_request = -1;
 				request[event_fd].cgi_post = true;
+				request[event_fd].outputFile.close();
 				return 1;
 			}
-			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) <= 0)
+			if (request[event_fd].cgi_post == false && send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) <= 0)
 				request[event_fd].error_page(event_wait[i], "500", config);
 		}
 		if (request[event_fd].pid != 0)
@@ -224,6 +210,69 @@ void multiplexing::post_boundry(int event_fd, servers &config, int i)
 	request[event_fd].check_read_get = 1;
 }
 
+void multiplexing::cgi_post(int event_fd, servers &config, int i)
+{
+	int status;
+	struct timeval end;
+	char buff[1024];
+	string response;
+	memset(buff, 0, 1024);
+	if (request[event_fd].pid == 0)
+		execute_cgi(request[event_fd], config[i]);
+	if ((waitpid(request[event_fd].pid, &status, 0)) == 0)
+	{
+		gettimeofday(&end, NULL);
+		double timeOut = static_cast<double>(((end.tv_sec + end.tv_usec / 1000000) - (request[event_fd].start_cgi.tv_sec + request[event_fd].start_cgi.tv_usec / 1000000)));
+		if (timeOut >= 30)
+		{
+			if (request[event_fd].pid != 0)
+			{
+				kill(request[event_fd].pid, SIGKILL);
+				waitpid(request[event_fd].pid, &status, 0);
+				remove(request[event_fd].cgi_file.c_str());
+			}
+			request[event_fd].status_pro = "504";
+		}
+		else if (timeOut != 0)
+			request[event_fd].timeOut = true;
+	}
+	else if ((WIFEXITED(status) && WEXITSTATUS(status) != 0 && request[event_fd].pid != 0) || WIFSIGNALED(status))
+	{
+		request[event_fd].status_pro = "500";
+	}
+	else
+	{
+		if (request[event_fd].op_cgi.is_open() == false)
+			request[event_fd].op_cgi.open(request[event_fd].cgi_file.c_str());
+		if (event_wait[i].events & EPOLLOUT)
+		{
+			if (request[event_fd].add_header_response == 0)
+			{
+				request[event_fd].add_header_response = 1;
+				response = "HTTP/1.1 200 OK\r\n";
+			}
+			request[event_fd].op_cgi.read(buff, 1024);
+
+			response += buff;
+			send(event_fd, response.c_str(), response.length(), 0);
+			if (request[event_fd].op_cgi.eof() == true)
+			{
+				// cout << "end" << endl;
+				request[event_fd].op_cgi.close();
+				remove(request[event_fd].cgi_file.c_str());
+				remove(request[event_fd].path_post.c_str());
+				map<int, Request>::iterator it = request.find(event_fd);
+				if (it != request.end())
+					request.erase(it);
+				request[event_fd].outputFile.close();
+				close(event_fd);
+				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
+			}
+			else
+				request[event_fd].cgi_post = true;
+		}
+	}
+}
 int multiplexing::accept_client(int event_fd)
 {
 	server_book[event_fd];
