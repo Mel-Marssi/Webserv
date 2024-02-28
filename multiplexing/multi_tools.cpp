@@ -230,7 +230,6 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 		}
 		else if (((WIFEXITED(status) && WEXITSTATUS(status) != 0) || (WIFSIGNALED(status) && request[event_fd].im_reading0 == false))&& request[event_fd].pid != 0)
 		{
-			cout << "cgi_post" << endl;
 			request[event_fd].error_page(event_wait[i], "500", config);
 			throw "500";
 		}
