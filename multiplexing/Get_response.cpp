@@ -29,7 +29,6 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     if (op_cgi.bad())
     {
         status_pro = "500";
-        exit(1) ;
         return ("");
     }
     //--- size of what read is reading ---
