@@ -138,17 +138,21 @@ void multiplexing::run(servers &config)
 				signal(SIGPIPE, SIG_IGN);
 				if (event_wait[i].events & EPOLLRDHUP || event_wait[i].events & EPOLLERR || event_wait[i].events & EPOLLHUP)
 				{
+					cout << "error_epoll" << endl;
 					error_epoll(event_fd, i);
 					continue;
 				}
 				if (request[event_fd].check_left_header == 0 && (event_wait[i].events & EPOLLIN))
 				{
+					cout << "read_request" << endl;
 					if (read_request(event_fd, config, i) == 1)
 						continue;
 				}
-				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN) && !(request[event_fd].cgi_post == true && request[event_fd].cgi_file.empty())) || request[event_fd].fake_bondary != "NULL")
+				if ((request[event_fd].methode == "POST" && (event_wait[i].events & EPOLLIN) && !(request[event_fd].cgi_post == true)) || request[event_fd].fake_bondary != "NULL")
 				{
+					cout << "post_boundry" << endl;
 					post_boundry(event_fd, config, i);
+					cout << "post_boundry end" << endl;
 				}
 				else if ((request[event_fd].methode == "GET") && (request[event_fd].fin_or_still == Still) && request[event_fd].check_left_header == 1)
 				{

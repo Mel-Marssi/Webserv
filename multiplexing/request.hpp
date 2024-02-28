@@ -38,8 +38,8 @@ class Request
 {
     public:
     bool timeOut;
+        bool im_reading0;
     	int add_header_response;
-
         bool cgi_post;
         int fd_cgi;
         int flag_read_cgi;

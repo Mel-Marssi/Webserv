@@ -94,7 +94,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 				request[event_fd].outputFile.close();
 				return 1;
 			}
-			if (request[event_fd].cgi_post == false && send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) <= 0)
+			if (send(event_fd, request[event_fd].resp_post().c_str(), 862, 0) <= 0)
 				request[event_fd].error_page(event_wait[i], "500", config);
 		}
 		if (request[event_fd].pid != 0)
@@ -221,8 +221,9 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 			else if (timeOut != 0)
 				request[event_fd].timeOut = true;
 		}
-		else if ((WIFEXITED(status) && WEXITSTATUS(status) != 0 && request[event_fd].pid != 0) || WIFSIGNALED(status))
+		else if (((WIFEXITED(status) && WEXITSTATUS(status) != 0) || (WIFSIGNALED(status) && request[event_fd].im_reading0 == false))&& request[event_fd].pid != 0)
 		{
+			cout << "cgi_post" << endl;
 			request[event_fd].error_page(event_wait[i], "500", config);
 			throw "500";
 		}
@@ -237,14 +238,21 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 					request[event_fd].add_header_response = 1;
 					response = "HTTP/1.1 200 OK\r\n";
 				}
-				request[event_fd].op_cgi.read(buff, 1024);
+				request[event_fd].op_cgi.read(buff, 5);
 				if (request[event_fd].op_cgi.bad() == true)
 					throw "500";
 				response += buff;
+				cout << event_fd;
+				cout << response << endl;
 				if (send(event_fd, response.c_str(), response.length(), 0) <= 0)
 					throw "500";
 				if (request[event_fd].op_cgi.eof() == true)
 					throw "";
+				else
+				{
+					request[event_fd].cgi_post = true;
+					request[event_fd].im_reading0 = true;
+				}
 			}
 		}
 	}

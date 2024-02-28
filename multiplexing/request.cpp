@@ -7,6 +7,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     (void)server_book;
     (void)fd_client;
     add_header_response = 0;
+    im_reading0 = false;
     flag_read_cgi = 1;
     pid = 0;
     flg_entr_frst = 0;
@@ -57,6 +58,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 Request::Request(const Request &obj)
 {
     end_file_op = 0;
+    im_reading0 = false;
     add_header_response = 0;
     type = "NULL";
     pid = 0;
