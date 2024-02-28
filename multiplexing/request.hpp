@@ -38,6 +38,8 @@ class Request
 {
     public:
     bool timeOut;
+    	int add_header_response;
+
         bool cgi_post;
         int fd_cgi;
         int flag_read_cgi;
@@ -125,7 +127,6 @@ class Request
         string Host, server_name;
         string Port;
         string Path_bef;
-        string root_class;
         
         int parse_url_prot(string meth, servers &config);
         void redirection_content_backSlash(epoll_event &event, int epoll_fd, int flg);
@@ -144,7 +145,6 @@ class Request
         void end_of_file(epoll_event &event);
         void close_dir();
         std::string read_buff_cgi(map<string, string> &m);
-        int check_if_file_exist(string str);
         string fin_or_still;
         size_t check_first_time;
         int check_req;
@@ -166,11 +166,9 @@ class Request
         int end_file_op;
         //============= Delete =========================
         int flg_entr_frst;
-        int flg_resp_err;
         void Delete_Function(epoll_event &event, servers &config);
         int check_permission_F(string str);
         int check_permission_X(string str);
-        int check_permission_R(string str);
         void delete_content(string pat);
         int is_open_diir(string str);
         int is_open_fil(string str);

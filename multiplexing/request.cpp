@@ -6,15 +6,15 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 {
     (void)server_book;
     (void)fd_client;
-    root_class = "";
+    add_header_response = 0;
     flag_read_cgi = 1;
     pid = 0;
     flg_entr_frst = 0;
     flg_err_page = 0;
     flg_pars_url =0;
-    flg_resp_err = 0;
     type = "NULL";
     size_File_boundri = 0;
+    // startTime = 0;
     size_chuked = 0;
     read_get = 0;
     Path = "";
@@ -57,18 +57,18 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
 Request::Request(const Request &obj)
 {
     end_file_op = 0;
+    add_header_response = 0;
     type = "NULL";
-    flg_resp_err = 0;
     pid = 0;
     flg_err_page = 0;
-    root_class = "";
     full_Path = "";
     cgi_post = false;
-    flag_read_cgi = 1;
+      flag_read_cgi = 1;
     Path = "";
     root = "";
     flg_entr_frst = 0;
     size_File_boundri = 0;
+    // startTime = 0;
     file_get = "";
     rest = 0;
     size_chuked = 0;
@@ -91,11 +91,14 @@ Request::Request(const Request &obj)
     check_left_header = 0;
     flg_pars_url =0;
     check_create_file = 0;
+    // check_first_line = 0;
     kk = 0;
     len = 0;
     dire = NULL;
     err = 0;
     fin_or_still = Still;
+    // check_first_time = 0;
+    // counter = obj.counter;
     check_req = 0;
     fir_body = "NULL";
     finir = 0;
@@ -228,6 +231,7 @@ void Request::fill_content_type()
     cont_type["application/x-httpd-php\r"] = ".php";
     cont_type["text/x-python\r"] = ".py";
     cont_type["application/x-shellscript\r"] = ".sh";
+    cont_type["application/x-www-form-urlencoded\r"] = ".form";
 }
 
 void Request::create_file(ofstream &outputFile, map<string, string> &map, servers &config, int index)
@@ -247,15 +251,16 @@ void Request::create_file(ofstream &outputFile, map<string, string> &map, server
     }
     else
     {
-         status_pro = "415";
-        // string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
-        // path_post = randomName;
-        // file_name_post = randomName;
-        // outputFile.open(randomName.c_str());
-        // string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
-        // path_post = randomName;
-        // file_name_post = randomName;
-        // outputFile.open(randomName.c_str());
+        if (Path == "/cgi-bin")
+        {
+            string randomName = config[index].get_loc_up_folder(Path) + "/" + str.str()  + ".txt";
+            path_post = randomName;
+            file_name_post = randomName;
+            outputFile.open(randomName.c_str());
+
+        }
+        else
+            status_pro = "415";
     }
 }
 
@@ -670,12 +675,22 @@ void Request::post(int fd, servers &config, epoll_event &event)
         {
             type = "chunked";
         }
-        else if (si != string::npos)
+        else if (si != string::npos && Path != "/cgi-bin")
         {
             type = "boundri";
         }
         else
-         type = "binary";
+        {
+            if ( si != string::npos)
+            {
+                string content = header_request["Content-Type"];
+
+                boudri = content.substr(content.find("=") + 1, content.length() - (content.find("=") + 1) - 1);
+                last_boundri = boudri;
+                last_boundri += "--";
+            }
+            type = "binary";
+        }
     }
 
     if (type == "chunked")
@@ -903,6 +918,7 @@ void Request::post(int fd, servers &config, epoll_event &event)
                 read_request.clear();
                 return;
             }
+            //last_boundri
             binary(config, index_serv);
             if (status_pro == "415")
             {
