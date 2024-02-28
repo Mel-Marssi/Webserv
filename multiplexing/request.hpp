@@ -166,6 +166,7 @@ class Request
         int end_file_op;
         //============= Delete =========================
         int flg_entr_frst;
+        int flg_resp_err;
         void Delete_Function(epoll_event &event, servers &config);
         int check_permission_F(string str);
         int check_permission_X(string str);
@@ -191,4 +192,6 @@ class Request
         void handle_Path(size_t i);
         string handle_Path_location(string str, string str2);
         string real_Path(string str);
+        string check_location_subfolder(servers &config, string str_path);
+        int check_permission_R(string str);
 };

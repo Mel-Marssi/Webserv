@@ -3,7 +3,6 @@ server {
     server_name asas test;
     host localhost;
     root ./;
-    index index.html;
     error_pages 400 index.ml;
     error_pages 504 prblm/504.html;
     error_pages 500 prblm/500.html;
@@ -20,8 +19,15 @@ server {
         root ./;
         allow_methods GET POST;
         max_client_size 123123123;
-        return multiplexing;
     }
+
+    location /fooo {
+        autoindex on;
+        root ./fold_te/;
+        allow_methods GET POST;
+        max_client_size 123123123;
+    }
+
 
     location /multiplexing {
         autoindex on;

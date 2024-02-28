@@ -45,9 +45,43 @@ string Request::real_Path(string str)
     return (tmp);
 }
 
+string Request::check_location_subfolder(servers &config, string str_path)
+{
+    size_t i = 0;
+	size_t j = 0;
+	string str;
+    string n = str_path;
+	for(;;)
+	{
+		j = i;
+		i = str_path.find("/", i);
+		if (i == string::npos)
+			break;
+		else
+		{
+			str.insert(0, str_path, j, i - j + 1);
+            str.erase(str.length() - 1, str.length());
+            str.insert(0, "/");
+            if (str != "/" && (!config[index_serv].get_loc_path_location(str).empty()))
+            {
+                cout << config[index_serv].get_loc_path_location(str)<< "=====" << endl;
+                string bu = str_path;
+                str_path = "";
+                str_path.insert(0, bu, j, bu.length());
+                str_path.insert(0, "/");
+                return (str_path); 
+            }
+			str = "";
+		}
+		i++;
+	}
+    return (n);
+}
+
 int Request::parse_url_prot(string meth, servers &config)
 {
     map<string, string>::iterator it;
+    string root = config[index_serv].get_root();
     size_t i;
 
     if (status_pro != "NULL")
@@ -69,16 +103,21 @@ int Request::parse_url_prot(string meth, servers &config)
         }
         this->Path.insert(0, it->second, 0, i - 1);
     }
+
     if (Path.length() > 2048)
     {
         status_pro = "414";
         return 1;
     }
-    check_url_encoding(Path);
+
+    if (check_permission_F(root + Path) == 0)
+        check_url_encoding(Path);
     if (meth == "DELETE" && delete_checker(config) == 1)
         return 1;
+
     i = 1;
     Path = real_Path(Path);
+    Path = check_location_subfolder(config, Path);
     i = this->Path.find("/", i);
     if (i != string::npos)
         handle_Path(i);
@@ -98,8 +137,15 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
         if (this->parse_url_prot("GET", config) == 1)
             return;
     }
-    this->root = get_root(config);
 
+    string root = config[index_serv].get_loc_root(this->Path);
+    if (root == "")
+        root = config[index_serv].get_root();
+
+    // cout << "root: " << root << endl;
+    // cout << "Path: " << Path << endl;
+    full_Path = handle_Path_location(root, full_Path);
+    // cout << "full_Path: " << full_Path << endl;
     if ((config[index_serv].get_loc_path_location(this->Path).empty()) && ((is_open_diir("." + Path) == 1)))
         status_pro = "404";
     else if ((!config[index_serv].get_loc_path_location(this->Path).empty()) && (config[index_serv].get_loc_get(this->Path) == 0) && ((is_open_diir("." + Path) == 1)))
@@ -128,9 +174,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 }
                 else
                 {
-                    string root_tmp = root;
-                    if (root_tmp[root_tmp.length() - 1] == '/' && Path[0] == '/')
-                        root_tmp.erase(root_tmp.length() - 1, root_tmp.length());
+                    string root_tmp = handle_Path_location(root, Path);
                     if (config[index_serv].get_loc_auto_index(this->Path))
                         root_page(event, root_tmp + Path);
                     else
@@ -177,9 +221,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 else if ((file_get != ""))
                 {
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
-                    {
+        
                         find_cgi(config, index_serv);
-                    }
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
                         check_files_open(event, m, this->full_Path);
                 }
@@ -188,6 +231,8 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 else
                     status_pro = "403";
             }
+            else if (check_permission_R(tmp) == 0)
+                status_pro = "403";
             else
                 status_pro = "404";
         }
@@ -317,6 +362,9 @@ void Request::default_error(string key, int fd)
         }
         if (send(fd, response.c_str(), response.length(), 0) <= 0)
         {
+            cerr << "SEND ERROR" << endl;
+            cerr << event_fd << " \n"
+            << read_request << endl;
             status_pro = "500";
         }
     }

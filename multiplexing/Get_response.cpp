@@ -36,7 +36,7 @@ std::string Request::read_buff_cgi(map<string, string> &m)
     line.append(buffer, bytesRead);
     //------------------------------------
     head += "HTTP/1.1 200 ok\r\n";
-    head += "Content-Lenght: ";
+    head += "Content-Lenght:";
     size << fileS; 
     head += size.str();
     head += "\r\n";
@@ -133,6 +133,14 @@ int Request::check_permission_X(string str)
         return (0);
 }
 
+int Request::check_permission_R(string str)
+{
+    if (access((str).c_str(), R_OK) != -1)
+        return (1);
+    else
+        return (0);
+}
+
 int Request::is_open_diir(string str)
 {
     DIR *d;
@@ -206,8 +214,7 @@ void Request::check_url_encoding(string &str)
             tmp.insert(0, str, i, 3);
             tmp = enco_form_txt(tmp);
             str.erase(i, 3);
-            str.insert(i, tmp, 0, tmp.length());
-            
+            str.insert(i, tmp, 0, tmp.length());           
         }
         else
             break;

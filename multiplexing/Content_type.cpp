@@ -65,7 +65,7 @@ string Request::get_content_type(map<string, string>& m)
     }
     else
     {
-        s = this->Path.find(".", 2);//remember why this here
+        s = this->Path.find(".", 2);
         s++;
         exten.insert(0, this->Path, s, this->Path.length());
     }

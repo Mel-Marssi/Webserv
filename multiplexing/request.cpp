@@ -13,6 +13,7 @@ Request::Request(map<int, pair<string, string> > server_book, int fd_client)
     flg_entr_frst = 0;
     flg_err_page = 0;
     flg_pars_url =0;
+    flg_resp_err = 0;
     type = "NULL";
     size_File_boundri = 0;
     // startTime = 0;
@@ -70,6 +71,7 @@ Request::Request(const Request &obj)
     root = "";
     flg_entr_frst = 0;
     size_File_boundri = 0;
+    flg_resp_err = 0;
     // startTime = 0;
     file_get = "";
     rest = 0;
