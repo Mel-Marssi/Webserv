@@ -37,7 +37,15 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
 			}
 			if (request[event_fd].index_serv == -1)
-				request[event_fd].status_pro = "400";
+			{
+				request[event_fd].index_serv  = 0;
+				request[event_fd].error_page(event_wait[i], "400", config);
+				if (request.find(event_fd) != request.end())
+					request.erase(event_fd);
+				close(event_fd);
+				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_wait[i].data.fd, &event_wait[i]);
+				return 1;
+			}
 		}
 		else
 		{
