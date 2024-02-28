@@ -22,29 +22,27 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	else if (request[event_fd].check_left_header == 1)
 	{
 		map<string, string>::iterator it = request[event_fd].header_request.find("Host");
-		// cout << "host       " << it->first << "\t" << it->second << endl;
 		if (it != request[event_fd].header_request.end())
 		{
 			request[event_fd]._host = request[event_fd].header_request["Host"];
-			// cout << request[event_fd]._host << "  ---22\n";
 			size_t pos_host = 0;
 			pos_host = request[event_fd]._host.find(":");
-			// cout << pos_host << "  ---111\n";
 			if (pos_host != string::npos)
 			{
 				request[event_fd]._host.erase(pos_host, request[event_fd]._host.length());
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
-				cout << request[event_fd].index_serv << "  ---\n";
 			}
-				// cout << request[event_fd].index_serv << "  ---\n";
-			// else
-				// exit(2);
+			else
+			{
+				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
+			}
+			if (request[event_fd].index_serv == -1)
+				request[event_fd].status_pro = "400";
 		}
 		else
 		{
 			request[event_fd].status_pro = "400";
 		}
-
 		if (request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
 		{
 		}
@@ -280,6 +278,7 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_fd, &event_wait[i]);
 	}
 }
+
 int multiplexing::accept_client(int event_fd)
 {
 	server_book[event_fd];
