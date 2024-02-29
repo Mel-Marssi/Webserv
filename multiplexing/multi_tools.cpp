@@ -14,6 +14,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	{
 		request[event_fd].read_request.append(buff, request[event_fd].size);
 		request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
+		// cout << request[event_fd].read_request << endl;
 	}
 	if (request[event_fd].check_left_header == 0)
 	{
@@ -250,12 +251,11 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 					request[event_fd].add_header_response = 1;
 					response = "HTTP/1.1 200 OK\r\n";
 				}
-				request[event_fd].op_cgi.read(buff, 5);
+				request[event_fd].op_cgi.read(buff, 1024);
 				if (request[event_fd].op_cgi.bad() == true)
 					throw "500";
 				response += buff;
-				cout << event_fd;
-				cout << response << endl;
+				cout << "response: " << response << endl;
 				if (send(event_fd, response.c_str(), response.length(), 0) <= 0)
 					throw "500";
 				if (request[event_fd].op_cgi.eof() == true)

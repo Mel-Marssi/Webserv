@@ -64,7 +64,6 @@ string Request::check_location_subfolder(servers &config, string str_path)
             str.insert(0, "/");
             if (str != "/" && (!config[index_serv].get_loc_path_location(str).empty()))
             {
-                cout << config[index_serv].get_loc_path_location(str)<< "=====" << endl;
                 string bu = str_path;
                 str_path = "";
                 str_path.insert(0, bu, j, bu.length());

@@ -47,7 +47,7 @@ server_config::server_config(ifstream &config_fd)
 
 void server_config::setup_server_info(ifstream &config_fd)
 {
-	string file, word;
+	string file, word, tmp_word;
 	int flag = 0;
 	while (getline(config_fd, file))
 	{
@@ -87,12 +87,6 @@ void server_config::setup_server_info(ifstream &config_fd)
 			if (file.find(";") == string::npos)
 				throw(runtime_error("Invalid configue file!"));
 			cscan >> word;
-			// if (get_server_name().empty() == false)
-			// 	throw(runtime_error("Invalid configue file!"));
-			// server_name = word;
-			// cscan >> word;
-			// if (word != ";")
-			// 	throw runtime_error("Invalid configue file!");
 			while (word != ";")
 			{
 				server_names.push_back(word);
@@ -136,9 +130,13 @@ void server_config::setup_server_info(ifstream &config_fd)
 		else if (word == "location")
 		{
 			cscan >> word;
-			if (serv_locations.find(word) != serv_locations.end())
+			tmp_word = word;
+			if (serv_locations.find(tmp_word) != serv_locations.end())
 				throw(runtime_error("Invalid configue file!"));
-			serv_locations.insert(std::make_pair(word, location(config_fd, word)));
+			cscan >> word;
+			if (word != "{")
+				throw(runtime_error("Invalid configue file!"));
+			serv_locations.insert(std::make_pair(tmp_word, location(config_fd, tmp_word)));
 			word.erase();
 			file.erase();
 		}

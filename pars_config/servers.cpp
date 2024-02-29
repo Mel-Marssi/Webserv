@@ -47,7 +47,7 @@ int get_right_index(vector<server_config> server, int port, string host, string 
 	int i = 0;
 	int tmp_serv = -1;
 	vector<string> tmp_server_name;
-
+	vector<string>::iterator it0;
 	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
 	{
 		tmp_server_name = it->get_server_names();
@@ -59,8 +59,6 @@ int get_right_index(vector<server_config> server, int port, string host, string 
 				return (i);
 		}
 	}
-	if (tmp_serv != -1)
-		return (tmp_serv);
 	return (-1);
 }
 
