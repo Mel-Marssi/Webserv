@@ -37,6 +37,7 @@ void multiplexing::fill_content_type()
     status_code["501"] = " Not Implemented";
     status_code["414"] = " Request-URI Too Long";
     status_code["415"] = " Unsupported Media Type";  
+    status_code["411"] = " Length Required";
     //=================== DELETE ==================
     status_code["204"] = " No Content";
     status_code["500"] = " Internal Server Error";

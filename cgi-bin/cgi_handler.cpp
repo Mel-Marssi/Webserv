@@ -75,7 +75,6 @@ void  execute_cgi(Request &req, server_config &config)
 	if (fd[0] == -1)
 	{
 		req.status_pro = "500";
-		exit(100);
 		return;
 	}
 	fd[1] = open(tmp_file.c_str(), O_CREAT | O_RDWR, 0777);

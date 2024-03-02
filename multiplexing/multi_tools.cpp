@@ -14,7 +14,6 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 	{
 		request[event_fd].read_request.append(buff, request[event_fd].size);
 		request[event_fd].parce_request(request[event_fd].read_request, event_wait[i], epoll_fd, config);
-		// cout << request[event_fd].read_request << endl;
 	}
 	if (request[event_fd].check_left_header == 0)
 	{
@@ -32,6 +31,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 			{
 				request[event_fd]._host.erase(pos_host, request[event_fd]._host.length());
 				request[event_fd].index_serv = get_right_index(config.server, atoi(server_book[event_fd].first.c_str()), server_book[event_fd].second, request[event_fd]._host);
+			
 			}
 			else
 			{
@@ -39,7 +39,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 			}
 			if (request[event_fd].index_serv == -1)
 			{
-				request[event_fd].index_serv  = 0;
+				request[event_fd].index_serv = 0;
 				request[event_fd].error_page(event_wait[i], "400", config);
 				if (request.find(event_fd) != request.end())
 					request.erase(event_fd);
@@ -51,6 +51,7 @@ int multiplexing::read_request(int event_fd, servers &config, int i)
 		else
 		{
 			request[event_fd].status_pro = "400";
+			request[event_fd].index_serv = 0;
 		}
 		if (request[event_fd].methode == "POST" && request[event_fd].Handle_error(epoll_fd, config, event_wait[i]) == 1)
 		{
@@ -100,7 +101,7 @@ int multiplexing::send_response(int event_fd, servers &config, int i)
 		}
 		else
 		{
-			if (request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)
+			if (request[event_fd].full_Path != "/cgi-bin" && request[event_fd].full_Path != "/cgi-bin/upload.php" && request[event_fd].Path == "/cgi-bin" && request[event_fd].cgi_post == false)
 			{
 				request[event_fd].finir = 0;
 				request[event_fd].size_read_request = -1;
@@ -235,7 +236,7 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 			else if (timeOut != 0)
 				request[event_fd].timeOut = true;
 		}
-		else if (((WIFEXITED(status) && WEXITSTATUS(status) != 0) || (WIFSIGNALED(status) && request[event_fd].im_reading0 == false))&& request[event_fd].pid != 0)
+		else if (((WIFEXITED(status) && WEXITSTATUS(status) != 0) || (WIFSIGNALED(status) && request[event_fd].im_reading0 == false)) && request[event_fd].pid != 0)
 		{
 			request[event_fd].error_page(event_wait[i], "500", config);
 			throw "500";
@@ -255,7 +256,6 @@ void multiplexing::cgi_post(int event_fd, servers &config, int i)
 				if (request[event_fd].op_cgi.bad() == true)
 					throw "500";
 				response += buff;
-				cout << "response: " << response << endl;
 				if (send(event_fd, response.c_str(), response.length(), 0) <= 0)
 					throw "500";
 				if (request[event_fd].op_cgi.eof() == true)

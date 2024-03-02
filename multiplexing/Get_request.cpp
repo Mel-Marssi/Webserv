@@ -175,7 +175,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 {
                     string root_tmp = handle_Path_location(root, Path);
                     if (config[index_serv].get_loc_auto_index(this->Path))
-                        root_page(event, root_tmp + Path);
+                        root_page(event, root_tmp);
                     else
                         status_pro = "403";
                 }
@@ -206,7 +206,7 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                     redirection_content(event, config, "301", 1);
                 else if ((file_get == "") && (!(config[index_serv].get_loc_index(this->Path).empty())))
                 {
-                    if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
+                    if (this->Path.find("/cgi-bin") != string::npos && flag_read_cgi == 1)
                     {
                         file_get = config[index_serv].get_loc_index(this->Path);
                         find_cgi(config, index_serv);
@@ -219,9 +219,11 @@ void Request::Generate_req_first(epoll_event &event, servers &config, map<string
                 }
                 else if ((file_get != ""))
                 {
+
                     if (this->Path.find("cgi") != string::npos && flag_read_cgi == 1)
-        
+                    {
                         find_cgi(config, index_serv);
+                    }
                     if (flag_read_cgi == 0 || this->Path.find("cgi") == string::npos)
                         check_files_open(event, m, this->full_Path);
                 }

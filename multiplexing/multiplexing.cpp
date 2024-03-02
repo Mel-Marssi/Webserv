@@ -124,7 +124,6 @@ void multiplexing::run(servers &config)
 			int event_fd = event_wait[i].data.fd;
 			if (event_fd <= 0)
 			{
-				cerr << "Error: epoll_wait() returned " << wait_fd << endl;
 				break;
 			}
 			if (event_fd <= server_socket[config.size() - 1])

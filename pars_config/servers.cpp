@@ -45,16 +45,20 @@ void servers::run_checks()
 int get_right_index(vector<server_config> server, int port, string host, string server_name)
 {
 	int i = 0;
-	int tmp_serv = -1;
 	vector<string> tmp_server_name;
-	vector<string>::iterator it0;
+	if (server_name.find("\r") != string::npos)
+		server_name.erase(server_name.find("\r"), 1);
+	if (host.find("\r") != string::npos)
+		host.erase(host.find("\r"), 1);
+	if (server_name == "localhost")
+		server_name = "127.0.0.1";
 	for (server_iterator it = server.begin(); it != server.end(); it++, i++)
 	{
 		tmp_server_name = it->get_server_names();
 		if (it->get_port() == port && it->get_host() == host)
 		{
-			if (tmp_serv == -1)
-				tmp_serv = i;
+			if (server_name.empty() || server_name == host)
+				return i;
 			if (find(tmp_server_name.begin(), tmp_server_name.end(), server_name) != tmp_server_name.end())
 				return (i);
 		}

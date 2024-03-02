@@ -75,7 +75,9 @@ void Request::Get_methode(servers &config, epoll_event &event, map<string, strin
     if (check_req == 0 && read_get == 1)
         Generate_req_first(event, config, m);
     if (pid != 0)
+    {
         cgi_handle_get(event, config);
+    }
     if (check_req == 1 && cgi_file.empty())
         Generate_req_second(event);
     read_get = 1;
