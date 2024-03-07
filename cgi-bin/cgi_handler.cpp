@@ -89,6 +89,7 @@ void  execute_cgi(Request &req, server_config &config)
 		req.status_pro = "500";
 		for (int i = 0; env[i]; i++)
 			delete[] env[i];
+		delete[] env;
 		return;
 	}
 	if (req.pid == 0)
